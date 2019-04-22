@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
+import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
-import 'dart:io';
 import 'dart:core';
 
-
 class IntroductionPage extends StatefulWidget {
-
   IntroductionPage({Key key, this.title}) : super(key: key);
 
   // It is stateful, meaning it has a State object (defined below) that contains fields that affect
@@ -21,18 +21,16 @@ class IntroductionPage extends StatefulWidget {
 }
 
 class _IntroductionPageState extends State<IntroductionPage> {
+  DatabaseHelper _databaseHandler = DatabaseHelper();
+  MenuDatabaseHelper _menuDatabaseHandler = MenuDatabaseHelper();
 
-  MenuDatabaseHelper menuHelper = MenuDatabaseHelper();
   String _introductionMenuName = "introduction";
   List<Menu> menuList;
   Menu introduction;
 
-
-
   @override
   Widget build(BuildContext context) {
-
-    if(menuList == null) {
+    if (menuList == null) {
       menuList = List<Menu>();
       _updateUI();
     }
@@ -43,63 +41,45 @@ class _IntroductionPageState extends State<IntroductionPage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              introduction.content,
-            ),
-          ],
-        ),
-      ),
-
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),*/ // This trailing comma makes auto-formatting nicer for build methods.
-
+      body: Padding(
+          padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
+          child: ListView(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage(
+                                "assets/images/ram-everglades(resized).jpg"),
+                            fit: BoxFit.fill,
+                          ))),
+                  Text(
+                    introduction != null ? introduction.content : "",
+                    style: TextStyle(fontSize: 20.0),
+                  )
+                ],
+              )
+            ],
+          )),
     );
   }
 
-  _updateUI(){
+  _updateUI() {
+    final Future<Database> database = _databaseHandler.initializeDatabase();
 
-    final Future<Database> database = menuHelper.initializeDatabase();
+    database.then((database) {
+      Future<List<Menu>> futureList = _menuDatabaseHandler.getMenuList(
+          database: database, menuName: this._introductionMenuName);
 
-    database.then((database){
-
-        Future<List<Menu>> futureList = menuHelper.getMenuList(menuName:this._introductionMenuName);
-
-        futureList.then((menuList){
-
-            setState(() {
-
-              introduction = menuList[0];
-
-            });
-
+      futureList.then((menuList) {
+        setState(() {
+          introduction = menuList[0];
         });
-      }
-    );
-
-
+      });
+    });
   }
 }
-
