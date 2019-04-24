@@ -19,12 +19,15 @@ class SpeciesListPage extends StatefulWidget {
 
 class SpeciesListPageState extends State<SpeciesListPage> {
 
+  List<Species> _speciesList;
+
   SpeciesListPageState();
 
-  Future<List<Species>> _loadData()  {
+
+  Future<List<Species>> _loadData()  async {
 
       SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
-      Future<List<Species>> futureList =    speciesDBHelper.getSpeciesList();
+      List<Species> futureList =   await speciesDBHelper.getSpeciesList();
       return futureList;
   }
 
@@ -69,48 +72,46 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
   Widget _buildSpeciesGridList() {
 
-    return
+            return
 
-      FutureBuilder(
-        future:_loadData(),
-        builder:( BuildContext context,AsyncSnapshot snapshot) {
+              FutureBuilder(
+                  future:_loadData(),
+                  builder:(BuildContext context,AsyncSnapshot snapshot) {
 
-          if(!snapshot.hasData) return Center(child: CircularProgressIndicator(),);
+                    return GridView.builder(
+                        itemCount: snapshot.data != null ? snapshot.data.length : 0,
+                        //itemCount: snapshot.data.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2),
 
-            return GridView.builder(
-                itemCount: snapshot.data.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-                itemBuilder: (BuildContext context, int index) {
+                        itemBuilder: (BuildContext context, int index) {
 
-                  if(snapshot.hasError){
-                    print(snapshot.error);
-                  }
+                          Species species = snapshot.data[index];
 
-                 snapshot.data
+                          return GestureDetector(
 
-                 return GestureDetector(
+                            child: Card(
+                              elevation: 2.5,
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: Column(
+                                  children: <Widget>[
+                                    Image.asset(species.imageFile,width: 150.0, height: 150.0,fit: BoxFit.fill,),
+                                    Text(species.title),
+                                    Text(species.imageFile != null ? species.imageFile : "NULL")
+                                  ],
+                                ),
+                              ),
 
-                    child: Card(
-                      elevation: 2.5,
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Column(
-                          children: <Widget>[
-                            //Image.asset(species.imageFile,width: 150.0, height: 150.0,),
-                            Text(species.title),
-                            //Text(species.imageFile)
-                          ],
-                        ),
-                      ),
+                            ),
+                            onTap: () {},
+                          );
+                        }
+                    );
 
-                    ),
-                    onTap: () {},
-                  );
+                  });
 
-                }
-            );
 
-      });
 
   }
 

@@ -173,15 +173,16 @@ class Species {
 
   _loadImageFile() async {
 
+    this.imageFile  = "83";
 
     if(this.profilePhotoID != null) {
       PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
       Photograph futurePhoto =  await photographDatabaseHelper.getPhotographWithID(id:this.profilePhotoID);
       this.imageFile = futurePhoto.photograph ;
 
-    }else{
-      this.imageFile  = "83";
     }
+
+
 
   }
 
