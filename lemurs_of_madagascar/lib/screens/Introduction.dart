@@ -25,7 +25,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
   var _menuItemFontSize = 18.0;
   var _iconSize = 24.0;
 
-  DatabaseHelper _databaseHandler = DatabaseHelper();
+  //DatabaseHelper _databaseHandler = DatabaseHelper();
   MenuDatabaseHelper _menuDatabaseHandler = MenuDatabaseHelper();
 
   String _introductionMenuName = "introduction";
@@ -77,7 +77,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
     );
   }
 
-  _updateUI() {
+  /*_updateUI() {
+
     final Future<Database> database = _databaseHandler.initializeDatabase();
 
     database.then((database) {
@@ -90,7 +91,23 @@ class _IntroductionPageState extends State<IntroductionPage> {
         });
       });
     });
+  }*/
+
+  _updateUI() async {
+
+    Database database = await DatabaseHelper.instance.database;
+
+    Future<List<Menu>> futureList = _menuDatabaseHandler.getMenuList(
+        database: database, menuName: this._introductionMenuName);
+
+    futureList.then((menuList) {
+      setState(() {
+        introduction = menuList[0];
+      });
+    });
+
   }
+
 
   List<Widget> _getDrawerMenu() {
     List<Widget> menuItems = List<Widget>();

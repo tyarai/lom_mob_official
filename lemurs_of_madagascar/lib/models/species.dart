@@ -1,4 +1,6 @@
 import 'package:lemurs_of_madagascar/models/photograph.dart';
+import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
+
 
 class Species {
 
@@ -20,6 +22,9 @@ class Species {
   static String photoIDsKey    = "_specie_photograph";
 
 
+  String tempImage = "assets/images/Lepilemur-petteri.jpg";
+  String _imageFile;
+
   int id;
   String title;
   int profilePhotoID;
@@ -40,6 +45,8 @@ class Species {
 
   Photograph profilePhotograph;
 
+
+
   Species({
     this.title,
     this.profilePhotoID,
@@ -56,7 +63,9 @@ class Species {
     this.sites,
     this.mapID,
     this.photoIDs
-  });
+  }){
+    _loadImageFile();
+  }
 
   Species.withID({
     this.id,
@@ -75,7 +84,9 @@ class Species {
     this.sites,
     this.mapID,
     this.photoIDs
-  });
+  }){
+    _loadImageFile();
+  }
 
 
   Map<String, dynamic> toMap(){
@@ -106,10 +117,10 @@ class Species {
 
   Species.fromMap(Map<String,dynamic> map) {
 
-    //this.id               = int.parse(map[idKey]);
+    this.id               = map[idKey];
     this.title            = map[titleKey]         ;
-    //this.profilePhotoID   = int.parse(map[profilePhotoKey]);
-    //this.familyID         = int.parse(map[familyIDKey]);
+    this.profilePhotoID   = map[profilePhotoKey];
+    this.familyID         = map[familyIDKey];
     this.malagasy         = map[mgKey]             ;
     this.english          = map[enKey]             ;
     this.otherEnglish     = map[otherEnKey]        ;
@@ -120,12 +131,59 @@ class Species {
     this.range            = map[rangeKey]          ;
     this.history          = map[historyKey]        ;
     this.sites            = map[sitesKey]          ;
-    //this.mapID            = int.parse(map[mapIDKey]);
+    this.mapID            = map[mapIDKey];
     this.photoIDs         = map[photoIDsKey]       ;
+
+    _loadImageFile();
+
+
+  }
+
+  Species.fromSpecies(Species species) {
+
+    this.id               = species.id;
+    this.title            = species.title;
+    this.profilePhotoID   = species.profilePhotoID;
+    this.familyID         = species.familyID;
+    this.malagasy         = species.malagasy             ;
+    this.english          = species.english             ;
+    this.otherEnglish     = species.otherEnglish        ;
+    this.french           = species.french             ;
+    this.german           = species.german             ;
+    this.identification   = species.identification ;
+    this.status           = species.status         ;
+    this.range            = species.range         ;
+    this.history          = species.history        ;
+    this.sites            = species.sites         ;
+    this.mapID            = species.mapID;
+    this.photoIDs         = species.photoIDs;
+
+    _loadImageFile();
+
 
   }
 
 
+  String get imageFile =>  _imageFile ;
+
+  set imageFile(String value){
+    this._imageFile = "assets/images/" +  value + ".jpg";
+  }
+
+
+  _loadImageFile() async {
+
+
+    if(this.profilePhotoID != null) {
+      PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
+      Photograph futurePhoto =  await photographDatabaseHelper.getPhotographWithID(id:this.profilePhotoID);
+      this.imageFile = futurePhoto.photograph ;
+
+    }else{
+      this.imageFile  = "83";
+    }
+
+  }
 
 }
 

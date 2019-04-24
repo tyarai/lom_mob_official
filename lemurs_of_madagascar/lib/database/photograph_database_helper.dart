@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 
 
@@ -11,8 +12,10 @@ class PhotographDatabaseHelper  {
   String titleCol       = "_title";
   String photographCol  = "_photograph";
 
-  Future<List<Map<String, dynamic>>> getPhotographMapList({database:Database,id: int}) async {
-    var result = await database.rawQuery("SELECT * FROM $photoTable WHERE $idCol = $id ");
+  Future<List<Map<String, dynamic>>> getPhotographMapList({id: int}) async {
+    Database database = await DatabaseHelper.instance.database;
+    //print("PHOTO ID: $id");
+    var result = await database.rawQuery("SELECT * FROM $photoTable WHERE $idCol = ? ",[id]);
     return result;
   }
 
@@ -40,9 +43,9 @@ class PhotographDatabaseHelper  {
     return result;
   }
 
-  Future<List<Photograph>> getPhotographList({database:Database,id: int}) async {
+  Future<List<Photograph>> getPhotographList({id: int}) async {
 
-    var photographMapList = await this.getPhotographMapList(database: database, id: id);
+    var photographMapList = await this.getPhotographMapList(id: id);
     int count = photographMapList.length;
 
     List<Photograph> list = new List<Photograph>();
@@ -54,8 +57,8 @@ class PhotographDatabaseHelper  {
     return list;
   }
 
-  Future<Photograph> getPhotographWithID({database:Database,id: int}) async {
-    var list = await this.getPhotographList(database: database,id: id);
+  Future<Photograph> getPhotographWithID({id: int}) async {
+    var list = await this.getPhotographList(id: id);
     return list[0];
   }
 

@@ -18,33 +18,14 @@ class SpeciesListPage extends StatefulWidget {
 }
 
 class SpeciesListPageState extends State<SpeciesListPage> {
-  int _speciesCount = 0;
-  List<Species> species = List<Species>();
-  DatabaseHelper databaseHelper;
 
-  SpeciesListPageState() {
-    databaseHelper = DatabaseHelper();
-    _loadData();
-  }
+  SpeciesListPageState();
 
-  void _loadData() {
-    if (databaseHelper != null) {
+  Future<List<Species>> _loadData()  {
+
       SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
-      Future<Database> database = databaseHelper.database;
-
-      database.then((db) {
-        Future<List<Species>> futureList =
-            speciesDBHelper.getSpeciesList(database: db);
-
-        futureList.then((speciesList) {
-          setState(() {
-            this.species = speciesList;
-            _speciesCount = this.species.length;
-            print("count : $_speciesCount");
-          });
-        });
-      });
-    }
+      Future<List<Species>> futureList =    speciesDBHelper.getSpeciesList();
+      return futureList;
   }
 
   @override
@@ -53,67 +34,118 @@ class SpeciesListPageState extends State<SpeciesListPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: _buildSpeciesGridList(),
-      ),
+
+      body: _buildSpeciesGridList(),
+            /*FutureBuilder(
+            future:_loadData(),
+            builder:(BuildContext context,AsyncSnapshot snapshot) {
+
+
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              //_buildSpeciesGridList(snapshot.data);
+
+              return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (_, int position){
+
+                    return Card(
+                      child: ListTile(
+                        title: Text(
+                            "Employee Name: " ),
+                      ),
+                    );
+
+                  });
+
+
+            }
+          ),*/
+
     );
   }
 
   Widget _buildSpeciesGridList() {
-    return GridView.builder(
-        itemCount: _speciesCount,
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemBuilder: (BuildContext context, int index) {
-          return _buildCellItem(context, index);
-        });
 
-    /*return ListView.builder(
-        itemCount: _speciesCount,
-        itemBuilder:(context,position) {
+    return
 
-          //if(_speciesCount > 0){
-            return _buildListItem(context, position);
-          //}
-        }
-    );*/
-  }
+      FutureBuilder(
+        future:_loadData(),
+        builder:( BuildContext context,AsyncSnapshot snapshot) {
 
-  Widget _buildCellItem(BuildContext context, int i) {
+          if(!snapshot.hasData) return Center(child: CircularProgressIndicator(),);
 
-      this.databaseHelper = DatabaseHelper();
-      Species species = this.species[i];
+            return GridView.builder(
+                itemCount: snapshot.data.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+                itemBuilder: (BuildContext context, int index) {
 
-      PhotographDatabaseHelper photoDBHelper = PhotographDatabaseHelper();
-      Future<Photograph> _photo = photoDBHelper.getPhotographWithID(
-          database: this.databaseHelper.database, id: species.profilePhotoID);
-      var profileImage;
+                  if(snapshot.hasError){
+                    print(snapshot.error);
+                  }
 
-      _photo.then((photo) {
-        profileImage = Image.asset("assets/images/" + photo.photograph);
+                 snapshot.data
 
-        return GestureDetector(
-          child: Card(
-            elevation: 2.5,
-            child: Container(
-              alignment: Alignment.center,
-              child: Column(
-                children: <Widget>[
-                  profileImage,
-                  Text(species.title)
-                ],
-              ),
-            ),
-          ),
-          onTap: () {},
-        );
+                 return GestureDetector(
+
+                    child: Card(
+                      elevation: 2.5,
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Column(
+                          children: <Widget>[
+                            //Image.asset(species.imageFile,width: 150.0, height: 150.0,),
+                            Text(species.title),
+                            //Text(species.imageFile)
+                          ],
+                        ),
+                      ),
+
+                    ),
+                    onTap: () {},
+                  );
+
+                }
+            );
+
       });
 
-      /*return ListTile(
-        title: Text(species[i].title),
-        subtitle: Text(species[i].malagasy),
-      );*/
+  }
 
-    return null;
+  Widget _buildCellItem(BuildContext context, int i,dynamic snapshotData)   {
+
+      Species species = snapshotData[i] ;
+
+      PhotographDatabaseHelper photoDBHelper = PhotographDatabaseHelper();
+      Future<Photograph> _photo = photoDBHelper.getPhotographWithID(id: species.profilePhotoID);
+      var profileImage;
+      //profileImage = Image.asset("assets/images/3Cheiros2.jpg");//,width: 150.0,height:150.0);
+
+      _photo.then((photo) {
+
+        var file = "assets/images/" + photo.photograph + ".jpg";
+        print(file);
+        profileImage = Image.asset(file);
+
+      });
+
+      return GestureDetector(
+        child: Card(
+          elevation: 2.5,
+          child: Container(
+            alignment: Alignment.center,
+            child: Column(
+              children: <Widget>[
+                //profileImage,
+                Text(species.title)
+              ],
+            ),
+          ),
+        ),
+        onTap: () {},
+      );
+
   }
 }
