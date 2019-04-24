@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
-import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
-import 'package:lemurs_of_madagascar/models/photograph.dart';
+import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
@@ -21,10 +20,8 @@ class IntroductionPage extends StatefulWidget {
 }
 
 class _IntroductionPageState extends State<IntroductionPage> {
-
   var _menuItemFontSize = 18.0;
   var _iconSize = 24.0;
-
 
   DatabaseHelper _databaseHandler = DatabaseHelper();
   MenuDatabaseHelper _menuDatabaseHandler = MenuDatabaseHelper();
@@ -35,7 +32,6 @@ class _IntroductionPageState extends State<IntroductionPage> {
 
   @override
   Widget build(BuildContext context) {
-    
     if (menuList == null) {
       menuList = List<Menu>();
       _updateUI();
@@ -59,8 +55,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
               Column(
                 children: <Widget>[
                   Container(
-                      width: 200,
-                      height: 200,
+                      width: 150,
+                      height: 150,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
@@ -94,78 +90,124 @@ class _IntroductionPageState extends State<IntroductionPage> {
     });
   }
 
-
-  List<Widget> _getDrawerMenu(){
-
+  List<Widget> _getDrawerMenu() {
     List<Widget> menuItems = List<Widget>();
 
     menuItems.add(ListTile(
-      title: Text("Introduction",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/ico_infos.png",width:_iconSize,height:_iconSize),
+      title:
+          Text("Introduction", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/ico_infos.png",
+          width: _iconSize, height: _iconSize),
+      onTap: () {
+        Navigator.pop(context); // Close the drawer
+        _showIntroduction();
+
+      },
     ));
 
     menuItems.add(ListTile(
-      title: Text("Sightings",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/binocular.png",width:_iconSize,height:_iconSize),
+      title: Text("Sightings", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/binocular.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Primate watching",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/ico_eye.png",width:_iconSize,height:_iconSize),
+      title: Text("Primate watching",
+          style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/ico_eye.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Origin of lemurs",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/origin.png",width:_iconSize,height:_iconSize),
+      title: Text("Origin of lemurs",
+          style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/origin.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Extinct lemurs",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/extinct.png",width:_iconSize,height:_iconSize),
+      title:
+          Text("Extinct lemurs", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/extinct.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("About the authors",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/author.png",width:_iconSize,height:_iconSize),
+      title: Text("About the authors",
+          style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/author.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Species",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/ico_specy.png",width:_iconSize,height:_iconSize),
+      title: Text("Species", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/ico_specy.png",
+          width: _iconSize, height: _iconSize),
+      onTap: (){
+        Navigator.pop(context); // Close the drawer
+        _showSpeciesListPage();
+
+      },
     ));
 
     menuItems.add(ListTile(
-      title: Text("Families",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/ico_families.png",width:_iconSize,height:_iconSize),
+      title: Text("Families", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/ico_families.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Watching sites",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/ico_map.png",width:_iconSize,height:_iconSize),
+      title:
+          Text("Watching sites", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/ico_map.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Our partners",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/ico_partners.png",width:_iconSize,height:_iconSize),
+      title:
+          Text("Our partners", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/ico_partners.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Settings",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/settings_icon.png",width:_iconSize,height:_iconSize),
+      title: Text("Settings", style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/settings_icon.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("Report illegal activities",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/sign_forbidden.png",width:_iconSize,height:_iconSize),
+      title: Text("Report illegal activities",
+          style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/sign_forbidden.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     menuItems.add(ListTile(
-      title: Text("App instructions",style:TextStyle(fontSize: _menuItemFontSize)),
-      leading: Image.asset("assets/images/icons/about.png",width:_iconSize,height:_iconSize),
+      title: Text("App instructions",
+          style: TextStyle(fontSize: _menuItemFontSize)),
+      leading: Image.asset("assets/images/icons/about.png",
+          width: _iconSize, height: _iconSize),
     ));
 
     return menuItems;
   }
 
+  _showIntroduction() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) {
+        return IntroductionPage(title: "Introduction",);
+      }),
+    );
+  }
+
+  _showSpeciesListPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) {
+        //Navigator.pop(context);
+        return SpeciesListPage(title: "Species list",);
+      }),
+    );
+  }
 
 }
