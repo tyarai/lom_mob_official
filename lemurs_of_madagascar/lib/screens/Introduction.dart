@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
-import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
+
+
+//@TODO : 2018-04-24 : Adjust code to prevent navigating to the same page again.
 
 class IntroductionPage extends StatefulWidget {
   IntroductionPage({Key key, this.title}) : super(key: key);
@@ -194,20 +196,22 @@ class _IntroductionPageState extends State<IntroductionPage> {
   }
 
   _showIntroduction() {
-    Navigator.of(context).push(
+    Navigator.pushNamed(context, '/introduction');
+    /*Navigator.of(context).push(
       MaterialPageRoute(builder: (context) {
         return IntroductionPage(title: "Introduction",);
       }),
-    );
+    );*/
   }
 
   _showSpeciesListPage() {
-    Navigator.of(context).push(
+    Navigator.pushNamed(context, '/species_list');
+    /*Navigator.of(context).push(
       MaterialPageRoute(builder: (context) {
         //Navigator.pop(context);
         return SpeciesListPage(title: "Species list",);
       }),
-    );
+    );*/
   }
 
 }

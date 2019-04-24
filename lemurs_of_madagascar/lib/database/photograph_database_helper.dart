@@ -1,28 +1,18 @@
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
-import 'dart:io';
 import 'dart:core';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
-import 'package:flutter/services.dart';
-import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 
 
 class PhotographDatabaseHelper  {
-  static PhotographDatabaseHelper
-  _PhotographDatabaseHelper; // singleton: Only create one instance
-  static Database _database; // Singleton Database
 
   String photoTable     = "Photographs";
   String idCol          = "_nid";
   String titleCol       = "_title";
   String photographCol  = "_photograph";
 
-
-
   Future<List<Map<String, dynamic>>> getPhotographMapList({database:Database,id: int}) async {
-    var result = await database       .rawQuery("SELECT * FROM $photoTable WHERE $idCol = id ");
+    var result = await database.rawQuery("SELECT * FROM $photoTable WHERE $idCol = $id ");
     return result;
   }
 
@@ -62,8 +52,11 @@ class PhotographDatabaseHelper  {
     }
 
     return list;
-
   }
 
+  Future<Photograph> getPhotographWithID({database:Database,id: int}) async {
+    var list = await this.getPhotographList(database: database,id: id);
+    return list[0];
+  }
 
 }

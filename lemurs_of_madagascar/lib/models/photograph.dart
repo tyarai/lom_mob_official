@@ -1,3 +1,6 @@
+import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+import 'package:sqflite/sqflite.dart';
 
 class Photograph {
 
@@ -9,8 +12,13 @@ class Photograph {
   String _photograph;
   int _id;
 
+
+  factory Photograph.withPhotograph(Photograph photo){
+    return Photograph.withID(photo.id, photo.title,photo.photograph);
+  }
   Photograph(this._title, this._photograph);
   Photograph.withID(this._id, this._title,this._photograph);
+
 
   int get id => _id;
   String get title => _title;
@@ -38,11 +46,19 @@ class Photograph {
     return map;
   }
 
+  /*Photograph.fromDB(PhotographDatabaseHelper photoDBHelper){
+    this._id         = photoDBHelper.;
+    this._title      = map[_titleKey];
+    this._photograph = map[_photographKey];
+  }*/
+
   Photograph.fromMap(Map<String,dynamic> map) {
     this._id         = map[_idKey];
     this._title      = map[_titleKey];
     this._photograph = map[_photographKey];
   }
+
+
 
 
 }
