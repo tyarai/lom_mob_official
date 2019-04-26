@@ -1,9 +1,8 @@
-import 'package:sqflite/sqflite.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
-import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 
 class SpeciesListPage extends StatefulWidget {
@@ -24,11 +23,19 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   SpeciesListPageState();
 
 
-  Future<List<Species>> _loadData()  async {
+  /*@override
+  void initState() {
+    super.initState();
+    _searchQuery = new TextEditingController();
+    fetchCountry(new http.Client()).then((String) {
+      parseData(String);
+    });
+  }*/
 
-      SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
-      List<Species> futureList =   await speciesDBHelper.getSpeciesList();
-      return futureList;
+  Future<List<Species>> _loadData() async {
+    SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
+    List<Species> futureList = await speciesDBHelper.getSpeciesList();
+    return futureList;
   }
 
   @override
@@ -37,9 +44,8 @@ class SpeciesListPageState extends State<SpeciesListPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-
       body: _buildSpeciesGridList(),
-            /*FutureBuilder(
+      /*FutureBuilder(
             future:_loadData(),
             builder:(BuildContext context,AsyncSnapshot snapshot) {
 
@@ -66,87 +72,110 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
             }
           ),*/
-
     );
   }
 
+
   Widget _buildSpeciesGridList() {
 
-            return
+    return
+      FutureBuilder(
+        future:_loadData(),
+        builder:(context,snapshot){
 
-              FutureBuilder(
-                  future:_loadData(),
-                  builder:(BuildContext context,AsyncSnapshot snapshot) {
+            return ListView.builder(
+              itemCount: snapshot.data != null ? snapshot.data.length : 0,
+              itemBuilder: (BuildContext context, int index) {
+                Species species = snapshot.data[index];
 
-                    return GridView.builder(
-                        itemCount: snapshot.data != null ? snapshot.data.length : 0,
-                        //itemCount: snapshot.data.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2),
-
-                        itemBuilder: (BuildContext context, int index) {
-
-                          Species species = snapshot.data[index];
-
-                          return GestureDetector(
-
-                            child: Card(
-                              elevation: 2.5,
-                              child: Container(
-                                alignment: Alignment.center,
-                                child: Column(
-                                  children: <Widget>[
-                                    Image.asset(species.imageFile,width: 150.0, height: 150.0,fit: BoxFit.fill,),
-                                    Text(species.title),
-                                    Text(species.imageFile != null ? species.imageFile : "NULL")
-                                  ],
-                                ),
-                              ),
-
-                            ),
-                            onTap: () {},
-                          );
-                        }
-                    );
-
-                  });
-
-
-
-  }
-
-  Widget _buildCellItem(BuildContext context, int i,dynamic snapshotData)   {
-
-      Species species = snapshotData[i] ;
-
-      PhotographDatabaseHelper photoDBHelper = PhotographDatabaseHelper();
-      Future<Photograph> _photo = photoDBHelper.getPhotographWithID(id: species.profilePhotoID);
-      var profileImage;
-      //profileImage = Image.asset("assets/images/3Cheiros2.jpg");//,width: 150.0,height:150.0);
-
-      _photo.then((photo) {
-
-        var file = "assets/images/" + photo.photograph + ".jpg";
-        print(file);
-        profileImage = Image.asset(file);
+                return GestureDetector(
+                  child: Card(
+                    elevation: 2.5,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: <Widget>[
+                          Image.asset(
+                            species.imageFile,
+                            width: 150.0,
+                            height: 150.0,
+                            fit: BoxFit.fill,
+                          ),
+                          Text(species.title),
+                          Text(species.imageFile != null ? species.imageFile : "NULL")
+                        ],
+                      ),
+                    ),
+                  ),
+                  onTap: () {},
+                );
+             /* ListView*/ });
 
       });
 
-      return GestureDetector(
-        child: Card(
-          elevation: 2.5,
-          child: Container(
-            alignment: Alignment.center,
-            child: Column(
-              children: <Widget>[
-                //profileImage,
-                Text(species.title)
-              ],
+  }
+
+  /*Widget _buildSpeciesGridList() {
+
+    return ListView.builder(
+        itemCount: _speciesList != null ? _speciesList.length : 0,
+        itemBuilder: (BuildContext context, int index) {
+          Species species = _speciesList[index];
+
+          return GestureDetector(
+            child: Card(
+              elevation: 2.5,
+              child: Container(
+                alignment: Alignment.center,
+                child: Column(
+                  children: <Widget>[
+                    Image.asset(
+                      species.imageFile,
+                      width: 150.0,
+                      height: 150.0,
+                      fit: BoxFit.fill,
+                    ),
+                    Text(species.title),
+                    Text(species.imageFile != null ? species.imageFile : "NULL")
+                  ],
+                ),
+              ),
             ),
+            onTap: () {},
+          );
+        });
+  }
+  */
+
+  Widget _buildCellItem(BuildContext context, int i, dynamic snapshotData) {
+    Species species = snapshotData[i];
+
+    PhotographDatabaseHelper photoDBHelper = PhotographDatabaseHelper();
+    Future<Photograph> _photo =
+        photoDBHelper.getPhotographWithID(id: species.profilePhotoID);
+    var profileImage;
+    //profileImage = Image.asset("assets/images/3Cheiros2.jpg");//,width: 150.0,height:150.0);
+
+    _photo.then((photo) {
+      var file = "assets/images/" + photo.photograph + ".jpg";
+      print(file);
+      profileImage = Image.asset(file);
+    });
+
+    return GestureDetector(
+      child: Card(
+        elevation: 2.5,
+        child: Container(
+          alignment: Alignment.center,
+          child: Column(
+            children: <Widget>[
+              //profileImage,
+              Text(species.title)
+            ],
           ),
         ),
-        onTap: () {},
-      );
-
+      ),
+      onTap: () {},
+    );
   }
 }
