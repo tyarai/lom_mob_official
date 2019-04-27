@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
-import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
-import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 
 class SpeciesListPage extends StatefulWidget {
   SpeciesListPage({Key key, this.title}) : super(key: key);
@@ -23,14 +21,19 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   SpeciesListPageState();
 
 
-  /*@override
+  @override
   void initState() {
     super.initState();
-    _searchQuery = new TextEditingController();
-    fetchCountry(new http.Client()).then((String) {
-      parseData(String);
+
+    Future<List<Species>> futureList = _loadData();
+
+    futureList.then((list){
+      setState(() {
+        _speciesList = list;
+      });
     });
-  }*/
+
+  }
 
   Future<List<Species>> _loadData() async {
     SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
@@ -45,73 +48,61 @@ class SpeciesListPageState extends State<SpeciesListPage> {
         title: Text(widget.title),
       ),
       body: _buildSpeciesGridList(),
-      /*FutureBuilder(
-            future:_loadData(),
-            builder:(BuildContext context,AsyncSnapshot snapshot) {
 
-
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-
-              //_buildSpeciesGridList(snapshot.data);
-
-              return ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (_, int position){
-
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                            "Employee Name: " ),
-                      ),
-                    );
-
-                  });
-
-
-            }
-          ),*/
     );
   }
 
+  Widget _loadImage(String fileName){
+
+    return
+
+      Image.asset(
+        fileName,
+        width: 150.0,
+        height: 150.0,
+        fit: BoxFit.fill,
+      );
+  }
 
   Widget _buildSpeciesGridList() {
 
-    return
-      FutureBuilder(
-        future:_loadData(),
-        builder:(context,snapshot){
+    return FutureBuilder<List<Species>>(
 
-            return ListView.builder(
-              itemCount: snapshot.data != null ? snapshot.data.length : 0,
-              itemBuilder: (BuildContext context, int index) {
-                Species species = snapshot.data[index];
+      future: _loadData(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
 
-                return GestureDetector(
-                  child: Card(
-                    elevation: 2.5,
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: <Widget>[
-                          Image.asset(
-                            species.imageFile,
-                            width: 150.0,
-                            height: 150.0,
-                            fit: BoxFit.fill,
-                          ),
-                          Text(species.title),
-                          Text(species.imageFile != null ? species.imageFile : "NULL")
-                        ],
-                      ),
-                    ),
-                  ),
-                  onTap: () {},
-                );
-             /* ListView*/ });
+        if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
 
-      });
+
+        return ListView.builder(
+            itemCount: snapshot.data.length ,
+            itemBuilder: (BuildContext context, int index) {
+
+              return _buildCellItem(index);
+
+              /*Species species = _speciesList[index];
+
+          return GestureDetector(
+            child: Card(
+              elevation: 2.5,
+              child: Container(
+                alignment: Alignment.center,
+                child: Column(
+                  children: <Widget>[
+                    _loadImage(species.imageFile),
+                    Text(species.title),
+                    Text(species.imageFile != null ? species.imageFile : "NULL")
+                  ],
+                ),
+              ),
+            ),
+            onTap: () {},
+          );
+          */
+
+            });
+      },
+    );
 
   }
 
@@ -147,20 +138,9 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   }
   */
 
-  Widget _buildCellItem(BuildContext context, int i, dynamic snapshotData) {
-    Species species = snapshotData[i];
+  Widget _buildCellItem( int index) {
 
-    PhotographDatabaseHelper photoDBHelper = PhotographDatabaseHelper();
-    Future<Photograph> _photo =
-        photoDBHelper.getPhotographWithID(id: species.profilePhotoID);
-    var profileImage;
-    //profileImage = Image.asset("assets/images/3Cheiros2.jpg");//,width: 150.0,height:150.0);
-
-    _photo.then((photo) {
-      var file = "assets/images/" + photo.photograph + ".jpg";
-      print(file);
-      profileImage = Image.asset(file);
-    });
+    Species species = _speciesList[index];
 
     return GestureDetector(
       child: Card(
@@ -168,11 +148,14 @@ class SpeciesListPageState extends State<SpeciesListPage> {
         child: Container(
           alignment: Alignment.center,
           child: Column(
-            children: <Widget>[
-              //profileImage,
-              Text(species.title)
-            ],
-          ),
+            children:<Widget>[
+              Row(
+                children: <Widget>[
+              _loadImage(species.imageFile),
+              Text(species.title),
+            ]),
+          ]),
+
         ),
       ),
       onTap: () {},

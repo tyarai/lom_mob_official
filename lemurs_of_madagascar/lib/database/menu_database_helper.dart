@@ -1,6 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
-import 'dart:io';
 import 'dart:core';
 import 'package:lemurs_of_madagascar/models/menu.dart';
 

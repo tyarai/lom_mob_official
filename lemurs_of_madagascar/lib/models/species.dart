@@ -173,7 +173,7 @@ class Species {
 
   _loadImageFile() async {
 
-    this.imageFile  = "83";
+    this.imageFile  = "placeholder";
 
     if(this.profilePhotoID != null) {
       PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();

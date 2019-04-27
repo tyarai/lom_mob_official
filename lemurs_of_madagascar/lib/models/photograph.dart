@@ -1,6 +1,3 @@
-import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
-import 'package:lemurs_of_madagascar/database/database_helper.dart';
-import 'package:sqflite/sqflite.dart';
 
 class Photograph {
 
