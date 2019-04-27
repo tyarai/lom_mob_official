@@ -1,6 +1,13 @@
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
 
+
+enum SpeciesImageClipperType {
+  rectangular,
+  oval
+}
 
 class Species {
 
@@ -182,9 +189,82 @@ class Species {
 
     }
 
-
-
   }
+
+
+
+  static Widget buildLemurPhoto(Species species,{double width = Constants.listViewImageWidth,double height = Constants.listViewImageHeight, SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular}) {
+
+      Widget widget;
+      BorderRadius _borderRadius;
+
+      switch (imageClipper) {
+
+        case SpeciesImageClipperType.rectangular :{
+
+          _borderRadius = BorderRadius.circular(Constants.speciesImageBorderRadius);
+          widget = Container(
+              child: ClipRRect(
+                  borderRadius: _borderRadius,
+                  child: Species.loadHeroImage(species,width: width,height: height)));
+
+          break;
+        }
+        case SpeciesImageClipperType.oval :{
+          widget = Container(
+              child: ClipOval(
+                  child: Species.loadHeroImage(species)));
+          break;
+        }
+      }
+
+      return widget;
+  }
+
+  static Widget loadHeroImage(Species species,
+      {double width = Constants.listViewImageWidth,
+        double height = Constants.listViewImageWidth}) {
+    return Hero(
+        tag: species.imageFile,
+        child: Image.asset(
+          species.imageFile,
+          width: width,
+          height: height,
+        ));
+  }
+
+  static Widget loadHeroTitle(Species species,{TextStyle style = Constants.speciesTitleStyle}) {
+    return Hero(
+        tag: species.title,
+        child: Text(species.title,style:style));
+  }
+
+
+  static Widget buildTextInfo(Species species,{bool showMalagasy = true}) {
+    return Expanded(
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Species.loadHeroTitle(species),
+            Container(height: 10),
+            showMalagasy ? Text(species.malagasy,
+                style: TextStyle(fontSize: Constants.subTitleFontSize)) : Container(),
+          ]),
+    );
+  }
+
+  static Widget buildTitle(Species species) {
+    return Expanded(
+      child: Text(species.title, style: TextStyle(fontSize: 18.0)),
+    );
+  }
+
+  static Widget buildSubTitle(Species species) {
+    return Expanded(
+      child: Text(species.malagasy),
+    );
+  }
+
 
 }
 
