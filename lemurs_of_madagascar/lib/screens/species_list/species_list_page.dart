@@ -60,7 +60,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     return
       Image.asset(
         fileName,
-        fit:BoxFit.contain,
         width: width,
         height: height,
 
@@ -126,32 +125,24 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     Species species = _speciesList[index];
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: Container(
-        child:FittedBox(
-          //fit: BoxFit.contain,
-        child: Material(
-          color: Colors.white,
-          elevation:2.5,
-          borderRadius: BorderRadius.circular(25.0),
-          shadowColor: Colors.blueGrey,
-          child:
-              Row(
-                children: <Widget>[
-                  Container(
+      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+      child: Card(
+        elevation: 2.5,
+      child: ListTile(
+      leading:Container(
                       height: Constants.listViewImageHeight,
                       width: Constants.listViewImageWidth,
                       child:
                       ClipRRect(
                           borderRadius: BorderRadius.circular(25.0),
                           child:_loadImage(species.imageFile))),
-                  Container(
+      title:Container(
                       height: Constants.listViewImageHeight,
                       width: Constants.listViewImageWidth,
                       child:Text(species.title)),
-            ]),
-        )),
-      ),
-    );
+      )),
+     );
+
+
   }
 }
