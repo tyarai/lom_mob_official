@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
 
 class SpeciesListPage extends StatefulWidget {
   SpeciesListPage({Key key, this.title}) : super(key: key);
@@ -16,7 +17,7 @@ class SpeciesListPage extends StatefulWidget {
 
 class SpeciesListPageState extends State<SpeciesListPage> {
 
-  List<Species> _speciesList;
+  List<Species> _speciesList = List<Species>();
 
   SpeciesListPageState();
 
@@ -25,13 +26,15 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   void initState() {
     super.initState();
 
-    Future<List<Species>> futureList = _loadData();
-
-    futureList.then((list){
-      setState(() {
-        _speciesList = list;
+    // Only do this one time if the List is empty
+    if(_speciesList.length == 0) {
+      Future<List<Species>> futureList = _loadData();
+      futureList.then((list) {
+        setState(() {
+          _speciesList = list;
+        });
       });
-    });
+    }
 
   }
 
@@ -52,15 +55,15 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     );
   }
 
-  Widget _loadImage(String fileName){
+  Widget _loadImage(String fileName, {double width = Constants.listViewImageWidth , double height = Constants.listViewImageWidth}){
 
     return
-
       Image.asset(
         fileName,
-        width: 150.0,
-        height: 150.0,
-        fit: BoxFit.fill,
+        fit:BoxFit.contain,
+        width: width,
+        height: height,
+
       );
   }
 
@@ -79,26 +82,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
             itemBuilder: (BuildContext context, int index) {
 
               return _buildCellItem(index);
-
-              /*Species species = _speciesList[index];
-
-          return GestureDetector(
-            child: Card(
-              elevation: 2.5,
-              child: Container(
-                alignment: Alignment.center,
-                child: Column(
-                  children: <Widget>[
-                    _loadImage(species.imageFile),
-                    Text(species.title),
-                    Text(species.imageFile != null ? species.imageFile : "NULL")
-                  ],
-                ),
-              ),
-            ),
-            onTap: () {},
-          );
-          */
 
             });
       },
@@ -142,23 +125,33 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
     Species species = _speciesList[index];
 
-    return GestureDetector(
-      child: Card(
-        elevation: 2.5,
-        child: Container(
-          alignment: Alignment.center,
-          child: Column(
-            children:<Widget>[
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: Container(
+        child:FittedBox(
+          //fit: BoxFit.contain,
+        child: Material(
+          color: Colors.white,
+          elevation:2.5,
+          borderRadius: BorderRadius.circular(25.0),
+          shadowColor: Colors.blueGrey,
+          child:
               Row(
                 children: <Widget>[
-              _loadImage(species.imageFile),
-              Text(species.title),
+                  Container(
+                      height: Constants.listViewImageHeight,
+                      width: Constants.listViewImageWidth,
+                      child:
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(25.0),
+                          child:_loadImage(species.imageFile))),
+                  Container(
+                      height: Constants.listViewImageHeight,
+                      width: Constants.listViewImageWidth,
+                      child:Text(species.title)),
             ]),
-          ]),
-
-        ),
+        )),
       ),
-      onTap: () {},
     );
   }
 }
