@@ -14,6 +14,7 @@ class Constants {
 
   static const Color mainColor = Colors.blueGrey;
   static const Color backGroundColor = Colors.grey;
+  static const Color iconColor = Colors.lime;
   static const TextStyle speciesTitleStyle = TextStyle(fontSize: Constants.titleFontSize);
   static const TextStyle defaultTextStyle = TextStyle(fontSize: Constants.textFontSize);
 

@@ -59,9 +59,16 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
   AppBar _buildAppBar() {
     return AppBar(
       elevation: 0.0,
-      /*actions: <Widget>[
+      actions: <Widget>[
 
-        PopupMenuButton(
+        IconButton (
+          icon: Icon(Icons.image,color: Constants.iconColor,size: 35,),
+          onPressed: (){
+
+          },
+        ),
+
+        /*PopupMenuButton(
           itemBuilder: (BuildContext context){
             List<PopupMenuItem> menus = List();
 
@@ -69,7 +76,8 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
 
               PopupMenuItem(
                   child: ListTile(
-                    title: Text("Map"),
+                    leading: Icon(Icons.image),
+                    title: Text("Species images"),
                   ),
               ),
 
@@ -78,8 +86,8 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
             return menus;
 
           },
-        ),
-      ],*/
+        ),*/
+      ],
       backgroundColor: Constants.mainColor,
       title: Text(_title), // Text(species.title),
     );
@@ -103,28 +111,28 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.assistant_photo),
-              title: Text(""),
+              icon: Icon(Icons.assistant_photo,color: Constants.iconColor,),
+              title: Text(_menuName[0]),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.info),
-              title: Text(""),
+              icon: Icon(Icons.info,color: Constants.iconColor,),
+              title: Text(_menuName[1]),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              title: Text(""),
+              icon: Icon(Icons.history,color: Constants.iconColor,),
+              title: Text(_menuName[2]),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.place),
-              title: Text(""),
+              icon: Icon(Icons.place,color: Constants.iconColor,),
+              title: Text(_menuName[3]),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.show_chart),
-              title: Text(""),
+              icon: Icon(Icons.show_chart,color: Constants.iconColor,),
+              title: Text(_menuName[4]),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.map),
-              title: Text(""),
+              icon: Icon(Icons.map,color: Constants.iconColor,),
+              title: Text(_menuName[5]),
             ),
           ],
         ));
