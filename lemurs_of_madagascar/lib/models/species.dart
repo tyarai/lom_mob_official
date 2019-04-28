@@ -257,7 +257,7 @@ class Species {
       {double width = Constants.listViewImageWidth,
         double height = Constants.listViewImageWidth}) {
     return Hero(
-        tag: species.imageFile,
+        tag: species.imageFile + species.id.toString(),
         child: Image.asset(
           species.imageFile,
           width: width,
@@ -267,7 +267,7 @@ class Species {
 
   static Widget loadHeroTitle(Species species,{TextStyle style = Constants.speciesTitleStyle}) {
     return Hero(
-        tag: species.title,
+        tag: species.title + species.id.toString(),
         child: Material(
           color: Colors.transparent,
           child:Text(species.title,style:style))

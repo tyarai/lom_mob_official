@@ -53,6 +53,9 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     return Scaffold(
       backgroundColor: Constants.backGroundColor,
       appBar: AppBar(
+        actions: <Widget>[
+          _buildSearch(),
+        ],
         title: Text(widget.title),
       ),
       body: _buildSpeciesListView(),
@@ -69,6 +72,17 @@ class SpeciesListPageState extends State<SpeciesListPage> {
           width: width,
           height: height,
         ));
+  }
+
+  Widget _buildSearch(){
+    return IconButton(
+      icon: Icon(Icons.search),
+      onPressed:(){
+        showSearch(
+            context: context,
+            delegate: DataSearch(speciesList: this._speciesList));
+      },
+    );
   }
 
   Widget _buildSpeciesListView() {
@@ -136,6 +150,29 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   }
   */
 
+
+  static void navigateToSpeciesDetails(BuildContext context,Species species){
+
+    Navigator.of(context).push(
+      PageRouteBuilder<Null>(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return AnimatedBuilder(
+                animation: animation,
+                builder: (BuildContext context, Widget child) {
+                  return Opacity(
+                    opacity: animation.value,
+                    child: SpeciesDetailsPage(
+                      species: species,
+                    ),
+                  );
+                });
+          },
+          transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
+    );
+
+  }
+
   Widget _buildCellItem(int index, {CellType cellType = CellType.FittedBox}) {
     Species species = _speciesList[index];
 
@@ -151,7 +188,9 @@ class SpeciesListPageState extends State<SpeciesListPage> {
           widget = GestureDetector(
               onTap: () {
 
-                Navigator.of(context).push(
+                SpeciesListPageState.navigateToSpeciesDetails(context, species);
+
+                /*Navigator.of(context).push(
                   PageRouteBuilder<Null>(
                       pageBuilder: (BuildContext context, Animation<double> animation,
                           Animation<double> secondaryAnimation) {
@@ -167,7 +206,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
                             });
                       },
                       transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
-                );
+                );*/
 
 
                 /*Navigator.of(context).push(
@@ -236,6 +275,119 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     );
   }*/
 
+}
 
+class DataSearch extends SearchDelegate<List<Species>> {
+
+  List<Species> speciesList   = List();
+  List<Species> recentSpecies = List();
+
+  DataSearch({this.speciesList});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(icon: Icon(Icons.clear),
+        onPressed: (){
+            query = "" ; // Clear the search query
+      },),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    // leading icon on the left of the app bar
+    return IconButton(
+      icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation),
+          onPressed:(){
+            close(context, null);
+          } ,);
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return null;
+  }
+
+
+  List<Widget> _buildSearchRow(Species species){
+
+
+    List<Widget> list = [
+
+      Text(species.malagasy, style:TextStyle(fontSize: Constants.subTitleFontSize)),
+      Text(species.english, style:TextStyle(fontSize: Constants.subTitleFontSize)),
+      Text(species.german, style:TextStyle(fontSize: Constants.subTitleFontSize)),
+      Text(species.french, style:TextStyle(fontSize: Constants.subTitleFontSize))
+    ];
+
+    return list;
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // show when someone searches for something
+    final List<Species> suggestionsList = query.isEmpty ? recentSpecies : 
+        
+    speciesList.where((species) =>
+            species.title.toLowerCase().contains(query.toLowerCase()) ||
+            species.malagasy.toLowerCase().contains(query.toLowerCase()) ||
+            species.french.toLowerCase().contains(query.toLowerCase()) ||
+            species.german.toLowerCase().contains(query.toLowerCase()) ||
+            species.english.toLowerCase().contains(query.toLowerCase()) ||
+            species.otherEnglish.contains(query)
+    ).toList();
+
+
+
+    return ListView.builder(
+      itemCount: suggestionsList.length,
+        itemBuilder: (BuildContext context, int index) => ListTile (
+          contentPadding: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
+          onTap: (){
+            close(context, null);
+            SpeciesListPageState.navigateToSpeciesDetails(context, suggestionsList[index]);
+
+          },
+          leading: Species.loadHeroImage(suggestionsList[index]),
+          title: Species.loadHeroTitle(suggestionsList[index]),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children:  _buildSearchRow(suggestionsList[index])
+          ),
+
+              /*RichText(
+               text:TextSpan(
+                  text: suggestionsList[index].title.substring(0,query.length),
+                  style: TextStyle(color:Colors.black,fontWeight: FontWeight.bold),
+                children: [
+
+                  TextSpan(
+                      text:suggestionsList[index].title.substring(query.length),
+                      //style: TextStyle(color:Colors.grey),
+                  ),
+                  TextSpan(
+                    text:suggestionsList[index].malagasy.substring(query.length),
+                    //style: TextStyle(color:Colors.grey),
+                  ),
+                  TextSpan(
+                    text:suggestionsList[index].french.substring(query.length),
+                    //style: TextStyle(color:Colors.grey),
+                  ),
+                  TextSpan(
+                    text:suggestionsList[index].english.substring(query.length),
+                    style: TextStyle(color:Colors.grey),
+                  ),
+                  TextSpan(
+                    text:suggestionsList[index].german.substring(query.length),
+                    style: TextStyle(color:Colors.grey),
+                  ),
+                ]
+              )),*/
+        )
+    );
+  }
 
 }
