@@ -2,77 +2,237 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 
-class SpeciesDetailsPage extends StatelessWidget {
+
+
+
+class SpeciesDetailsPage extends StatefulWidget {
+
   Species species;
 
-  SpeciesDetailsPage({species: Species}) {
-    this.species = species;
-  }
+  SpeciesDetailsPage({this.species});
 
   @override
-  Widget build(BuildContext context) {
-    /*return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(),
-    );*/
-    return Scaffold(
-      backgroundColor: Constants.mainColor,
-      appBar: _buildAppBar(),
-      body: Padding(
-        padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 10.0),
-        child: Material(
-            elevation: 5.0,
-            borderRadius:
-                BorderRadius.circular(Constants.speciesImageBorderRadius),
-            shadowColor: Colors.blueGrey,
-            child: Column(
-              children: <Widget>[
-                Align(
-                    alignment: Alignment.topLeft,
-                    child: OutlineButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Icon(Icons.close),
-                    )),
-                _buildBody(),
-              ],
-            )),
-      ),
-    );
+  State<StatefulWidget> createState() {
+    return SpeciesDetailsPageState(species: this.species);
   }
+
+
+}
+
+class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
+
+  Species species;
+  int _bottomNavIndex = 0;
+  List<String> _menuName = ["Name","Identification","Natural history","Geographic range","Conservation status"];
+  String _title = "";
+
+  SpeciesDetailsPageState({this.species}){
+    _title = _menuName[0];
+  }
+
+    @override
+  Widget build(BuildContext context) {
+
+      return Scaffold(
+        backgroundColor: Constants.mainColor,
+
+        appBar: _buildAppBar(),
+
+        body: ListView(children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+            child: Material(
+                elevation: 5.0,
+                borderRadius:
+                BorderRadius.circular(Constants.speciesImageBorderRadius),
+                shadowColor: Colors.blueGrey,
+                child: Column(
+                  children: <Widget>[
+                    Container(height: 20),
+                    _buildBody(),
+                  ],
+                )),
+          )
+        ]),
+
+        bottomNavigationBar: _buildBottomNavBar(),
+
+      );
+    }
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(species.title),
+      elevation: 0.0,
+      actions: <Widget>[
+
+        PopupMenuButton(
+          itemBuilder: (BuildContext context){
+            List<PopupMenuItem> menus = List();
+
+            menus.add(
+
+              PopupMenuItem(
+                  child: ListTile(
+                    title: Text("Map"),
+                  ),
+              ),
+
+            );
+
+            return menus;
+
+          },
+        ),
+      ],
+      backgroundColor: Constants.mainColor,
+      title: Text(_title),// Text(species.title),
+    );
+  }
+
+
+  BottomNavigationBar _buildBottomNavBar(){
+
+    return BottomNavigationBar(
+      fixedColor: Colors.lightBlue,
+      type: BottomNavigationBarType.fixed,
+      currentIndex: _bottomNavIndex,
+      onTap: (int index) {
+        setState(() {
+          _bottomNavIndex = index;
+          _title = _menuName[_bottomNavIndex];
+
+        });
+      },
+      items : [
+        BottomNavigationBarItem(
+          icon:Icon(Icons.assistant_photo),
+          title: Text(""),
+
+        ),
+        BottomNavigationBarItem(
+          icon:Icon(Icons.assistant_photo),
+          title: Text(""),
+        ),
+        BottomNavigationBarItem(
+          icon:Icon(Icons.assistant_photo),
+          title: Text(""),
+
+        ),
+        BottomNavigationBarItem(
+          icon:Icon(Icons.assistant_photo),
+          title: Text(""),
+
+        ),
+        BottomNavigationBarItem(
+          icon:Icon(Icons.assistant_photo),
+          title: Text(""),
+
+        ),
+      ],
     );
   }
 
   Widget _buildBody() {
     return Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: Container(
-          child: Column(children: <Widget>[
-            Species.buildLemurPhoto(species,
-                imageClipper: SpeciesImageClipperType.rectangular,
-                width: 100,
-                height: 100),
-            Container(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-
-              Species.buildTextInfo(species) ,
-            ]),
-          ]),
+        padding: EdgeInsets.all(20),
+        child:Container(
+          child:  _buildTabs(),
         ));
 
-    /*
-    return Material(
-        child: Column(children: <Widget>[
-          Species.buildLemurPhoto(species,imageClipper: SpeciesImageClipperType.rectangular),
-          Text(
-            species.title,
-            style: TextStyle(fontSize: Constants.titleFontSize),
-          )
-    ]));*/
+
   }
+
+  Widget _buildTabs(){
+
+      switch(_bottomNavIndex){
+        case 0 : return _nameTab();
+        case 1 : return _showTab(Species.buildInfo(species.identification,crossAlignment: CrossAxisAlignment.center));
+        case 2 : return _showTab(Species.buildInfo(species.history,crossAlignment: CrossAxisAlignment.center));
+        case 3 : return _showTab(
+            Species.buildInfo(species.range,crossAlignment: CrossAxisAlignment.center),
+            map: species.getMap()
+        );
+        case 4 : return _showTab(Species.buildInfo(species.status,crossAlignment: CrossAxisAlignment.center));
+      }
+  }
+
+
+  Widget _showTab(Widget widget,{Widget map}){
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Species.buildLemurPhoto(species,
+              imageClipper: SpeciesImageClipperType.rectangular,
+              width: 100,
+              height: 100),
+          Container(height: 10),
+          Row(
+              children: <Widget>[
+                Species.buildTextInfo(species,crossAlignment: CrossAxisAlignment.center),
+              ]),
+          Container(height: 30),
+          Row(
+              children: <Widget>[
+                widget,
+              ]),
+          Container(height: 20),
+          map != null ?
+          Column(
+                children: <Widget>[
+                  map,
+                ]) : Container(),
+        ]);
+  }
+
+
+
+  Widget _nameTab(){
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Species.buildLemurPhoto(species,
+              imageClipper: SpeciesImageClipperType.rectangular,
+              width: 100,
+              height: 100),
+          Container(height: 10),
+          Row(
+              children: <Widget>[
+                Species.buildTextInfo(species,crossAlignment: CrossAxisAlignment.center,showMalagasy: false),
+              ]),
+          Container(height: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Image.asset("assets/images/icons/btn_malagasy_on.png",width: Constants.iconSize,height: Constants.iconSize,),
+                Container(width: 10),
+                Species.buildInfo(species.malagasy),
+              ]),
+          Container(height: 20),
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Image.asset("assets/images/icons/btn_english_on.png",width: Constants.iconSize,height: Constants.iconSize,),
+                Container(width: 10),
+                Species.buildInfo(species.english),
+              ]),
+          Container(height: 20),
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Image.asset("assets/images/icons/btn_german_on.png",width: Constants.iconSize,height: Constants.iconSize,),
+                Container(width: 10),
+                Species.buildInfo(species.german),
+              ]),
+          Container(height: 20),
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Image.asset("assets/images/icons/btn_french_on.png",width: Constants.iconSize,height: Constants.iconSize,),
+                Container(width: 10),
+                Species.buildInfo(species.french),
+              ]),
+        ]);
+  }
+
+
 }

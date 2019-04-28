@@ -1,5 +1,7 @@
 import 'package:lemurs_of_madagascar/models/photograph.dart';
+import 'package:lemurs_of_madagascar/models/species_map.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/speciesmap_database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 
@@ -23,7 +25,7 @@ class Species {
   static String identificationKey = "_identification";
   static String historyKey     = "_natural_history";
   static String rangeKey       = "_geographic_range";
-  static String statusKey      = "_status";
+  static String statusKey      = "_conservation_status";
   static String sitesKey       = "_where_to_see_it";
   static String mapIDKey       = "_map";
   static String photoIDsKey    = "_specie_photograph";
@@ -31,6 +33,7 @@ class Species {
 
   String tempImage = "assets/images/Lepilemur-petteri.jpg";
   String _imageFile;
+  String _mapFileName;
 
   int id;
   String title;
@@ -50,7 +53,7 @@ class Species {
   String photoIDs;
 
 
-  Photograph profilePhotograph;
+  //Photograph profilePhotograph;
 
 
 
@@ -71,7 +74,7 @@ class Species {
     this.mapID,
     this.photoIDs
   }){
-    _loadImageFile();
+    _loadImageFiles();
   }
 
   Species.withID({
@@ -92,7 +95,7 @@ class Species {
     this.mapID,
     this.photoIDs
   }){
-    _loadImageFile();
+    _loadImageFiles();
   }
 
 
@@ -141,7 +144,7 @@ class Species {
     this.mapID            = map[mapIDKey];
     this.photoIDs         = map[photoIDsKey]       ;
 
-    _loadImageFile();
+    _loadImageFiles();
 
 
   }
@@ -165,32 +168,61 @@ class Species {
     this.mapID            = species.mapID;
     this.photoIDs         = species.photoIDs;
 
-    _loadImageFile();
+    _loadImageFiles();
 
 
   }
 
 
-  String get imageFile =>  _imageFile ;
+  String get imageFile    =>  _imageFile ;
+  String get mapFileName  =>  _mapFileName ;
 
   set imageFile(String value){
     this._imageFile = "assets/images/" +  value + ".jpg";
   }
 
+  set mapFileName(String value){
+    this._mapFileName = value;
+  }
 
-  _loadImageFile() async {
+
+  _loadImageFiles() async {
 
     this.imageFile  = "placeholder";
+    this._mapFileName = "placeholder";
 
-    if(this.profilePhotoID != null) {
+    if(this.profilePhotoID != null && this.mapID != null) {
+
+      // Load profile image
       PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
       Photograph futurePhoto =  await photographDatabaseHelper.getPhotographWithID(id:this.profilePhotoID);
       this.imageFile = futurePhoto.photograph ;
 
+      // Load map image
+      SpeciesMapDatabaseHelper speciesMapDatabaseHelper = SpeciesMapDatabaseHelper();
+      SpeciesMap futureMap =  await speciesMapDatabaseHelper.getSpeciesMapWithID(id:this.mapID);
+      this._mapFileName = futureMap.fileName;
+
+
+
+
     }
+
 
   }
 
+  Widget getMap(){
+
+    Widget map;
+
+    if(this._mapFileName != null){
+      //print("map file :" + this._mapFileName);
+      map = Image.asset("assets/images/" + this._mapFileName);
+      if(map == null) print ("MAP NULL");
+    }
+
+      return map;
+  }
 
 
   static Widget buildLemurPhoto(Species species,{double width = Constants.listViewImageWidth,double height = Constants.listViewImageHeight, SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular}) {
@@ -236,19 +268,37 @@ class Species {
   static Widget loadHeroTitle(Species species,{TextStyle style = Constants.speciesTitleStyle}) {
     return Hero(
         tag: species.title,
-        child: Text(species.title,style:style));
+        child: Material(
+          color: Colors.transparent,
+          child:Text(species.title,style:style))
+      );
   }
 
 
-  static Widget buildTextInfo(Species species,{bool showMalagasy = true}) {
+  static Widget buildTextInfo(Species species,{bool showMalagasy = true,CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
     return Expanded(
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: crossAlignment,
           children: <Widget>[
             Species.loadHeroTitle(species),
             Container(height: 10),
-            showMalagasy ? Text(species.malagasy,
-                style: TextStyle(fontSize: Constants.subTitleFontSize)) : Container(),
+            showMalagasy ?
+            Material(
+                color: Colors.transparent,
+                child:
+              Text(species.malagasy,
+                style: TextStyle(fontSize: Constants.subTitleFontSize))) : Container(),
+          ]),
+    );
+  }
+
+  static Widget buildInfo(String info,{TextStyle style = Constants.defaultTextStyle, CrossAxisAlignment crossAlignment = CrossAxisAlignment.start, MainAxisAlignment mainAlignment = MainAxisAlignment.start}) {
+    return Expanded(
+      child: Column(
+          crossAxisAlignment: crossAlignment,
+          mainAxisAlignment: mainAlignment,
+          children: <Widget>[
+            Text(info,style : style),
           ]),
     );
   }

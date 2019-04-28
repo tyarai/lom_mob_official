@@ -51,6 +51,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Constants.backGroundColor,
       appBar: AppBar(
         title: Text(widget.title),
       ),
