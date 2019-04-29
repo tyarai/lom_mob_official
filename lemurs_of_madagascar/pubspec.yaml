@@ -29,6 +29,9 @@ dependencies:
 
   path_provider : any
 
+  #Image slider
+  carousel_slider: ^1.3.0
+
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7
 
