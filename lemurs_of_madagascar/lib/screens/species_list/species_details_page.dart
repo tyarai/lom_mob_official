@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/screens/species_list/species_slide_show.dart';
 
 class SpeciesDetailsPage extends StatefulWidget {
   Species species;
@@ -56,6 +57,29 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
     );
   }
 
+  _showSlideImages(){
+
+    Navigator.of(context).push(
+      PageRouteBuilder<Null>(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return AnimatedBuilder(
+                animation: animation,
+                builder: (BuildContext context, Widget child) {
+                  return Opacity(
+                    opacity: animation.value,
+                    child: SpeciesSlideShow(
+                      species: species,
+                    ),
+                  );
+                });
+          },
+          transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
+    );
+
+  }
+
+
   AppBar _buildAppBar() {
     return AppBar(
       elevation: 0.0,
@@ -65,28 +89,11 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
           icon: Icon(Icons.image,color: Constants.iconColor,size: 35,),
           onPressed: (){
 
+            _showSlideImages();
+
           },
         ),
 
-        /*PopupMenuButton(
-          itemBuilder: (BuildContext context){
-            List<PopupMenuItem> menus = List();
-
-            menus.add(
-
-              PopupMenuItem(
-                  child: ListTile(
-                    leading: Icon(Icons.image),
-                    title: Text("Species images"),
-                  ),
-              ),
-
-            );
-
-            return menus;
-
-          },
-        ),*/
       ],
       backgroundColor: Constants.mainColor,
       title: Text(_title), // Text(species.title),
