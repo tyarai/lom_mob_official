@@ -32,6 +32,7 @@ dependencies:
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7
 
+  shared_preferences: ^0.5.2
 
 dev_dependencies:
   flutter_test:

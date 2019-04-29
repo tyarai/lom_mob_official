@@ -79,7 +79,7 @@ class SpeciesDatabaseHelper  {
       list.add(Species.fromMap(speciesMapList[i]));
     }
 
-    print(list.toString());
+    //print(list.toString());
     return list;
   }
 

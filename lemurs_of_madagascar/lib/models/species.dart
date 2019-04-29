@@ -6,9 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 
 
+
 enum SpeciesImageClipperType {
   rectangular,
   oval
+}
+
+enum CellType {
+  ListTiles,
+  Column,
+  FittedBox,
 }
 
 class Species {
@@ -186,6 +193,18 @@ class Species {
   }
 
 
+  static bool isInList(Species species, List<Species> list){
+
+    if(species != null && list != null ){
+      for(int i= 0 ; i< list.length ; i++){
+        if(list[i].id == species.id){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   _loadImageFiles() async {
 
     this.imageFile  = "placeholder";
@@ -314,6 +333,15 @@ class Species {
       child: Text(species.malagasy),
     );
   }
+
+
+  // Always override hasCode when overriding operator ==
+  @override
+  bool operator ==(Object other) => other is Species && this.id == other.id;
+
+  @override
+  int get hasCode => id.hashCode ^ title.hashCode;
+
 
 
 }

@@ -4,6 +4,8 @@ import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_details_page.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
+
 
 class SpeciesListPage extends StatefulWidget {
   SpeciesListPage({Key key, this.title}) : super(key: key);
@@ -16,11 +18,7 @@ class SpeciesListPage extends StatefulWidget {
   }
 }
 
-enum CellType {
-  ListTiles,
-  Column,
-  FittedBox,
-}
+
 
 class SpeciesListPageState extends State<SpeciesListPage> {
   List<Species> _speciesList = List<Species>();
@@ -96,10 +94,110 @@ class SpeciesListPageState extends State<SpeciesListPage> {
             scrollDirection: Axis.vertical,
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
-              return _buildCellItem(index);
+              //return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
+              return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
             });
       },
     );
+  }
+
+  static Widget buildCellItem(
+      BuildContext context,
+      List<Species> list,
+      int index,
+      {
+        CellType cellType = CellType.FittedBox,
+        bool fromSearch = false,
+      })
+  {
+
+    Species species = list[index];
+
+    Widget widget;
+
+    switch (cellType) {
+      case CellType.Column:
+        {
+          break;
+        }
+      case CellType.FittedBox:
+        {
+          widget = GestureDetector(
+              onTap: () {
+
+                //if(fromSearch) LOMSharedPreferences.addToRecentSpeciesSearch(species);
+                SpeciesListPageState.navigateToSpeciesDetails(context, species);
+
+                /*Navigator.of(context).push(
+                  PageRouteBuilder<Null>(
+                      pageBuilder: (BuildContext context, Animation<double> animation,
+                          Animation<double> secondaryAnimation) {
+                        return AnimatedBuilder(
+                            animation: animation,
+                            builder: (BuildContext context, Widget child) {
+                              return Opacity(
+                                opacity: animation.value,
+                                child: SpeciesDetailsPage(
+                                  species: species,
+                                ),
+                              );
+                            });
+                      },
+                      transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
+                );*/
+
+
+                /*Navigator.of(context).push(
+                    MaterialPageRoute(
+                        fullscreenDialog: true, builder: (BuildContext context) => SpeciesDetailsPage(
+                      species: species,
+                    )));
+                 */
+
+                /*MaterialPageRoute(builder: (context) {
+                    return SpeciesDetailsPage(
+                      species: species,
+                    );
+                  }),
+                );*/
+              },
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+                  child: Container(
+                      child: Material(
+                        elevation: 2.5,
+                        borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
+                        shadowColor: Colors.blueGrey,
+                        child: Padding(
+                            padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Species.buildLemurPhoto(species),
+                                  Container(width: 10),
+                                  Species.buildTextInfo(species),
+                                ])),
+                      ))));
+
+          break;
+        }
+      case CellType.ListTiles:
+        {
+          widget = Padding(
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: Card(
+                elevation: 1.5,
+                child: ListTile(
+                  leading: Species.buildLemurPhoto(species,imageClipper: SpeciesImageClipperType.oval),
+                  title: Container(),
+                  subtitle: Container(),
+                ),
+              ));
+          break;
+        }
+    }
+
+    return widget;
   }
 
   Widget _buildSpeciesGridList() {
@@ -112,7 +210,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
         return ListView.builder(
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
-              return _buildCellItem(index);
+              return SpeciesListPageState.buildCellItem(context,this._speciesList,index);
             });
       },
     );
@@ -173,107 +271,8 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
   }
 
-  Widget _buildCellItem(int index, {CellType cellType = CellType.FittedBox}) {
-    Species species = _speciesList[index];
-
-    Widget widget;
-
-    switch (cellType) {
-      case CellType.Column:
-        {
-          break;
-        }
-      case CellType.FittedBox:
-        {
-          widget = GestureDetector(
-              onTap: () {
-
-                SpeciesListPageState.navigateToSpeciesDetails(context, species);
-
-                /*Navigator.of(context).push(
-                  PageRouteBuilder<Null>(
-                      pageBuilder: (BuildContext context, Animation<double> animation,
-                          Animation<double> secondaryAnimation) {
-                        return AnimatedBuilder(
-                            animation: animation,
-                            builder: (BuildContext context, Widget child) {
-                              return Opacity(
-                                opacity: animation.value,
-                                child: SpeciesDetailsPage(
-                                  species: species,
-                                ),
-                              );
-                            });
-                      },
-                      transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
-                );*/
 
 
-                /*Navigator.of(context).push(
-                    MaterialPageRoute(
-                        fullscreenDialog: true, builder: (BuildContext context) => SpeciesDetailsPage(
-                      species: species,
-                    )));
-                 */
-
-                /*MaterialPageRoute(builder: (context) {
-                    return SpeciesDetailsPage(
-                      species: species,
-                    );
-                  }),
-                );*/
-              },
-              child: Padding(
-                  padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-                  child: Container(
-                      child: Material(
-                    elevation: 2.5,
-                    borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
-                    shadowColor: Colors.blueGrey,
-                    child: Padding(
-                        padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Species.buildLemurPhoto(species),
-                              Container(width: 10),
-                              Species.buildTextInfo(species),
-                            ])),
-                  ))));
-
-          break;
-        }
-      case CellType.ListTiles:
-        {
-          widget = Padding(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: Card(
-                elevation: 1.5,
-                child: ListTile(
-                  leading: Species.buildLemurPhoto(species,imageClipper: SpeciesImageClipperType.oval),
-                  title: Container(),
-                  subtitle: Container(),
-                ),
-              ));
-          break;
-        }
-    }
-
-    return widget;
-  }
-
-  /*Widget _buildTextInfo(Species species,{bool showMalagasy = true}) {
-    return Expanded(
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Species.loadHeroTitle(species),
-            Container(height: 10),
-            showMalagasy ? Text(species.malagasy,
-                style: TextStyle(fontSize: Constants.subTitleFontSize)) : null,
-          ]),
-    );
-  }*/
 
 }
 
@@ -282,7 +281,13 @@ class DataSearch extends SearchDelegate<List<Species>> {
   List<Species> speciesList   = List();
   List<Species> recentSpecies = List();
 
-  DataSearch({this.speciesList});
+  initData() async{
+    recentSpecies = await LOMSharedPreferences.loadRecentSpeciesSearch();
+  }
+
+  DataSearch({this.speciesList}){
+    initData();
+  }
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -312,20 +317,6 @@ class DataSearch extends SearchDelegate<List<Species>> {
   }
 
 
-  List<Widget> _buildSearchRow(Species species){
-
-
-    List<Widget> list = [
-
-      Text(species.malagasy, style:TextStyle(fontSize: Constants.subTitleFontSize)),
-      Text(species.english, style:TextStyle(fontSize: Constants.subTitleFontSize)),
-      Text(species.german, style:TextStyle(fontSize: Constants.subTitleFontSize)),
-      Text(species.french, style:TextStyle(fontSize: Constants.subTitleFontSize))
-    ];
-
-    return list;
-  }
-
   @override
   Widget buildSuggestions(BuildContext context) {
     // show when someone searches for something
@@ -340,53 +331,11 @@ class DataSearch extends SearchDelegate<List<Species>> {
             species.otherEnglish.contains(query)
     ).toList();
 
-
-
     return ListView.builder(
+
       itemCount: suggestionsList.length,
-        itemBuilder: (BuildContext context, int index) => ListTile (
-          contentPadding: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
-          onTap: (){
-            close(context, null);
-            SpeciesListPageState.navigateToSpeciesDetails(context, suggestionsList[index]);
+      itemBuilder: (BuildContext context, int index) => SpeciesListPageState.buildCellItem(context,suggestionsList, index,fromSearch: true),
 
-          },
-          leading: Species.loadHeroImage(suggestionsList[index]),
-          title: Species.loadHeroTitle(suggestionsList[index]),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children:  _buildSearchRow(suggestionsList[index])
-          ),
-
-              /*RichText(
-               text:TextSpan(
-                  text: suggestionsList[index].title.substring(0,query.length),
-                  style: TextStyle(color:Colors.black,fontWeight: FontWeight.bold),
-                children: [
-
-                  TextSpan(
-                      text:suggestionsList[index].title.substring(query.length),
-                      //style: TextStyle(color:Colors.grey),
-                  ),
-                  TextSpan(
-                    text:suggestionsList[index].malagasy.substring(query.length),
-                    //style: TextStyle(color:Colors.grey),
-                  ),
-                  TextSpan(
-                    text:suggestionsList[index].french.substring(query.length),
-                    //style: TextStyle(color:Colors.grey),
-                  ),
-                  TextSpan(
-                    text:suggestionsList[index].english.substring(query.length),
-                    style: TextStyle(color:Colors.grey),
-                  ),
-                  TextSpan(
-                    text:suggestionsList[index].german.substring(query.length),
-                    style: TextStyle(color:Colors.grey),
-                  ),
-                ]
-              )),*/
-        )
     );
   }
 
