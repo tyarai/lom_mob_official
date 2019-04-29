@@ -18,6 +18,11 @@ class Constants {
   static const TextStyle speciesTitleStyle = TextStyle(fontSize: Constants.titleFontSize);
   static const TextStyle defaultTextStyle = TextStyle(fontSize: Constants.textFontSize);
 
+  // Info message
+  static const double infoTextFontSize = 25.0;
+  static const Color infoTextColor = Colors.blue;
+
+
 }
 
 

@@ -280,6 +280,7 @@ class DataSearch extends SearchDelegate<List<Species>> {
 
   List<Species> speciesList   = List();
   List<Species> recentSpecies = List();
+  List<Species> suggestionsList = List();
 
   initData() async{
     recentSpecies = await LOMSharedPreferences.loadRecentSpeciesSearch();
@@ -313,14 +314,18 @@ class DataSearch extends SearchDelegate<List<Species>> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return null;
+    if(query.isNotEmpty) {
+      return _buildSearchResult();
+    }
+    return Container();
+
   }
 
 
   @override
   Widget buildSuggestions(BuildContext context) {
     // show when someone searches for something
-    final List<Species> suggestionsList = query.isEmpty ? recentSpecies : 
+    suggestionsList = query.isEmpty ? recentSpecies :
         
     speciesList.where((species) =>
             species.title.toLowerCase().contains(query.toLowerCase()) ||
@@ -337,6 +342,14 @@ class DataSearch extends SearchDelegate<List<Species>> {
       itemBuilder: (BuildContext context, int index) => SpeciesListPageState.buildCellItem(context,suggestionsList, index,fromSearch: true),
 
     );
+  }
+
+  Widget _buildSearchResult(){
+    return ListView.builder(
+        itemCount: this.suggestionsList.length,
+        itemBuilder: (BuildContext context,int index){
+          return SpeciesListPageState.buildCellItem(context,this.suggestionsList,index);
+    });
   }
 
 }

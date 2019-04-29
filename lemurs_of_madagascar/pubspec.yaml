@@ -29,6 +29,7 @@ dependencies:
 
   path_provider : any
 
+
   #Image slider
   carousel_slider: ^1.3.0
 
