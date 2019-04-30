@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 
 class Photograph {
 
@@ -55,7 +56,15 @@ class Photograph {
     this._photograph = map[_photographKey];
   }
 
+  Image getImageWidget({String path = "assets/images/",String ext = ".jpg"}){
+    return Image.asset(path+ this.photograph + ext);
 
+  }
+
+  ExactAssetImage getExactAssetImage({String path = "assets/images/",String ext = ".jpg"}){
+    return ExactAssetImage(path+ this.photograph + ext);
+
+  }
 
 
 }

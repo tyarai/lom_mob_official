@@ -2,94 +2,137 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_pro/carousel_pro.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:share/share.dart';
 
-class SpeciesSlideShow extends StatelessWidget {
-
+class SpeciesSlideShow extends StatefulWidget {
   final Species species;
-  List<String> _imageFileNames = List();
-
-  SpeciesSlideShow({this.species});
 
 
+  SpeciesSlideShow({this.species}){
 
-  @override
-  void initState(){
-    //_imageFileNames = _loadImageFilenames();
   }
 
+  @override
+  State<StatefulWidget> createState() {
+    return SpeciesSlideShowState(species: species);
+  }
+}
 
-   _loadImageFilenames() async {
+class SpeciesSlideShowState extends State<SpeciesSlideShow> {
+  final Species species;
+  List<ExactAssetImage> _imageList = List();
+  Carousel carousel;
 
+  SpeciesSlideShowState({this.species}) {
+    _loadImages();
+    carousel = Carousel(
+      animationDuration : Duration(milliseconds: 500),
+      boxFit: BoxFit.contain,
+      images: _imageList,
+      dotSize: 6.0,
+      dotSpacing: 15.0,
+      dotColor: Constants.iconColor,
+      indicatorBgPadding: 5.0,
+      dotBgColor: Constants.mainColor,
+      borderRadius: true,
+      //moveIndicatorFromBottom: 180.0,
+      noRadiusForIndicator: true,
+    );
+  }
 
-    //print("******* #0");
+  _loadImages() async {
 
-    if(species != null) {
-      // Load map image
-
-      //print("******* #1");
-
+    if (species != null) {
       String stringPhotoIDs = species.photoIDs;
       List<int> photoID = stringPhotoIDs.split(",").map((stringID) {
         return int.parse(stringID);
       }).toList();
 
-
       for (int i = 0; i < photoID.length; i++) {
         int id = photoID[i];
-        PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
-        Photograph futurePhoto = await photographDatabaseHelper
-            .getPhotographWithID(id: id);
-        _imageFileNames.add(futurePhoto.photograph);
-        //print("#2" + futurePhoto.photograph);
+        PhotographDatabaseHelper photographDatabaseHelper =
+            PhotographDatabaseHelper();
+        Photograph photo =
+            await photographDatabaseHelper.getPhotographWithID(id: id);
+        _imageList.add( photo.getExactAssetImage());
       }
     }
 
+    setState(() {});
   }
 
+  Widget _buildCarousel({int xOffest = 50, int yOffset = 80}) {
+    //await _loadImageFilenames();
+    Widget widget;
 
-  Future<Widget> _buildCarousel() async {
-
-     await _loadImageFilenames();
-
-     print("#0 "+_imageFileNames.toString());
-
-    return CarouselSlider(
-      height: 400.0,
-      items: this._imageFileNames.map((fileName) {
-
-        String newImageFile = "assets/images/" + fileName + ".jpg";
-        print("#1 " + newImageFile);
-
-        return Builder(
-          builder: (BuildContext context) {
-            return Container(
-                width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(
-                    color: Colors.amber
-                ),
-                child: Image.asset(newImageFile),
+    try {
+      widget = _imageList.length == 0
+          ? Center(
+              child: Container(
+              child: CircularProgressIndicator(),
+            ))
+          : SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child:carousel,
             );
-          },
-        );
-      }).toList(),
-    );
+    } catch (e) {}
+
+    return widget;
   }
 
   @override
-  Widget build(BuildContext context)   {
+  Widget build(BuildContext context) {
+    Widget futureWidget = Scaffold(
+        backgroundColor: Constants.mainColor,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              height: 20,
+            ),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+              Column(
+                  //crossAxisAlignment: CrossAxisAlignment.start,
+                  children:<Widget> [OutlineButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: Constants.iconColor,
+                        size: 35,
+                      ),
+                      label: Text(""))]
+              ),
 
-    Future<Widget> futureWidget =  _buildCarousel();
-    print("#3 ");
+              /*Column(
+                  //crossAxisAlignment: CrossAxisAlignment.end,
+                  children:<Widget>[ OutlineButton.icon(
+                      onPressed: () {
+                        _shareCurrentImage();
+                      },
+                      icon: Icon(
+                        Icons.share,
+                        color: Constants.iconColor,
+                        size: 35,
+                      ),
+                      label: Text(""))]
+              ),*/
 
-    futureWidget.then((_widget){
-      print("#4 ");
-      return  _widget;
-    });
+            ]),
+            Expanded(child: _buildCarousel()),
+          ],
+        ));
 
-    print("#6 ");
-    return Container(child:Center(child:Text("NONE")));
+    return futureWidget;
   }
 
+  _shareCurrentImage(){
+
+  }
 }

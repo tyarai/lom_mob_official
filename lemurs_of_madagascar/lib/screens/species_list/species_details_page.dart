@@ -59,7 +59,14 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
 
   _showSlideImages(){
 
+
     Navigator.of(context).push(
+        MaterialPageRoute(
+            fullscreenDialog: true, builder: (BuildContext context) => SpeciesSlideShow(
+          species: species,
+        )));
+
+    /*Navigator.of(context).push(
       PageRouteBuilder<Null>(
           pageBuilder: (BuildContext context, Animation<double> animation,
               Animation<double> secondaryAnimation) {
@@ -75,7 +82,7 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
                 });
           },
           transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
-    );
+    );*/
 
   }
 

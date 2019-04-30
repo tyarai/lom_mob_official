@@ -146,7 +146,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
                       transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
                 );*/
 
-
                 /*Navigator.of(context).push(
                     MaterialPageRoute(
                         fullscreenDialog: true, builder: (BuildContext context) => SpeciesDetailsPage(
@@ -160,6 +159,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
                     );
                   }),
                 );*/
+
               },
               child: Padding(
                   padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
