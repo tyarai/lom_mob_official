@@ -9,9 +9,9 @@ class SpeciesSlideShow extends StatelessWidget {
   final Species species;
   List<String> _imageFileNames = List();
 
-  SpeciesSlideShow({this.species}){
-    _imageFileNames = _loadImageFilenames();
-  }
+  SpeciesSlideShow({this.species});
+
+
 
   @override
   void initState(){
@@ -22,38 +22,45 @@ class SpeciesSlideShow extends StatelessWidget {
    _loadImageFilenames() async {
 
 
-    print("******* #0");
+    //print("******* #0");
 
     if(species != null) {
       // Load map image
 
-      print("******* #1");
+      //print("******* #1");
 
-      String stringPhotoIDs   = species.photoIDs;
-      List<int> photoID       = stringPhotoIDs.split(",").map((stringID){
-         return int.parse(stringID) ;
+      String stringPhotoIDs = species.photoIDs;
+      List<int> photoID = stringPhotoIDs.split(",").map((stringID) {
+        return int.parse(stringID);
       }).toList();
 
-      photoID.forEach((id) {
+
+      for (int i = 0; i < photoID.length; i++) {
+        int id = photoID[i];
         PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
-        Future<Photograph> futurePhoto = photographDatabaseHelper.getPhotographWithID(id: id);
-        futurePhoto.then((photo){
-            _imageFileNames.add(photo.photograph);
-        });
-      });
+        Photograph futurePhoto = await photographDatabaseHelper
+            .getPhotographWithID(id: id);
+        _imageFileNames.add(futurePhoto.photograph);
+        //print("#2" + futurePhoto.photograph);
+      }
     }
-
-    print(_imageFileNames);
-
 
   }
 
 
-  Widget _buildCarousel(){
+  Future<Widget> _buildCarousel() async {
+
+     await _loadImageFilenames();
+
+     print("#0 "+_imageFileNames.toString());
 
     return CarouselSlider(
       height: 400.0,
       items: this._imageFileNames.map((fileName) {
+
+        String newImageFile = "assets/images/" + fileName + ".jpg";
+        print("#1 " + newImageFile);
+
         return Builder(
           builder: (BuildContext context) {
             return Container(
@@ -62,7 +69,7 @@ class SpeciesSlideShow extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: Colors.amber
                 ),
-                child: Image.asset(fileName),
+                child: Image.asset(newImageFile),
             );
           },
         );
@@ -71,8 +78,18 @@ class SpeciesSlideShow extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return _buildCarousel();
+  Widget build(BuildContext context)   {
+
+    Future<Widget> futureWidget =  _buildCarousel();
+    print("#3 ");
+
+    futureWidget.then((_widget){
+      print("#4 ");
+      return  _widget;
+    });
+
+    print("#6 ");
+    return Container(child:Center(child:Text("NONE")));
   }
 
 }
