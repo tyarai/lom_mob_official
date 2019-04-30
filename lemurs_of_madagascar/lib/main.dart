@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/screens/Introduction.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 
 
 final routes = {
@@ -9,6 +10,7 @@ final routes = {
   '/introduction'    : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),
   '/species_list'    : (BuildContext context) => SpeciesListPage(title: "Species",),
   '/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),
+  '/login'           : (BuildContext context) => LoginPage(),
 
 };
 
