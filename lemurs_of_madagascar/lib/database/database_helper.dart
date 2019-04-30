@@ -102,7 +102,6 @@ class DatabaseHelper {
 
    _onUpgrade(Database db, int oldVersion, int newVersion) {}
 
-   //@TODO : Check if we can find other method to copy the database to the working directory
    // This copy db function works if the database file size is less than 650MB. Actually
    // our original database size is about 1.5MB so it's okay.
    void writeToFile(ByteData data, String path) {

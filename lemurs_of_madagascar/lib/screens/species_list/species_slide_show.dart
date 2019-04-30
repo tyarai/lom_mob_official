@@ -114,6 +114,7 @@ class SpeciesSlideShowState extends State<SpeciesSlideShow> {
                   //crossAxisAlignment: CrossAxisAlignment.end,
                   children:<Widget>[ OutlineButton.icon(
                       onPressed: () {
+                      //@TODO : Add share fonctionnality to share image to social app
                         _shareCurrentImage();
                       },
                       icon: Icon(
