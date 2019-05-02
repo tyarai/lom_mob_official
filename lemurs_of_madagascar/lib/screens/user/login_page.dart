@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/error_text.dart';
 
 abstract class LoginPageContract {
-  void onLoginSuccess(User user,{String destPageName = "/introduction"});
+  void onLoginSuccess(User user, {String destPageName = "/introduction"});
   void onLoginFailure(String error);
 }
 
@@ -28,6 +30,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> implements LoginPageContract {
+
+  EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
+  EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
+
   BuildContext _ctx;
   bool _isLoading = false;
   final formKey = GlobalKey<FormState>();
@@ -48,35 +54,94 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   Widget build(BuildContext context) {
     _ctx = context;
 
-    var loginBtn = new RaisedButton(
-      onPressed: _submit,
-      child: new Text("Login"),
-      color: Colors.green,
-    );
+    final loginBtn = Padding(
+      padding: edgeInsets,
+        child: Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
+      color: Constants.mainColor,
+      child: MaterialButton(
+        minWidth: MediaQuery.of(context).size.width,
+        padding: edgePadding,
+        onPressed: _submit,
+        child: Text("Login",
+            textAlign: TextAlign.center,
+            style: Constants.buttonTextStyle
+                .copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    ));
 
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        new Text(
+        Container(
+          height: 50.0,
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width*0.85,
+          child:
+        Text(
           "Lemurs of madagascar",
+          style: Constants.appTitle,
           textScaleFactor: 2.0,
+          textAlign: TextAlign.center
+          )
+        ),
+        Container(
+          height: 20.0,
         ),
         new Form(
           key: formKey,
           child: new Column(
             children: <Widget>[
               new Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: edgePadding,
                 child: new TextFormField(
                   onSaved: (val) => _userName = val,
-                  decoration: new InputDecoration(labelText: "Username"),
+                  validator: (String arg) {
+                    if(arg.length < 4) {
+                      return ErrorText.loginNameError;
+                    }else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(
+                      //labelText: "Username",
+                      icon: new Icon(
+                        Icons.person,
+                        color: Constants.iconColor,
+                      ),
+                      contentPadding: edgeInsets,
+                      hintText: "Username",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              Constants.speciesImageBorderRadius))),
                 ),
               ),
               new Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: edgePadding,
                 child: new TextFormField(
+                  obscureText: true,
                   onSaved: (val) => _passWord = val,
-                  decoration: new InputDecoration(labelText: "Password"),
+                  validator: (String arg) {
+                    if(arg.length == 0) {
+                      return ErrorText.passwordError;
+                    }else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(
+                      //labelText: "Username",
+                      icon: new Icon(
+                        Icons.lock,
+                        color: Constants.iconColor,
+                      ),
+                      contentPadding: edgeInsets,
+                      hintText: "Password",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              Constants.speciesImageBorderRadius))),
                 ),
               )
             ],
@@ -87,17 +152,17 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
     );
 
     return new Scaffold(
-      appBar: new AppBar(
+      /*appBar: new AppBar(
         title: new Text("Login Page"),
-      ),
+      ),*/
       key: scaffoldKey,
-      body: ListView(children: <Widget>[
+      body: SingleChildScrollView(child:
         Container(
           child: new Center(
             child: loginForm,
           ),
         )
-      ]),
+      ),
     );
   }
 
@@ -128,7 +193,8 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   }
 
   @override
-  void onLoginSuccess(User user,{String destPageName = "/introduction"}) async {
+  void onLoginSuccess(User user,
+      {String destPageName = "/introduction"}) async {
     _showSnackBar(user.toString());
     setState(() {
       _isLoading = false;
@@ -141,6 +207,6 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   @override
   void onLoginFailure(String error) {
     //@TODO : Implement something on login failure
-    print("LOGIN ERROR: "+error);
+    print("LOGIN ERROR: " + error);
   }
 }

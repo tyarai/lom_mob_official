@@ -59,6 +59,8 @@ class User {
       this.timezone = userObj[timezoneKey];
       this.language = userObj[languageKey];
       this.uuid = userObj[uuidKey];
+
+      this.saveToSharedPreferences();
     }
 
     if(userSession != null) {
@@ -73,8 +75,6 @@ class User {
       LOMSharedPreferences.loadString(User.tokenKey).then((value){
         print( "--->" + value );
       });
-
-
     }
 
   }
@@ -100,6 +100,22 @@ class User {
 
   }
 
+
+  void saveToSharedPreferences(){
+    LOMSharedPreferences.setString(User.uidKey, this.uid.toString());
+    LOMSharedPreferences.setString(User.nameKey, this.name);
+    LOMSharedPreferences.setString(User.mailKey, this.mail);
+    LOMSharedPreferences.setString(User.themeKey, this.theme);
+    LOMSharedPreferences.setString(User.signatureKey, this.signature);
+    LOMSharedPreferences.setString(User.signatureFormatKey, this.signatureFormat);
+    LOMSharedPreferences.setString(User.createdKey, this.created.toString());
+    LOMSharedPreferences.setString(User.accessKey, this.access.toString());
+    LOMSharedPreferences.setString(User.loginKey, this.login.toString());
+    LOMSharedPreferences.setString(User.statusKey, this.status.toString());
+    LOMSharedPreferences.setString(User.timezoneKey, this.timezone);
+    LOMSharedPreferences.setString(User.languageKey, this.language);
+    LOMSharedPreferences.setString(User.uuidKey, this.uuid);
+  }
 
 
   Map<String,dynamic> toMap(){

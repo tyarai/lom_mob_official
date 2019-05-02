@@ -74,17 +74,17 @@ class RestData {
       headers: headers,
     ).then((dynamic resultMap) {
 
-      //print("LOM :(login result): " + resultMap.toString());
+      print("LOM :(login result): " + resultMap.toString());
 
       if(resultMap[RestData.errorKey] != null) {
-        //print("LOM :Error!");
+        print("#2");
         throw new Exception(resultMap["error_msg"]);
       }
-
-      //return new User(name: "Ranto");
-      print(resultMap[userStructureKey]);
       return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
 
+    }).catchError((error) {
+
+      throw new Exception(error);
     });
   }
 }

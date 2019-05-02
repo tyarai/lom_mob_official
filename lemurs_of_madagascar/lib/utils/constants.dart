@@ -11,6 +11,10 @@ class Constants {
   static const int speciesHeroTransitionDuration = 800;
   static const double iconSize = 40.0;
 
+  static const String fontFamily = 'Montserrat';
+  static const TextStyle buttonTextStyle = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  static const TextStyle appTitle = TextStyle(fontFamily: fontFamily, fontSize: 15.0,color: Colors.cyan);
+
 
   static const Color mainColor = Colors.blueGrey;
   static const Color backGroundColor = Colors.grey;
@@ -22,7 +26,8 @@ class Constants {
   static const double infoTextFontSize = 25.0;
   static const Color infoTextColor = Colors.blue;
 
-
 }
+
+
 
 
