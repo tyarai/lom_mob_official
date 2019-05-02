@@ -1,3 +1,5 @@
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
+
 class User {
 
 
@@ -27,10 +29,10 @@ class User {
   String theme;
   String signature;
   String signatureFormat;
-  String created;
-  String access;
-  String login;
-  String status;
+  int created;
+  int access;
+  int login;
+  int status;
   String timezone;
   String language;
   String uuid;
@@ -41,26 +43,60 @@ class User {
 
   User({this.uid,this.name,this.mail,this.theme,this.signature,this.signatureFormat,this.created,this.access,this.login,this.status,this.timezone,this.language,this.uuid,this.sessionID,this.sessionName,this.token});
 
-  User.fromMap(dynamic userObj,{dynamic userSession}){
-    this.uid            = int.parse(userObj[uidKey]);
-    this.name           = userObj[nameKey];
-    this.mail           = userObj[mailKey];
-    this.theme          = userObj[themeKey];
-    this.signature      = userObj[signatureKey];
-    this.signatureFormat = userObj[signatureFormatKey];
-    this.created        = userObj[createdKey];
-    this.access         = userObj[accessKey];
-    this.login          = userObj[loginKey];
-    this.status         = userObj[statusKey];
-    this.timezone       = userObj[timezoneKey];
-    this.language       = userObj[languageKey];
-    this.uuid           = userObj[uuidKey];
+  User.fromJSONMap(dynamic userObj,{dynamic userSession}){
+
+    if(userObj != null) {
+      this.uid = int.parse(userObj[uidKey]);
+      this.name = userObj[nameKey];
+      this.mail = userObj[mailKey];
+      this.theme = userObj[themeKey];
+      this.signature = userObj[signatureKey];
+      this.signatureFormat = userObj[signatureFormatKey];
+      this.created = int.parse(userObj[createdKey]);
+      this.access = int.parse(userObj[accessKey]);
+      this.login = userObj[loginKey];
+      this.status = userObj[statusKey];
+      this.timezone = userObj[timezoneKey];
+      this.language = userObj[languageKey];
+      this.uuid = userObj[uuidKey];
+    }
 
     if(userSession != null) {
       this.sessionName = userSession[sessionNameKey];
       this.sessionID = userSession[sessionIDKey];
       this.token = userSession[tokenKey];
+
+      LOMSharedPreferences.setString(User.sessionIDKey, this.sessionID);
+      LOMSharedPreferences.setString(User.sessionNameKey, this.sessionName);
+      LOMSharedPreferences.setString(User.tokenKey, this.token);
+
+      LOMSharedPreferences.loadString(User.tokenKey).then((value){
+        print( "--->" + value );
+      });
+
+
     }
+
+  }
+
+  User.fromMap(dynamic userObj){
+
+    if(userObj != null) {
+      this.uid = int.parse(userObj[uidKey]);
+      this.name = userObj[nameKey];
+      this.mail = userObj[mailKey];
+      this.theme = userObj[themeKey];
+      this.signature = userObj[signatureKey];
+      this.signatureFormat = userObj[signatureFormatKey];
+      this.created = int.parse(userObj[createdKey]);
+      this.access = int.parse(userObj[accessKey]);
+      this.login = userObj[loginKey];
+      this.status = userObj[statusKey];
+      this.timezone = userObj[timezoneKey];
+      this.language = userObj[languageKey];
+      this.uuid = userObj[uuidKey];
+    }
+
 
   }
 

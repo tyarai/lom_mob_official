@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
   @override
   void onLoginFailure(String error) {
-    //@TODO : Implemet something on login failure
-    print("LOM ERROR:"+error);
+    //@TODO : Implement something on login failure
+    print("LOGIN ERROR: "+error);
   }
 }

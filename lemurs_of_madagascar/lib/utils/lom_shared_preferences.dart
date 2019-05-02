@@ -6,7 +6,7 @@ import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 class LOMSharedPreferences{
 
 
-    static String recentSpeciesSearchKey = "recentSpeciesSearchKey";
+  static String recentSpeciesSearchKey = "recentSpeciesSearchKey";
 
   static void addToRecentSpeciesSearch(Species species) async {
     if(species != null){
@@ -51,9 +51,37 @@ class LOMSharedPreferences{
 
        }
     }
-
-    //print("3- LOAD LIST:"+recentSearchList.toString());
     return recentSearchList;
+
+  }
+
+  static Future<String> loadString(String paramName) async {
+
+    String resultValue = "";
+
+    try{
+
+      final prefs = await SharedPreferences.getInstance();
+      resultValue = prefs.getString(paramName);
+
+    }catch(e){
+      print(" [Shared preferences - loadUserSession()]  :" + e.toString());
+    }
+
+    return resultValue;
+  }
+
+  static Future<void> setString(String paramName,String value) async {
+
+    try{
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString(paramName,value);
+
+    }catch(e){
+      print(" [Shared preferences - saveUserSession()]" + e.toString());
+    }
+
 
   }
 

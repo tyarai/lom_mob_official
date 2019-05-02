@@ -1,19 +1,20 @@
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:lemurs_of_madagascar/utils/network_util.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 
 class RestData {
 
   static final errorKey = "error";
-  static final userStructureKey = "key";
+  static final userStructureKey = "user";
 
 
 
   NetworkUtil _networkUtil = NetworkUtil();
 
-  //static final SERVER               = "https://www.lemursofmadagascar.com/html";
-  static final SERVER               = "http://192.168.2.242";
+  static final SERVER               = "https://www.lemursofmadagascar.com/html";
+  //static final SERVER               = "http://192.168.2.242";
   static final LOGIN_ENDPOINT       = SERVER + "/lom_endpoint/api/v1/services/user/login.json";
   static final LOGOUT_ENDPOINT      = SERVER + "/lom_endpoint/api/v1/services/user/logout.json";
   static final REGISTER_ENDPOINT    = SERVER + "/lom_endpoint/api/v1/services/user/register.json";
@@ -55,25 +56,34 @@ class RestData {
 
 
   Future<User> login(String userName, String passWord){
-    print("LOGIN .....");
+
+    print("login .....");
+
+    Map<String,String> body = {
+      "username": userName,
+    "password": passWord
+    };
+
+    Map<String,String> headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+    };
+
     return _networkUtil.post(LOGIN_ENDPOINT,
-      body: {
-        "username": userName,
-        "password": passWord
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
+      body: json.encode(body),
+      headers: headers,
     ).then((dynamic resultMap) {
 
-      print("LOM :(login result): " + resultMap.toString());
+      //print("LOM :(login result): " + resultMap.toString());
 
-      if(resultMap[RestData.errorKey]) {
-        print("LOM :Error!");
+      if(resultMap[RestData.errorKey] != null) {
+        //print("LOM :Error!");
         throw new Exception(resultMap["error_msg"]);
       }
-      return new User.fromMap(resultMap[userStructureKey],userSession: resultMap);
+
+      //return new User(name: "Ranto");
+      print(resultMap[userStructureKey]);
+      return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
 
     });
   }
