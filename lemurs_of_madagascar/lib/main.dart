@@ -9,8 +9,9 @@ final routes = {
 
   '/introduction'    : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),
   '/species_list'    : (BuildContext context) => SpeciesListPage(title: "Species",),
-  '/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),
+  //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),
   '/login'           : (BuildContext context) => LoginPage(),
+  '/'                : (BuildContext context) => LoginPage(),
 
 };
 

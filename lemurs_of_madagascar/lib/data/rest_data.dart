@@ -1,13 +1,19 @@
 
+import 'dart:async';
 import 'package:lemurs_of_madagascar/utils/network_util.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 
 class RestData {
 
+  static final errorKey = "error";
+  static final userStructureKey = "key";
+
+
+
   NetworkUtil _networkUtil = NetworkUtil();
 
-  static final SERVER               = "https://www.lemursofmadagascar.com/html";
-
+  //static final SERVER               = "https://www.lemursofmadagascar.com/html";
+  static final SERVER               = "http://192.168.2.242";
   static final LOGIN_ENDPOINT       = SERVER + "/lom_endpoint/api/v1/services/user/login.json";
   static final LOGOUT_ENDPOINT      = SERVER + "/lom_endpoint/api/v1/services/user/logout.json";
   static final REGISTER_ENDPOINT    = SERVER + "/lom_endpoint/api/v1/services/user/register.json";
@@ -48,8 +54,28 @@ class RestData {
   static final CHANGED_NODES = SERVER +  "/lom_endpoint/api/v1/services/lom_node_services/changed_nodes"; // Misy parama from_date
 
 
-  Future<User> login(String userName, String password){
-    return new Future.value(User(name:userName));
-  }
+  Future<User> login(String userName, String passWord){
+    print("LOGIN .....");
+    return _networkUtil.post(LOGIN_ENDPOINT,
+      body: {
+        "username": userName,
+        "password": passWord
+      },
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+    ).then((dynamic resultMap) {
 
+      print("LOM :(login result): " + resultMap.toString());
+
+      if(resultMap[RestData.errorKey]) {
+        print("LOM :Error!");
+        throw new Exception(resultMap["error_msg"]);
+      }
+      return new User.fromMap(resultMap[userStructureKey],userSession: resultMap);
+
+    });
+  }
 }
+

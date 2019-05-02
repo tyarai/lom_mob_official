@@ -3,60 +3,49 @@ import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
 
 abstract class LoginPageContract {
-  void onLoginSuccess(User user);
+  void onLoginSuccess(User user,{String destPageName = "/introduction"});
   void onLoginFailure(String error);
 }
 
-
 class LoginPagePresenter {
-
   LoginPageContract _view;
   RestData api = RestData();
   LoginPagePresenter(this._view);
 
-  doLogin(String userName, String passWord){
-
+  doLogin(String userName, String passWord) {
     api
         .login(userName, passWord)
         .then((user) => _view.onLoginSuccess(user))
-        .catchError((onError) => _view.onLoginFailure(onError));
+        .catchError((onError) => _view.onLoginFailure(onError.toString()));
   }
-
 }
 
 class LoginPage extends StatefulWidget {
-
-
   @override
   State<StatefulWidget> createState() {
     return _LoginPageState();
   }
-
 }
 
 class _LoginPageState extends State<LoginPage> implements LoginPageContract {
-
-
   BuildContext _ctx;
-  bool _isLoading   = false;
-  final formKey     = GlobalKey<FormState>();
+  bool _isLoading = false;
+  final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String _userName,
+  String _userName;
   String _passWord;
 
   LoginPagePresenter _presenter;
 
   _LoginPageState() {
-
     _presenter = LoginPagePresenter(this);
-    _userName  = "";
-    _passWord  = "";
+    _userName = "";
+    _passWord = "";
   }
 
   @override
   Widget build(BuildContext context) {
-
     _ctx = context;
 
     var loginBtn = new RaisedButton(
@@ -64,11 +53,12 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       child: new Text("Login"),
       color: Colors.green,
     );
+
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         new Text(
-          "Sqflite App Login",
+          "Lemurs of madagascar",
           textScaleFactor: 2.0,
         ),
         new Form(
@@ -78,14 +68,14 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
               new Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: new TextFormField(
-                  onSaved: (val) => _username = val,
+                  onSaved: (val) => _userName = val,
                   decoration: new InputDecoration(labelText: "Username"),
                 ),
               ),
               new Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: new TextFormField(
-                  onSaved: (val) => _password = val,
+                  onSaved: (val) => _passWord = val,
                   decoration: new InputDecoration(labelText: "Password"),
                 ),
               )
@@ -101,14 +91,15 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
         title: new Text("Login Page"),
       ),
       key: scaffoldKey,
-      body: new Container(
-        child: new Center(
-          child: loginForm,
-        ),
-      ),
+      body: ListView(children: <Widget>[
+        Container(
+          child: new Center(
+            child: loginForm,
+          ),
+        )
+      ]),
     );
   }
-
 
   void _submit() {
     final form = formKey.currentState;
@@ -117,7 +108,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       setState(() {
         _isLoading = true;
         form.save();
-        _presenter.doLogin(_username, _password);
+        _presenter.doLogin(_userName, _passWord);
       });
     }
   }
@@ -137,19 +128,19 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   }
 
   @override
-  void onLoginSuccess(User user) async {
+  void onLoginSuccess(User user,{String destPageName = "/introduction"}) async {
     _showSnackBar(user.toString());
     setState(() {
       _isLoading = false;
     });
-    var db = new DatabaseHelper();
-    await db.saveUser(user);
-    Navigator.of(context).pushNamed("/home");
+    //var db = new DatabaseHelper();
+    //await db.saveUser(user);
+    Navigator.of(context).pushNamed(destPageName);
   }
 
   @override
   void onLoginFailure(String error) {
-    // TODO: implement onLoginFailure
+    //@TODO : Implemet something on login failure
+    print("LOM ERROR:"+error);
   }
-
 }
