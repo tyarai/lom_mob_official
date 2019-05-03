@@ -24,11 +24,11 @@ class RegisterPagePresenter {
   doRegister(String userName, String passWord, String email) {
     registerRestAPI
         .register(userName, passWord,email)
-        .then((user) => _registerView.onRegisterSuccess(user))
+        .then((User user) =>  _registerView.onRegisterSuccess(user))
         .catchError((Object error) {
           //TODO Handle SocketException when the user does not have to internet. In that case SocketException is thrown instead of LOMException
           LOMException lomException = error as LOMException;
-          //print("CODE: "+ lomException.statusCode.toString());
+          //print("Code : " + lomException.statusCode.toString());
           _registerView.onRegisterFailure(lomException.statusCode);
         });
   }
@@ -36,18 +36,14 @@ class RegisterPagePresenter {
 
 class RegisterPage extends StatefulWidget {
 
-  final LoginPagePresenter _loginPresenter;
-
-  RegisterPage(this._loginPresenter);
-
   @override
   State<StatefulWidget> createState() {
-    return _RegisterPageState(this._loginPresenter);
+    return _RegisterPageState();
   }
 
 }
 
-class _RegisterPageState extends State<RegisterPage> implements RegisterPageContract  {
+class _RegisterPageState extends State<RegisterPage> implements RegisterPageContract,LoginPageContract  {
 
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
@@ -65,8 +61,9 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
 
 
 
-  _RegisterPageState(this._loginPresenter) {
+  _RegisterPageState() {
     _registerPresenter = RegisterPagePresenter(this);
+    _loginPresenter    = LoginPagePresenter(this);
     _userName  = "";
     _passWord1 = "";
     _passWord2 = "";
@@ -96,15 +93,16 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
 
     final alreadyHaveAnAccountBtn = Padding(
       padding: edgeInsets,
-      child: OutlineButton(
+      child: _isLoading ? Container() : OutlineButton(
 
-        child: Text("Already have an account",
+        child:  Text("Already have an account",
             textAlign: TextAlign.center,
             style: Constants.subButtonTextStyle
                 .copyWith(color: Constants.mainColor, fontWeight: FontWeight.bold)),
         onPressed: () {
+          Navigator.of(context).pushReplacementNamed("/login");
           //Navigator.pushNamed(context, "/login");
-          Navigator.pop(context);
+          //Navigator.pop(context);
         }, //callback when button is clicked
         borderSide: BorderSide(
           color: Constants.registerBtnBorderColor, //Color of the border
@@ -281,14 +279,34 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
 
   @override
   void onRegisterFailure(int statusCode) {
-    // TODO: implement onRegisterFailure
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handle(context, statusCode);
   }
 
   @override
   void onRegisterSuccess(User newUser, {String destPageName = "/introduction"}) {
     if(newUser != null) {
+      print("> logining in new registered user :"+ newUser.name);
       this._loginPresenter.doLogin(newUser.name, newUser.password);
     }
+  }
+
+  @override
+  void onLoginFailure(int statusCode) {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handle(context, statusCode);
+  }
+
+  @override
+  void onLoginSuccess(User user, {String destPageName = "/introduction"}) {
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pushReplacementNamed(destPageName);
   }
 
 

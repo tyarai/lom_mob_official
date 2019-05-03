@@ -62,7 +62,7 @@ class User {
       this.language = userObj[languageKey];
       this.uuid = userObj[uuidKey];
 
-      this.saveToSharedPreferences();
+      this._saveToSharedPreferences();
     }
 
     if(userSession != null) {
@@ -103,7 +103,7 @@ class User {
   }
 
 
-  void saveToSharedPreferences(){
+  void _saveToSharedPreferences(){
     LOMSharedPreferences.setString(User.uidKey, this.uid.toString());
     LOMSharedPreferences.setString(User.nameKey, this.name);
     LOMSharedPreferences.setString(User.mailKey, this.mail);

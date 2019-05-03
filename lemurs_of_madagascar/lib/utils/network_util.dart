@@ -35,13 +35,15 @@ class NetworkUtil {
 
       final String res = response.body;
       final int statusCode = response.statusCode;
+      dynamic decodedData = _decoder.convert(res);
 
       if (statusCode < 200 || statusCode > 400 || json == null) {
+        print("NETWORK STATUS CODE :"+statusCode.toString());
         //throw new Exception(statusCode);
         throw new LOMException(statusCode);
       }
 
-      return _decoder.convert(res);
+      return decodedData;
 
     });/*.catchError((Object error){
 

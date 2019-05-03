@@ -4,7 +4,7 @@ import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
-import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
+
 
 
 abstract class LoginPageContract {
@@ -84,14 +84,15 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
     final registerBtn = Padding(
         padding: edgeInsets,
-        child: OutlineButton(
-
-        child: Text("Register",
+        child: _isLoading ? Container() : OutlineButton(
+        child:  Text("Register",
             textAlign: TextAlign.center,
             style: Constants.subButtonTextStyle
                 .copyWith(color: Constants.mainColor, fontWeight: FontWeight.bold)),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage(this._loginPresenter));
+          //Navigator.pushNamed(context, "/register");
+          Navigator.of(context).pushReplacementNamed("/register");
+
         }, //callback when button is clicked
         borderSide: BorderSide(
           color: Constants.registerBtnBorderColor, //Color of the border

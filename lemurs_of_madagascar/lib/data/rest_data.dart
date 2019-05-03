@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/models/user.dart';
 class RestData {
 
   static const  errorKey = "error";
+  static const  formErrorKey = "form_errors"; // Used to track existing account created twice
   static const  userStructureKey = "user";
 
 
@@ -116,14 +117,16 @@ class RestData {
           //print("#2");
           throw new Exception(resultMap["error_msg"]);
         }
+        //print("#3"+ resultMap[User.uidKey]+ " " + userName+ " "+ passWord);
 
-        return User(uid:resultMap[User.uidKey],name: userName,password: passWord);
+        return new User(uid:int.parse(resultMap[User.uidKey]),name:userName,password:passWord);
 
-      }).catchError((Object object) {
+
+      });/*.catchError((Object object) {
 
         return null;
         //throw new object;
-    });
+    });*/
 
 
   }

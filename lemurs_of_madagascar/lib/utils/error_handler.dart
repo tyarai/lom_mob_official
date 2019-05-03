@@ -22,6 +22,15 @@ class ErrorHandler{
         );
         break;
       }
+      case 406:{
+        showAlert(
+          context: context,
+          title: ErrorText.credentialTitleError,
+          body: ErrorText.takenNameOrMail,
+          actions: [],
+        );
+        break;
+      }
     }
   }
 
