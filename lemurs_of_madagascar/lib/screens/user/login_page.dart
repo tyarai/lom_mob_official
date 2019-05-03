@@ -3,22 +3,28 @@ import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 
 abstract class LoginPageContract {
   void onLoginSuccess(User user, {String destPageName = "/introduction"});
-  void onLoginFailure(String error);
+  void onLoginFailure(int statusCode);
 }
 
 class LoginPagePresenter {
   LoginPageContract _view;
-  RestData api = RestData();
+  RestData restAPI = RestData();
   LoginPagePresenter(this._view);
 
   doLogin(String userName, String passWord) {
-    api
+    restAPI
         .login(userName, passWord)
         .then((user) => _view.onLoginSuccess(user))
-        .catchError((onError) => _view.onLoginFailure(onError.toString()));
+        .catchError((Object error) {
+          //TODO Handle SocketException when the user does not have to internet. In that case SocketException is thrown instead of LOMException
+          LOMException lomException = error as LOMException;
+          //print("CODE: "+ lomException.statusCode.toString());
+          _view.onLoginFailure(lomException.statusCode);
+    });
   }
 }
 
@@ -205,8 +211,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   }
 
   @override
-  void onLoginFailure(String error) {
-    //@TODO : Implement something on login failure
-    print("LOGIN ERROR: " + error);
+  void onLoginFailure(int statusCode) {
+    ErrorHandler.handle(context, statusCode);
   }
 }

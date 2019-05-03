@@ -1,33 +1,30 @@
+import 'package:flutter_alert/flutter_alert.dart';
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/utils/error_text.dart';
+
+class LOMException implements Exception {
+
+  int statusCode;
+
+  LOMException(this.statusCode):super();
+}
 
 class ErrorHandler{
-  static handle(int code){
+
+  static handle(BuildContext context,int code){
     switch(code){
       case 401:{
-
+        showAlert(
+          context: context,
+          title: ErrorText.credentialTitleError,
+          body: ErrorText.credentialMessageError,
+          actions: [],
+        );
         break;
       }
     }
   }
 
-  static Future<void> AlertDialog(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Not in stock'),
-          content: const Text('This item is no longer available'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Ok'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
 }

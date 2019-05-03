@@ -42,8 +42,11 @@ dependencies:
   intl: ^0.15.7
 
 
-  # http
+  # http api call
   http: ^0.12.0+2
+
+  # Platform-specific AlertDialog
+  flutter_alert: ^0.4.0
 
   shared_preferences: ^0.5.2
 

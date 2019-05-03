@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
+
+
 
 class NetworkUtil {
   // next three lines makes this class a Singleton
@@ -28,15 +31,22 @@ class NetworkUtil {
         .post(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {
 
-      print("respone" + response.body);
+       print("respone" + response.body);
 
       final String res = response.body;
       final int statusCode = response.statusCode;
 
       if (statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception(statusCode);
+        //throw new Exception(statusCode);
+        throw new LOMException(statusCode);
       }
+
       return _decoder.convert(res);
-    });
+
+    });/*.catchError((Object error){
+
+        //@TODO Handle SocketException when the user does not have to internet.
+
+    });*/
   }
 }

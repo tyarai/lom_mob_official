@@ -61,31 +61,31 @@ class RestData {
 
     Map<String,String> body = {
       "username": userName,
-    "password": passWord
+      "password": passWord
     };
 
     Map<String,String> headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json"
+      "Content-Type": "application/json",
+      "Accept": "application/json"
     };
 
-    return _networkUtil.post(LOGIN_ENDPOINT,
+    return
+      _networkUtil.post(LOGIN_ENDPOINT,
       body: json.encode(body),
       headers: headers,
     ).then((dynamic resultMap) {
 
-      print("LOM :(login result): " + resultMap.toString());
+      //print("LOM :(login result): " + resultMap.toString());
 
       if(resultMap[RestData.errorKey] != null) {
-        print("#2");
+        //print("#2");
         throw new Exception(resultMap["error_msg"]);
       }
       return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
 
-    }).catchError((error) {
-
-      throw new Exception(error);
-    });
+    });/* .catchError((LOMException lomException) {
+      throw new lomException;
+    });*/
   }
 }
 
