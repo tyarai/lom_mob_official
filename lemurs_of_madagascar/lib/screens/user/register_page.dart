@@ -268,7 +268,7 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
         if (_passWord1 != _passWord2){
           showAlert(
             context: context,
-            title: ErrorText.credentialTitleError,
+            title: ErrorText.credentialTitle,
             body: ErrorText.registerPasswordsDoNotMatch,
             actions: [],
           );

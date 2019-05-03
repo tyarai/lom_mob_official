@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
@@ -6,9 +7,12 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/success_text.dart';
 import 'package:flutter_alert/flutter_alert.dart';
+import 'package:lemurs_of_madagascar/utils/error_text.dart';
+
 
 
 //@TODO : 2019-04-24 : Adjust code to prevent navigating to the same page again.
@@ -16,6 +20,7 @@ import 'package:flutter_alert/flutter_alert.dart';
 abstract class IntroductionPageContract {
   void onLogOutSuccess({String destPageName = "/introduction"});
   void onLogOutFailure(int statusCode);
+  void onSocketFailure();
 }
 
 class LogOutPresenter {
@@ -28,12 +33,16 @@ class LogOutPresenter {
   doLogOut() {
     logOutRestAPI
         .logOut()
-        .then( (bool success) =>  _logOutView.onLogOutSuccess())
+        .then( (bool success) {
+          _logOutView.onLogOutSuccess();
+          //else print("Bad thing happened");
+        })
         .catchError((Object error) {
-            //TODO Handle SocketException when the user does not have to internet. In that case SocketException is thrown instead of LOMException
-            LOMException lomException = error as LOMException;
-            //print("Code : " + lomException.statusCode.toString());
-            _logOutView.onLogOutFailure(lomException.statusCode);
+
+          if (error is SocketException) _logOutView.onSocketFailure();
+          if (error is LOMException) {
+            _logOutView.onLogOutFailure(error.statusCode);
+          }
         });
   }
 }
@@ -56,6 +65,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
   var _menuItemFontSize = 18.0;
   var _iconSize = 24.0;
   LogOutPresenter logOutPresenter;
+  bool _isLoading = false;
 
   _IntroductionPageState() {
     logOutPresenter = LogOutPresenter(this);
@@ -86,21 +96,30 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
           ),
         ),
         body: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
+            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
             child: ListView(
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage(
-                                  "assets/images/ram-everglades(resized).jpg"),
-                              fit: BoxFit.fill,
-                            ))),
+                   Row(
+                      children:<Widget>[
+                        Container(
+                            width: 125,
+                            height: 125,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                      "assets/images/ram-everglades(resized).jpg"),
+                                  fit: BoxFit.fill,
+                                ))),
+                        Container(width: 10,),
+                        Expanded(child:Text("Lemur-watching with Russ Mittermeier",
+                          style: Constants.titleTextStyle),
+                        )
+                      ],
+                    ),
+                    Container(height: 20,),
                     Text(
                       introduction != null ? introduction.content : "",
                       style: TextStyle(fontSize: 20.0),
@@ -285,17 +304,29 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     @override
     void onLogOutFailure(int statusCode) {
-      // TODO: implement onLogOutFailure
+      setState(() {
+        _isLoading = false;
+      });
+      ErrorHandler.handle(context, statusCode);
     }
 
     @override
     void onLogOutSuccess({String destPageName = "/introduction"}) {
+      //Navigator.of(context).popdestPageName);
       showAlert(
         context: context,
-        title: "",
+        title: ErrorText.credentialTitle,
         body: SuccessText.logOutSuccess,
         actions: [],
       );
     }
+
+  @override
+  void onSocketFailure() {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleSocketError(context);
+  }
 
 }

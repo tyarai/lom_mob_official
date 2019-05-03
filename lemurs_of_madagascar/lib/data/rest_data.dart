@@ -15,8 +15,8 @@ class RestData {
 
   NetworkUtil _networkUtil = NetworkUtil();
 
-  static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  //static const  SERVER               = "http://192.168.3.242";
+  //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
+  static const  SERVER               = "http://192.168.2.242";
   static const  LOGIN_ENDPOINT       = SERVER + "/lom_endpoint/api/v1/services/user/login.json";
   static const  LOGOUT_ENDPOINT      = SERVER + "/lom_endpoint/api/v1/services/user/logout.json";
   static const  REGISTER_ENDPOINT    = SERVER + "/lom_endpoint/api/v1/services/user/register.json";
@@ -160,18 +160,19 @@ class RestData {
         headers: headers,
       ).then((dynamic resultMap) {
 
-        print("LOM :(logout result): " + resultMap.toString());
 
+        /*
         if(resultMap[RestData.errorKey] != null) {
           print("#2");
           throw new Exception(resultMap["error_msg"]);
-        }
+        }*/
 
+        print("LOM :(logout result): " + resultMap.toString());
         return true;
 
-      }).catchError((Object error) {
+      });/*.catchError((Object error) {
           return false;
-      });
+      });*/
 
   }
 

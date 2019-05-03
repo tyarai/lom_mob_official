@@ -35,9 +35,6 @@ class LoginPagePresenter {
 }
 
 class LoginPage extends StatefulWidget {
-
-
-
   @override
   State<StatefulWidget> createState() {
     return _LoginPageState();
@@ -49,7 +46,6 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
 
-  BuildContext _ctx;
   bool _isLoading = false;
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -67,7 +63,6 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
   @override
   Widget build(BuildContext context) {
-    _ctx = context;
 
     final loginBtn = Padding(
       padding: edgeInsets,
