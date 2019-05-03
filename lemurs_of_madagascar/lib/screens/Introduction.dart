@@ -12,6 +12,8 @@ import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/success_text.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 
 
 
@@ -312,7 +314,15 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     @override
     void onLogOutSuccess({String destPageName = "/introduction"}) {
-      //Navigator.of(context).popdestPageName);
+
+
+      LOMSharedPreferences.setString(User.nameKey,"");
+      LOMSharedPreferences.setString(User.sessionNameKey,"");
+      LOMSharedPreferences.setString(User.sessionIDKey,"");
+      LOMSharedPreferences.setString(User.tokenKey,"");
+
+      Navigator.of(context).pushReplacementNamed(destPageName);
+
       showAlert(
         context: context,
         title: ErrorText.credentialTitle,
