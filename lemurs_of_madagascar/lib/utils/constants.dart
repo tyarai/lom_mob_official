@@ -13,7 +13,7 @@ class Constants {
 
   static const String fontFamily = 'Montserrat';
   static const TextStyle buttonTextStyle = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-  static const TextStyle appTitle = TextStyle(fontFamily: fontFamily, fontSize: 15.0,color: Colors.cyan);
+  static const TextStyle appTitle = TextStyle(fontFamily: fontFamily, fontSize: 15.0,color: Colors.green);
 
 
   static const Color mainColor = Colors.blueGrey;

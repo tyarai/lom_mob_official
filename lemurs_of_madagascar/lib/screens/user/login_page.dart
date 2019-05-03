@@ -62,15 +62,15 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
     final loginBtn = Padding(
       padding: edgeInsets,
-        child: Material(
+        child:  _isLoading ? CircularProgressIndicator() : Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
       color: Constants.mainColor,
-      child: MaterialButton(
+      child:  MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: edgePadding,
         onPressed: _submit,
-        child: Text("Login",
+        child:  Text("Login",
             textAlign: TextAlign.center,
             style: Constants.buttonTextStyle
                 .copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Container(
           height: 50.0,
@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
         Container(
           height: 20.0,
         ),
-        new Form(
+        Container(child: Form(
           key: formKey,
           child: new Column(
             children: <Widget>[
@@ -152,6 +152,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
               )
             ],
           ),
+        )
         ),
         loginBtn
       ],
@@ -190,18 +191,11 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
     ));
   }
 
-  @override
-  void onLoginError(String error) {
-    _showSnackBar(error);
-    setState(() {
-      _isLoading = false;
-    });
-  }
 
   @override
   void onLoginSuccess(User user,
       {String destPageName = "/introduction"}) async {
-    _showSnackBar(user.toString());
+    //_showSnackBar(user.toString());
     setState(() {
       _isLoading = false;
     });
@@ -212,6 +206,9 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
   @override
   void onLoginFailure(int statusCode) {
+    setState(() {
+      _isLoading = false;
+    });
     ErrorHandler.handle(context, statusCode);
   }
 }
