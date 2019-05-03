@@ -43,13 +43,13 @@ class SpeciesMapDatabaseHelper  {
 
   Future<List<SpeciesMap>> getSpeciesMapList({id: int}) async {
 
-    var SpeciesMapMapList = await this.getSpeciesMapMapList(id: id);
-    int count = SpeciesMapMapList.length;
+    var speciesMapMapList = await this.getSpeciesMapMapList(id: id);
+    int count = speciesMapMapList.length;
 
     List<SpeciesMap> list = new List<SpeciesMap>();
 
     for(int i=0 ; i < count ; i++){
-      list.add(SpeciesMap.fromMap(SpeciesMapMapList[i]));
+      list.add(SpeciesMap.fromMap(speciesMapMapList[i]));
     }
 
     return list;

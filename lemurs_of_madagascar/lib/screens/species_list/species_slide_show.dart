@@ -10,9 +10,7 @@ class SpeciesSlideShow extends StatefulWidget {
   final Species species;
 
 
-  SpeciesSlideShow({this.species}){
-
-  }
+  SpeciesSlideShow({this.species});
 
   @override
   State<StatefulWidget> createState() {

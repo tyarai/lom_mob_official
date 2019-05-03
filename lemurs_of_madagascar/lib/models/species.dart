@@ -334,14 +334,14 @@ class Species {
     );
   }
 
-
+  /*
   // Always override hasCode when overriding operator ==
   @override
   bool operator ==(Object other) => other is Species && this.id == other.id;
 
   @override
   int get hasCode => id.hashCode ^ title.hashCode;
-
+  */
 
 
 }

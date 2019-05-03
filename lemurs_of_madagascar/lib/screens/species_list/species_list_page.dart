@@ -200,6 +200,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     return widget;
   }
 
+  /*
   Widget _buildSpeciesGridList() {
     return FutureBuilder<List<Species>>(
       future: _loadData(),
@@ -214,7 +215,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
             });
       },
     );
-  }
+  }*/
 
   /*Widget _buildSpeciesGridList() {
 

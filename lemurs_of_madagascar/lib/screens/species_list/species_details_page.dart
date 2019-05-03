@@ -4,7 +4,8 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_slide_show.dart';
 
 class SpeciesDetailsPage extends StatefulWidget {
-  Species species;
+
+  final Species species;
 
   SpeciesDetailsPage({this.species});
 
@@ -182,6 +183,7 @@ class SpeciesDetailsPageState extends State<SpeciesDetailsPage> {
         return _showTab(Species.buildInfo(species.sites,
             crossAlignment: CrossAxisAlignment.center));
     }
+    return Container();
   }
 
   Widget _showTab(Widget widget, {Widget secondaryWidget}) {

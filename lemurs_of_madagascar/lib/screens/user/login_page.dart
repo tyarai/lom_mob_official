@@ -4,6 +4,8 @@ import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
+import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
+
 
 abstract class LoginPageContract {
   void onLoginSuccess(User user, {String destPageName = "/introduction"});
@@ -11,24 +13,27 @@ abstract class LoginPageContract {
 }
 
 class LoginPagePresenter {
-  LoginPageContract _view;
-  RestData restAPI = RestData();
-  LoginPagePresenter(this._view);
+  LoginPageContract _loginView;
+  RestData loginRestAPI = RestData();
+  LoginPagePresenter(this._loginView);
 
   doLogin(String userName, String passWord) {
-    restAPI
+    loginRestAPI
         .login(userName, passWord)
-        .then((user) => _view.onLoginSuccess(user))
+        .then((user) => _loginView.onLoginSuccess(user))
         .catchError((Object error) {
           //TODO Handle SocketException when the user does not have to internet. In that case SocketException is thrown instead of LOMException
           LOMException lomException = error as LOMException;
           //print("CODE: "+ lomException.statusCode.toString());
-          _view.onLoginFailure(lomException.statusCode);
+          _loginView.onLoginFailure(lomException.statusCode);
     });
   }
 }
 
 class LoginPage extends StatefulWidget {
+
+
+
   @override
   State<StatefulWidget> createState() {
     return _LoginPageState();
@@ -48,10 +53,10 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
   String _userName;
   String _passWord;
 
-  LoginPagePresenter _presenter;
+  LoginPagePresenter _loginPresenter;
 
   _LoginPageState() {
-    _presenter = LoginPagePresenter(this);
+    _loginPresenter = LoginPagePresenter(this);
     _userName = "";
     _passWord = "";
   }
@@ -76,6 +81,40 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
                 .copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     ));
+
+    final registerBtn = Padding(
+        padding: edgeInsets,
+        child: OutlineButton(
+
+        child: Text("Register",
+            textAlign: TextAlign.center,
+            style: Constants.subButtonTextStyle
+                .copyWith(color: Constants.mainColor, fontWeight: FontWeight.bold)),
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage(this._loginPresenter));
+        }, //callback when button is clicked
+        borderSide: BorderSide(
+          color: Constants.registerBtnBorderColor, //Color of the border
+          style: BorderStyle.solid, //Style of the border
+          width: 0.5, //width of the border
+        ),
+    )
+
+      /*Material(
+          elevation: 1.0,
+          borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
+          color: Colors.limeAccent,
+          //color: Constants.backGroundColor,
+          child:  MaterialButton(
+            minWidth: MediaQuery.of(context).size.width,
+            padding: edgePadding,
+            onPressed: _submit,
+            child:  Text("Register",
+                textAlign: TextAlign.center,
+                style: Constants.buttonTextStyle
+                    .copyWith(color: Constants.mainColor, fontWeight: FontWeight.bold)),
+          ),
+        )*/);
 
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -106,14 +145,14 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
                 child: new TextFormField(
                   onSaved: (val) => _userName = val,
                   validator: (String arg) {
-                    if(arg.length < 4) {
+                    if(arg.length < Constants.minUsernameLength) {
                       return ErrorText.loginNameError;
                     }else {
                       return null;
                     }
                   },
                   decoration: InputDecoration(
-                      //labelText: "Username",
+                      labelText: "Username",
                       icon: new Icon(
                         Icons.person,
                         color: Constants.iconColor,
@@ -138,7 +177,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
                     }
                   },
                   decoration: InputDecoration(
-                      //labelText: "Username",
+                      labelText: "Password",
                       icon: new Icon(
                         Icons.lock,
                         color: Constants.iconColor,
@@ -154,7 +193,11 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
           ),
         )
         ),
-        loginBtn
+        loginBtn,
+        Container(
+          height: 10.0,
+        ),
+        registerBtn,
       ],
     );
 
@@ -163,13 +206,15 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
         title: new Text("Login Page"),
       ),*/
       key: scaffoldKey,
-      body: SingleChildScrollView(child:
+      body: ListView(
+
+        children:<Widget>[
         Container(
           child: new Center(
             child: loginForm,
           ),
         )
-      ),
+      ]), //-----
     );
   }
 
@@ -180,28 +225,29 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       setState(() {
         _isLoading = true;
         form.save();
-        _presenter.doLogin(_userName, _passWord);
+        _loginPresenter.doLogin(_userName, _passWord);
       });
     }
   }
 
+  /*
   void _showSnackBar(String text) {
     scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Text(text),
     ));
-  }
+  }*/
 
 
   @override
-  void onLoginSuccess(User user,
-      {String destPageName = "/introduction"}) async {
+  void onLoginSuccess(User user, {String destPageName = "/introduction"}) async {
     //_showSnackBar(user.toString());
     setState(() {
       _isLoading = false;
     });
     //var db = new DatabaseHelper();
     //await db.saveUser(user);
-    Navigator.of(context).pushNamed(destPageName);
+    //Navigator.of(context).pushNamed(destPageName);
+    Navigator.of(context).pushReplacementNamed(destPageName);
   }
 
   @override

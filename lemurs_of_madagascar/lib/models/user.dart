@@ -16,6 +16,7 @@ class User {
   static String timezoneKey = "timezone";
   static String languageKey = "language";
   static String uuidKey = "uuid";
+  static String passKey = "pass";
 
 
   static String sessionIDKey   = "sessid";
@@ -36,12 +37,13 @@ class User {
   String timezone;
   String language;
   String uuid;
+  String password;
 
   String sessionID="";
   String sessionName="";
   String token="";
 
-  User({this.uid,this.name,this.mail,this.theme,this.signature,this.signatureFormat,this.created,this.access,this.login,this.status,this.timezone,this.language,this.uuid,this.sessionID,this.sessionName,this.token});
+  User({this.uid,this.name,this.password,this.mail,this.theme,this.signature,this.signatureFormat,this.created,this.access,this.login,this.status,this.timezone,this.language,this.uuid,this.sessionID,this.sessionName,this.token});
 
   User.fromJSONMap(dynamic userObj,{dynamic userSession}){
 
