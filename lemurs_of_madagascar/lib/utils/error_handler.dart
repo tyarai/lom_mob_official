@@ -11,6 +11,15 @@ class LOMException implements Exception {
 
 class ErrorHandler{
 
+  static handleSocketError(BuildContext context){
+    showAlert(
+      context: context,
+      title: ErrorText.credentialTitleError,
+      body: ErrorText.unreachableAddress,
+      actions: [],
+    );
+  }
+
   static handle(BuildContext context,int code){
     switch(code){
       case 401:{

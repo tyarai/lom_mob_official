@@ -8,6 +8,9 @@ class ErrorText {
   static String registerTitleError = "Registration error";
   static String registerPasswordsDoNotMatch = "Passwords do not match!\nPlease check and try again";
   static String takenNameOrMail = "Username and/or email are already taken!\nPlease check and provide different ones";
+
+  static String unreachableAddress = "Unable to reach the server!\nPlease check your connection and try again";
+
 }
 
 

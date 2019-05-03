@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
@@ -12,6 +13,7 @@ import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 abstract class RegisterPageContract {
   void onRegisterSuccess(User user, {String destPageName = "/introduction"});
   void onRegisterFailure(int statusCode);
+  void onSocketFailure();
 }
 
 class RegisterPagePresenter {
@@ -25,11 +27,13 @@ class RegisterPagePresenter {
     registerRestAPI
         .register(userName, passWord,email)
         .then((User user) =>  _registerView.onRegisterSuccess(user))
-        .catchError((Object error) {
-          //TODO Handle SocketException when the user does not have to internet. In that case SocketException is thrown instead of LOMException
-          LOMException lomException = error as LOMException;
-          //print("Code : " + lomException.statusCode.toString());
-          _registerView.onRegisterFailure(lomException.statusCode);
+        .catchError(( error) {
+
+          if (error is SocketException) _registerView.onSocketFailure();
+          if (error is LOMException) {
+            _registerView.onRegisterFailure(error.statusCode);
+          }
+
         });
   }
 }
@@ -307,6 +311,14 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
       _isLoading = false;
     });
     Navigator.of(context).pushReplacementNamed(destPageName);
+  }
+
+  @override
+  void onSocketFailure() {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleSocketError(context);
   }
 
 

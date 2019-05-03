@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
@@ -10,6 +11,7 @@ import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 abstract class LoginPageContract {
   void onLoginSuccess(User user, {String destPageName = "/introduction"});
   void onLoginFailure(int statusCode);
+  void onSocketFailure();
 }
 
 class LoginPagePresenter {
@@ -21,11 +23,13 @@ class LoginPagePresenter {
     loginRestAPI
         .login(userName, passWord)
         .then((user) => _loginView.onLoginSuccess(user))
-        .catchError((Object error) {
-          //TODO Handle SocketException when the user does not have to internet. In that case SocketException is thrown instead of LOMException
-          LOMException lomException = error as LOMException;
-          //print("CODE: "+ lomException.statusCode.toString());
-          _loginView.onLoginFailure(lomException.statusCode);
+
+        .catchError((error) {
+
+          if(error is SocketException) _loginView.onSocketFailure();
+          if(error is LOMException) {
+            _loginView.onLoginFailure(error.statusCode);
+          }
     });
   }
 }
@@ -257,5 +261,13 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       _isLoading = false;
     });
     ErrorHandler.handle(context, statusCode);
+  }
+
+  @override
+  void onSocketFailure() {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleSocketError(context);
   }
 }
