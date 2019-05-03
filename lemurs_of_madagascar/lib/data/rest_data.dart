@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:lemurs_of_madagascar/utils/network_util.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 
 class RestData {
 
@@ -90,7 +91,6 @@ class RestData {
 
   }
 
-  // Return a future Int which is the new uid from the server
   Future<User> register(String userName, String passWord,String mail) {
 
     print("register .....");
@@ -130,5 +130,50 @@ class RestData {
 
 
   }
+
+  Future<bool> logOut() async {
+
+    print("logout .....");
+
+    String userName = await LOMSharedPreferences.loadString(User.nameKey);
+    String sessionName = await LOMSharedPreferences.loadString(User.sessionNameKey);
+    String sessionID   = await LOMSharedPreferences.loadString(User.sessionIDKey);
+    String token       = await LOMSharedPreferences.loadString(User.tokenKey);
+    String cookie = sessionName + "=" + sessionID;
+
+    if(userName.length == 0 || sessionName.length == 0 || sessionID.length == 0 || token.length == 0) return false;
+
+
+    Map<String,String> body = {
+      "username": userName
+    };
+
+    Map<String,String> headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Cookie": cookie,
+      "X-CSRF-Token": token
+    };
+
+    return _networkUtil.post(LOGOUT_ENDPOINT,
+        body: json.encode(body),
+        headers: headers,
+      ).then((dynamic resultMap) {
+
+        print("LOM :(logout result): " + resultMap.toString());
+
+        if(resultMap[RestData.errorKey] != null) {
+          print("#2");
+          throw new Exception(resultMap["error_msg"]);
+        }
+
+        return true;
+
+      }).catchError((Object error) {
+          return false;
+      });
+
+  }
+
 }
 
