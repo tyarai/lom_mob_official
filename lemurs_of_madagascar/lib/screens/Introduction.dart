@@ -184,7 +184,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         title: Text("Sightings", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/binocular.png",
             width: _iconSize, height: _iconSize),
-      ));
+        onTap: () {
+          Navigator.pop(context); // Close the drawer
+          _showSightings();
+          }));
 
       menuItems.add(ListTile(
         title: Text("Primate watching",
@@ -292,6 +295,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         return IntroductionPage(title: "Introduction",);
       }),
     );*/
+    }
+
+    _showSightings(){
+      Navigator.pushNamed(context, '/sighting_list');
     }
 
     _showSpeciesListPage() {

@@ -1,0 +1,88 @@
+
+import 'package:sqflite/sqflite.dart';
+import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+
+class SightingDatabaseHelper  {
+
+  String sightingsTable    = "Sightings";
+  final idCol             = Sighting.idKey;
+  final modifiedCol       = Sighting.modifiedKey;
+  final uidCol            = Sighting.uidKey;
+
+  Future<Map<String, dynamic>> getSightingMapWithID(int id) async {
+    Database database = await DatabaseHelper.instance.database;
+    var result = await database.rawQuery("SELECT * FROM $sightingsTable WHERE $idCol = ?  ",[id]);
+    return result[0];
+  }
+
+  Future<List<Map<String, dynamic>>> getSightingMapList(int uid) async {
+    Database database = await DatabaseHelper.instance.database;
+    var result = await database.rawQuery("SELECT * FROM $sightingsTable WHERE  $uidCol = ? ORDER BY $modifiedCol DESC ",[uid]);
+    return result;
+  }
+
+  Future<int> insertSighting({sighting:Sighting}) async {
+    Database database = await DatabaseHelper.instance.database;
+    var result = await database.insert(sightingsTable, sighting.toMap());
+    return result;
+  }
+
+  Future<int> updateSighting({sighting : Sighting}) async {
+    Database database = await DatabaseHelper.instance.database;
+    var result = await database.update(sightingsTable, sighting.toMap(),
+        where: '$idCol = ?', whereArgs: [sighting.id]);
+    return result;
+  }
+
+  Future<int> deleteSighting({sighting : Sighting}) async {
+    Database database = await DatabaseHelper.instance.database;
+    var result =
+    await database.delete(sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
+    return result;
+  }
+
+  Future<int> getRecordCount() async {
+    Database database = await DatabaseHelper.instance.database;
+    List<Map<String, dynamic>> x =
+    await database.rawQuery("SELECT COUNT(*) FROM $sightingsTable ");
+    int result = Sqflite.firstIntValue(x);
+    return result;
+  }
+
+  /*Future<List<Sighting>> getSighingListWithID(int id) async {
+
+    var sightingMapList = await this.getSightingMapListWithID(id);
+    int count = sightingMapList.length;
+
+    List<Sighting> list = new List<Sighting>();
+
+    for(int i=0 ; i < count ; i++){
+      list.add(Sighting.fromMap(sightingMapList[i]));
+    }
+
+    return list;
+  }*/
+
+  Future<List<Sighting>> getSightingList(int uid) async {
+
+    var sightingMapList = await this.getSightingMapList(uid);
+    int count = sightingMapList.length;
+
+    List<Sighting> list = new List<Sighting>();
+
+    for(int i=0 ; i < count ; i++){
+      list.add(Sighting.fromMap(sightingMapList[i]));
+    }
+
+    //print(list.toString());
+    return list;
+  }
+
+  Future<Sighting> getSightingWithID(int id) async {
+    var map = await this.getSightingMapWithID(id);
+    return Sighting.fromMap(map);
+  }
+
+
+}
