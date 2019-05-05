@@ -29,8 +29,8 @@ class _SightingListPageState extends State<SightingListPage> {
 
   @override
   initState()  {
-    super.initState();
 
+    super.initState();
 
     try {
 
