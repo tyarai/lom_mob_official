@@ -4,25 +4,21 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
-
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 
 class SightingEditPage extends StatefulWidget {
-
   final String title;
   final Sighting sighting;
 
-
-  SightingEditPage({this.title,this.sighting});
+  SightingEditPage({this.title, this.sighting});
 
   @override
   State<StatefulWidget> createState() {
-    return _SightingEditPage(this.title,this.sighting);
+    return _SightingEditPage(this.title, this.sighting);
   }
-
 }
 
 class _SightingEditPage extends State<SightingEditPage> {
-
   String title;
   Sighting sighting;
   List<String> imageFileNameList = List<String>();
@@ -30,31 +26,28 @@ class _SightingEditPage extends State<SightingEditPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
-  String _photoFileName;
 
+  final _sightingBloc = SightingBloc();
 
-  _SightingEditPage(this.title,this.sighting);
+  _SightingEditPage(this.title, this.sighting);
 
   @override
   void initState() {
     super.initState();
-    _photoFileName = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return
-      Scaffold(
-        appBar: AppBar(
-          title: Text(this.title),
-        ),
-        body: _buildBody(context),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(this.title),
+      ),
+      body: _buildBody(context),
     );
   }
 
-  _buildBody(BuildContext context){
-
-    return ListView(
+  _buildBody(BuildContext context) {
+    /*return ListView(
         children : <Widget> [
           Container(
               //width: MediaQuery.of(context).size.width,
@@ -68,30 +61,40 @@ class _SightingEditPage extends State<SightingEditPage> {
             )
           )
         ],
-    );
+    );*/
 
+    return StreamBuilder(
+        stream: _sightingBloc.sighting,
+        initialData: Sighting(),
+        builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
+
+          ListView(children: <Widget>[
+            Container(
+                child: Column(
+              children: <Widget>[
+                Container(height: 20),
+                _buildPhotoSelectionRow(snapshot.data),
+                _buildImageListView(),
+              ],
+            ))
+          ]);
+        });
   }
 
   _showCameraPage() async {
-
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
     try {
-      Navigator.of(context).push(
-          MaterialPageRoute(
-              fullscreenDialog: true, builder: (BuildContext context) =>
-              CameraPage(camera: firstCamera)));
-    }catch(e){
+      Navigator.of(context).push(MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (BuildContext context) => CameraPage(camera: firstCamera)));
+    } catch (e) {
       print(e.toString());
     }
-
-
   }
 
-  _buildPhotoSelectionRow()
-  {
+  _buildPhotoSelectionRow(Sighting sighting) {
     return GestureDetector(
-
         onTap: () {
           //SpeciesListPageState.navigateToSpeciesDetails(context, species);
           _showCameraPage();
@@ -99,34 +102,47 @@ class _SightingEditPage extends State<SightingEditPage> {
         child: Padding(
             padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
             child: Container(
-                child: Material(
+              child: Material(
                   elevation: 0.5,
                   borderRadius: BorderRadius.circular(0),
                   shadowColor: Colors.blueGrey,
                   //color: Constants.backGroundColor,
                   child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            _buildPhoto(),
-                            Container(width: 10),
-                            Icon(Icons.camera_alt,size: 45,color: Constants.mainColor,),
-                          ])),
-                )));
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        _buildPhoto(sighting),
+                        Container(width: 10),
+                        Icon(
+                          Icons.camera_alt,
+                          size: 45,
+                          color: Constants.mainColor,
+                        ),
+                      ])),
+            )));
   }
 
-  _buildPhoto({double size = Constants.cameraPhotoPlaceHolder, Color color = Constants.mainColor}){
+  Widget _buildPhoto(Sighting sighting,
+      {double size = Constants.cameraPhotoPlaceHolder,
+      Color color = Constants.mainColor}) {
 
-    if(_photoFileName == null) {
+    if (sighting.photoFileName == null) {
       return Container(
-        child: Icon(Icons.image,size:size,color: color,),
+        child: Icon(
+          Icons.image,
+          size: size,
+          color: color,
+        ),
       );
     }
-    return Container();
+
+    //TODO replace Text widget with Image widget
+    return Container(
+      child: Text(sighting.photoFileName),
+    );
   }
 
-  _buildImageListView(){
-
+  _buildImageListView() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -134,8 +150,8 @@ class _SightingEditPage extends State<SightingEditPage> {
         Container(
           height: 50.0,
         ),
-
-        Container(child: Form(
+        Container(
+            child: Form(
           key: formKey,
           child: new Column(
             children: <Widget>[
@@ -190,14 +206,8 @@ class _SightingEditPage extends State<SightingEditPage> {
               )*/
             ],
           ),
-        )
-        ),
-
+        )),
       ],
     );
-
   }
-
-
 }
-
