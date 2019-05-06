@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Container(
           height: 50.0,
@@ -207,12 +207,14 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       ),*/
       key: scaffoldKey,
       body: ListView(
-
         children:<Widget>[
         Container(
           child: new Center(
             child: loginForm,
           ),
+          //width: MediaQuery.of(context).size.width,
+          //height: MediaQuery.of(context).size.height,
+
         )
       ]), //-----
     );

@@ -75,9 +75,9 @@ class User {
       LOMSharedPreferences.setString(User.tokenKey, this.token);
 
 
-      LOMSharedPreferences.loadString(User.tokenKey).then((value){
+      /*LOMSharedPreferences.loadString(User.tokenKey).then((value){
         print( "--->" + value );
-      });
+      });*/
     }
 
   }

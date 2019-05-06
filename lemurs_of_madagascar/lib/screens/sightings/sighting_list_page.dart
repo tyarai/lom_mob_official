@@ -1,15 +1,16 @@
-
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
-import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
+import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 
 
 class SightingListPage extends StatefulWidget {
 
   final String title;
+
+
 
   SightingListPage({this.title});
 
@@ -24,8 +25,15 @@ class _SightingListPageState extends State<SightingListPage> {
 
   String title;
   int currentUid = 0;
+  int _bottomNavIndex = 0;
   List<Sighting> sightingList = List<Sighting>();
 
+  List<String> _menuName = [
+    "New sighting",
+    "Favorite species",
+  ];
+
+  String _title = "";
 
   @override
   initState()  {
@@ -80,7 +88,61 @@ class _SightingListPageState extends State<SightingListPage> {
         title: Text(widget.title),
       ),
       body: _buildSightingListView(),
+      bottomNavigationBar: _buildBottomNavBar(),
     );
+  }
+
+
+  Theme _buildBottomNavBar() {
+    return Theme(
+        data: Theme.of(context).copyWith(
+          canvasColor: Constants.mainColor,
+          primaryColor: Colors.red,
+        ),
+        child: BottomNavigationBar(
+          fixedColor: Colors.greenAccent,
+          type: BottomNavigationBarType.shifting,
+          currentIndex: _bottomNavIndex,
+          onTap: (int index) {
+            setState(() {
+              _bottomNavIndex = index;
+              _title = _menuName[_bottomNavIndex];
+            });
+            _handleBottomNavTap(_bottomNavIndex);
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_box,color: Constants.iconColor,),
+              title: Text(_menuName[0]),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite,color: Constants.iconColor,),
+              title: Text(_menuName[1]),
+            ),
+
+          ],
+        ));
+  }
+
+
+  void _handleBottomNavTap(int index){
+    switch(index) {
+      case 0:
+        Navigator.of(context).push(
+        MaterialPageRoute(
+            fullscreenDialog: true, builder: (BuildContext context) =>
+            SightingEditPage(title:"New sighting",sighting: null)));
+      }
+
+  }
+
+  Widget _newSightingTab() {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(height: 10),
+
+        ]);
   }
 
   Widget _buildSearch(){
@@ -120,7 +182,6 @@ class _SightingListPageState extends State<SightingListPage> {
     }
     return null;
   }
-
 
   static Widget buildCellItem(BuildContext context,List<Sighting> list,int index)
   {
