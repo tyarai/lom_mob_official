@@ -37,6 +37,9 @@ dependencies:
   #Share with other app
   share: ^0.6.1+1
 
+  #Camera plugin
+  camera: ^0.5.0
+
 
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7

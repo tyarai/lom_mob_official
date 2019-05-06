@@ -24,6 +24,10 @@ class Constants {
   static const TextStyle speciesTitleStyle = TextStyle(fontSize: Constants.titleFontSize);
   static const TextStyle defaultTextStyle = TextStyle(fontSize: Constants.textFontSize);
 
+  // Camera
+  static const double cameraPhotoPlaceHolder = 225.0;
+  static const String imageType = "jpg";
+
   // Info message
   static const double infoTextFontSize = 25.0;
   static const Color infoTextColor = Colors.blue;
@@ -32,6 +36,9 @@ class Constants {
   static const Color registerBtnBorderColor = Colors.blueGrey;
   static const int minUsernameLength = 4;
   static const int minPasswordLength = 6;
+
+  // Documents and folders inside the app document folder
+  static const String appImagesFolder = "images";
 }
 
 
