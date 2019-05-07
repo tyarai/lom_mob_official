@@ -1,11 +1,21 @@
 abstract class SightingEvent{}
 
-class SightingImageEvent extends SightingEvent {
+class SightingImageChangeEvent extends SightingEvent {
   String newFileName;
-  SightingImageEvent(this.newFileName);
+  SightingImageChangeEvent(this.newFileName);
 }
 
-class SightingSpeciesEvent extends SightingEvent {}
+class SightingSpeciesChangeEvent extends SightingEvent {}
 
-class SightingSiteEvent extends SightingEvent {}
+class SightingSiteChangeEvent extends SightingEvent {}
+
+class SightingTitleChangeEvent extends SightingEvent {
+  String newTitle;
+  SightingTitleChangeEvent(this.newTitle);
+}
+
+class SightingDateChangeEvent extends SightingEvent {
+  DateTime newDate;
+  SightingDateChangeEvent(this.newDate);
+}
 

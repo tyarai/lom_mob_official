@@ -14,11 +14,12 @@ class SightingEditPage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _SightingEditPage(this.title, this.sighting);
+    return _SightingEditPageState(this.title, this.sighting);
   }
 }
 
-class _SightingEditPage extends State<SightingEditPage> {
+class _SightingEditPageState extends State<SightingEditPage> {
+
   String title;
   Sighting sighting;
   List<String> imageFileNameList = List<String>();
@@ -27,9 +28,8 @@ class _SightingEditPage extends State<SightingEditPage> {
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
 
-  final _sightingBloc = SightingBloc();
 
-  _SightingEditPage(this.title, this.sighting);
+  _SightingEditPageState(this.title, this.sighting);
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class _SightingEditPage extends State<SightingEditPage> {
                 child: Column(
               children: <Widget>[
                 Container(height: 20),
-                _buildPhotoSelectionRow(snapshot.data),
+                _buildPhotoSelection(snapshot.data),
                 _buildImageListView(),
               ],
             ))
@@ -93,7 +93,7 @@ class _SightingEditPage extends State<SightingEditPage> {
     }
   }
 
-  _buildPhotoSelectionRow(Sighting sighting) {
+  _buildPhotoSelection(Sighting sighting) {
     return GestureDetector(
         onTap: () {
           //SpeciesListPageState.navigateToSpeciesDetails(context, species);
