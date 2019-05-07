@@ -28,7 +28,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
-  SightingBloc _sightingBloc ;
+  //SightingBloc _sightingBloc = SightingBloc() ;
 
 
 
@@ -40,21 +40,21 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext buildContext) {
 
     return
       Scaffold(
         appBar: AppBar(
           title: Text(this.title),
         ),
-        body: _buildBody(context),
+        body: _buildBody(buildContext),
       );
   }
 
-  _buildBody(BuildContext context) {
+  _buildBody(BuildContext buildContext) {
 
-    var global = SightingGlobalValues.of(context);
-    _sightingBloc = global.bloc;
+    var global = SightingGlobalValues.of(buildContext);
+    var _sightingBloc = global.bloc;
 
     return StreamBuilder(
         stream: _sightingBloc.sighting,
@@ -85,7 +85,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
       Navigator.of(context).push(MaterialPageRoute(
           fullscreenDialog: true,
           builder: (BuildContext context) =>
-              SightingGlobalValues(child:CameraPage(camera: firstCamera))));
+                    SightingGlobalValues(child:CameraPage(camera: firstCamera)),
+                  ));
     } catch (e) {
       print(e.toString());
     }

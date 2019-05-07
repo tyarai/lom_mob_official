@@ -5,11 +5,13 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 
 
 class CameraPage extends StatefulWidget {
   final CameraDescription camera;
+
 
   const CameraPage({
     Key key,
@@ -17,10 +19,12 @@ class CameraPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  CameraPageState createState() => CameraPageState();
+  CameraPageState createState() =>  CameraPageState();
 }
 
 class CameraPageState extends State<CameraPage> {
+
+
   // Add two variables to the state class to store the CameraController and
   // the Future
   CameraController _controller;
@@ -51,6 +55,7 @@ class CameraPageState extends State<CameraPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(title: Text('Take a picture')),
       // You must wait until the controller is initialized before displaying the
@@ -70,6 +75,7 @@ class CameraPageState extends State<CameraPage> {
       ),
 
       floatingActionButton: FloatingActionButton(
+
         child: Icon(Icons.camera_alt),
         // Provide an onPressed callback
         onPressed: () async {
@@ -95,7 +101,7 @@ class CameraPageState extends State<CameraPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SightingGlobalValues(child:DisplayPictureScreen(imagePath: path)),
+                builder: (context) =>  DisplayPictureScreen(imagePath: path),
               ),
             );
           } catch (e) {
@@ -113,11 +119,15 @@ class CameraPageState extends State<CameraPage> {
 class DisplayPictureScreen extends StatelessWidget {
 
   final String imagePath;
+  final sightingBloc  = SightingGlobalValues.of(context).bloc;
+
 
   const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: _buildAppBar(context),
       // The image is stored as a file on the device. Use the `Image.file`
@@ -144,16 +154,16 @@ class DisplayPictureScreen extends StatelessWidget {
       IconButton(
         icon: Icon(Icons.save,size:40,color: Colors.lightGreenAccent,),
         onPressed: () {
-          _selectImage(context);
+          _selectImage();
         },
       ),
     ]);
   }
 
-  _selectImage(BuildContext context){
+  _selectImage(){
 
-    var global = SightingGlobalValues.of(context);
-    global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
+    //var global = SightingGlobalValues.of(context);
+    //global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
 
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) {

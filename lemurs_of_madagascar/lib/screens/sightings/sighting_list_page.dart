@@ -5,6 +5,7 @@ import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 
 
 class SightingListPage extends StatefulWidget {
@@ -26,6 +27,7 @@ class _SightingListPageState extends State<SightingListPage> {
   int currentUid = 0;
   int _bottomNavIndex = 0;
   List<Sighting> sightingList = List<Sighting>();
+
 
   List<String> _menuName = [
     "New sighting",
@@ -131,7 +133,9 @@ class _SightingListPageState extends State<SightingListPage> {
         Navigator.of(buildContext).push(
             MaterialPageRoute(
             fullscreenDialog: true, builder: (buildContext) =>
-            SightingGlobalValues(child: SightingEditPage(title:"New sighting",sighting: null))));
+            SightingGlobalValues(
+                child: SightingEditPage(title:"New sighting",sighting: null),
+                )));
       }
 
   }

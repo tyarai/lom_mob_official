@@ -7,6 +7,7 @@ class SightingGlobalValues extends InheritedWidget {
 
   final SightingBloc bloc = SightingBloc();
 
+
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) => true;
 
