@@ -16,6 +16,7 @@ final routes = {
   //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),//(BuildContext context) => LoginPage(),
   '/'                : (BuildContext context) => LoginPage(),
   '/sighting_list'   : (BuildContext context) => SightingListPage(title:"Sightings"),
+
 };
 
 void main() => runApp(LOMApp());

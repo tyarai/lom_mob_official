@@ -5,6 +5,7 @@ import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
 
 class SightingEditPage extends StatefulWidget {
   final String title;
@@ -27,6 +28,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
+  SightingBloc _sightingBloc ;
+
 
 
   _SightingEditPageState(this.title, this.sighting);
@@ -38,37 +41,31 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(this.title),
-      ),
-      body: _buildBody(context),
-    );
+
+    return
+      Scaffold(
+        appBar: AppBar(
+          title: Text(this.title),
+        ),
+        body: _buildBody(context),
+      );
   }
 
   _buildBody(BuildContext context) {
-    /*return ListView(
-        children : <Widget> [
-          Container(
-              //width: MediaQuery.of(context).size.width,
-              //height: MediaQuery.of(context).size.height,
-            child:Column(
-              children: <Widget>[
-                Container(height:20),
-                _buildPhotoSelectionRow(),
-                _buildImageListView(),
-              ],
-            )
-          )
-        ],
-    );*/
+
+    var global = SightingGlobalValues.of(context);
+    _sightingBloc = global.bloc;
 
     return StreamBuilder(
         stream: _sightingBloc.sighting,
         initialData: Sighting(),
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
-          ListView(children: <Widget>[
+          if(snapshot.hasData) {
+            print("SNAPSHOT : ${snapshot.data.photoFileName}");
+          }
+
+          return ListView(children: <Widget>[
             Container(
                 child: Column(
               children: <Widget>[
@@ -87,7 +84,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
     try {
       Navigator.of(context).push(MaterialPageRoute(
           fullscreenDialog: true,
-          builder: (BuildContext context) => CameraPage(camera: firstCamera)));
+          builder: (BuildContext context) =>
+              SightingGlobalValues(child:CameraPage(camera: firstCamera))));
     } catch (e) {
       print(e.toString());
     }

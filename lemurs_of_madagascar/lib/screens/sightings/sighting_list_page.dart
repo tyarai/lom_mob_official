@@ -4,13 +4,12 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
 
 
 class SightingListPage extends StatefulWidget {
 
   final String title;
-
-
 
   SightingListPage({this.title});
 
@@ -78,22 +77,23 @@ class _SightingListPageState extends State<SightingListPage> {
   _SightingListPageState(this.title);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Constants.backGroundColor,
-      appBar: AppBar(
-        actions: <Widget>[
-          _buildSearch(),
-        ],
-        title: Text(widget.title),
-      ),
-      body: _buildSightingListView(),
-      bottomNavigationBar: _buildBottomNavBar(),
-    );
+  Widget build(BuildContext buildContext) {
+
+      return  Scaffold(
+          backgroundColor: Constants.backGroundColor,
+          appBar: AppBar(
+            actions: <Widget>[
+              _buildSearch(),
+            ],
+            title: Text(widget.title),
+          ),
+          body: _buildSightingListView(),
+          bottomNavigationBar: _buildBottomNavBar(buildContext),
+      );
   }
 
 
-  Theme _buildBottomNavBar() {
+  Theme _buildBottomNavBar(BuildContext buildContext) {
     return Theme(
         data: Theme.of(context).copyWith(
           canvasColor: Constants.mainColor,
@@ -108,7 +108,7 @@ class _SightingListPageState extends State<SightingListPage> {
               _bottomNavIndex = index;
               _title = _menuName[_bottomNavIndex];
             });
-            _handleBottomNavTap(_bottomNavIndex);
+            _handleBottomNavTap(buildContext,_bottomNavIndex);
           },
           items: [
             BottomNavigationBarItem(
@@ -125,13 +125,13 @@ class _SightingListPageState extends State<SightingListPage> {
   }
 
 
-  void _handleBottomNavTap(int index){
+  void _handleBottomNavTap(BuildContext buildContext,int index){
     switch(index) {
       case 0:
-        Navigator.of(context).push(
-        MaterialPageRoute(
-            fullscreenDialog: true, builder: (BuildContext context) =>
-            SightingEditPage(title:"New sighting",sighting: null)));
+        Navigator.of(buildContext).push(
+            MaterialPageRoute(
+            fullscreenDialog: true, builder: (buildContext) =>
+            SightingGlobalValues(child: SightingEditPage(title:"New sighting",sighting: null))));
       }
 
   }

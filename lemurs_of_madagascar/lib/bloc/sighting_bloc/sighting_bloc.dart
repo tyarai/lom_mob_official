@@ -29,8 +29,8 @@ class SightingBloc {
   void _mapEventToState(SightingEvent event){
 
       if (event is SightingImageChangeEvent) {
-        print("Sighting Image Event");
         _sighting.photoFileName = event.newFileName;
+        print("Sighting Image Event  ${_sighting.photoFileName}");
       }
 
       if (event is SightingSiteChangeEvent) {

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 
 
 class CameraPage extends StatefulWidget {
@@ -92,7 +95,7 @@ class CameraPageState extends State<CameraPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(imagePath: path),
+                builder: (context) => SightingGlobalValues(child:DisplayPictureScreen(imagePath: path)),
               ),
             );
           } catch (e) {
@@ -133,18 +136,30 @@ class DisplayPictureScreen extends StatelessWidget {
           // Delete the previous file name
           File file = File(imagePath);
           file.deleteSync();
-
           Navigator.pop(context);
+
         },
       ),
       Container(width:10),
       IconButton(
         icon: Icon(Icons.save,size:40,color: Colors.lightGreenAccent,),
         onPressed: () {
-          //_select(choices[0]);
+          _selectImage(context);
         },
       ),
     ]);
+  }
+
+  _selectImage(BuildContext context){
+
+    var global = SightingGlobalValues.of(context);
+    global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
+
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) {
+          return SightingGlobalValues(child:SightingEditPage(title: "New sighting",));
+        }));
+
   }
 
 
