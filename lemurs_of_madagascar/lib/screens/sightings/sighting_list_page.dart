@@ -81,21 +81,22 @@ class _SightingListPageState extends State<SightingListPage> {
   @override
   Widget build(BuildContext buildContext) {
 
-      return  Scaffold(
-          backgroundColor: Constants.backGroundColor,
-          appBar: AppBar(
-            actions: <Widget>[
-              _buildSearch(),
-            ],
-            title: Text(widget.title),
-          ),
-          body: _buildSightingListView(),
-          bottomNavigationBar: _buildBottomNavBar(buildContext),
-      );
+      return
+        Scaffold(
+            backgroundColor: Constants.backGroundColor,
+            appBar: AppBar(
+              actions: <Widget>[
+                _buildSearch(),
+              ],
+              title: Text(widget.title),
+            ),
+            body: _buildSightingListView(),
+            bottomNavigationBar: _buildBottomNavBar(),
+        );
   }
 
 
-  Theme _buildBottomNavBar(BuildContext buildContext) {
+  Theme _buildBottomNavBar() {
     return Theme(
         data: Theme.of(context).copyWith(
           canvasColor: Constants.mainColor,
@@ -110,7 +111,7 @@ class _SightingListPageState extends State<SightingListPage> {
               _bottomNavIndex = index;
               _title = _menuName[_bottomNavIndex];
             });
-            _handleBottomNavTap(buildContext,_bottomNavIndex);
+            _handleBottomNavTap(_bottomNavIndex);
           },
           items: [
             BottomNavigationBarItem(
@@ -127,17 +128,18 @@ class _SightingListPageState extends State<SightingListPage> {
   }
 
 
-  void _handleBottomNavTap(BuildContext buildContext,int index){
+  void _handleBottomNavTap(int index){
     switch(index) {
       case 0:
-        Navigator.of(buildContext).push(
+        Navigator.of(context).push(
             MaterialPageRoute(
             fullscreenDialog: true, builder: (buildContext) =>
-            SightingGlobalValues(
-                child: SightingEditPage(title:"New sighting",sighting: null),
-                bloc: SightingBloc(Sighting()), // empty Sighting
-            )));
-      }
+               SightingGlobalValues(
+                 child:SightingEditPage("New sighting", sighting : Sighting(photoFileName: "FROM_LIST_VIEW.jpg")),
+                 bloc: SightingBloc(),
+               ))
+            );
+    }
 
   }
 

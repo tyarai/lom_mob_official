@@ -119,7 +119,6 @@ class CameraPageState extends State<CameraPage> {
 class DisplayPictureScreen extends StatelessWidget {
 
   final String imagePath;
-  final sightingBloc  = SightingGlobalValues.of(context).bloc;
 
 
   const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
@@ -136,7 +135,7 @@ class DisplayPictureScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext buildContext) {
 
     return AppBar(actions: <Widget>[
       IconButton(
@@ -146,7 +145,7 @@ class DisplayPictureScreen extends StatelessWidget {
           // Delete the previous file name
           File file = File(imagePath);
           file.deleteSync();
-          Navigator.pop(context);
+          Navigator.pop(buildContext);
 
         },
       ),
@@ -154,20 +153,20 @@ class DisplayPictureScreen extends StatelessWidget {
       IconButton(
         icon: Icon(Icons.save,size:40,color: Colors.lightGreenAccent,),
         onPressed: () {
-          _selectImage();
+          _selectImage(buildContext);
         },
       ),
     ]);
   }
 
-  _selectImage(){
+  _selectImage(BuildContext buildContext){
 
-    //var global = SightingGlobalValues.of(context);
-    //global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
+    var global = SightingGlobalValues.of(buildContext);
+    global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
 
-    Navigator.of(context).push(
+    Navigator.of(buildContext).push(
         MaterialPageRoute(builder: (context) {
-          return SightingGlobalValues(child:SightingEditPage(title: "New sighting",));
+          return SightingGlobalValues(child:SightingEditPage("New sighting"));
         }));
 
   }

@@ -11,18 +11,18 @@ class SightingEditPage extends StatefulWidget {
   final String title;
   final Sighting sighting;
 
-  SightingEditPage({this.title, this.sighting});
+  SightingEditPage(this.title,{this.sighting});
 
   @override
   State<StatefulWidget> createState() {
-    return _SightingEditPageState(this.title, this.sighting);
+    return _SightingEditPageState(this.title,sighting: this.sighting);
   }
 }
 
 class _SightingEditPageState extends State<SightingEditPage> {
 
-  String title;
   Sighting sighting;
+  String title;
   List<String> imageFileNameList = List<String>();
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -32,7 +32,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 
 
-  _SightingEditPageState(this.title, this.sighting);
+  _SightingEditPageState(this.title,{this.sighting});
 
   @override
   void initState() {
@@ -51,32 +51,41 @@ class _SightingEditPageState extends State<SightingEditPage> {
       );
   }
 
-  _buildBody(BuildContext buildContext) {
+   _buildBody(BuildContext buildContext)  {
 
     var global = SightingGlobalValues.of(buildContext);
-    var _sightingBloc = global.bloc;
+    var sightingBloc = global.bloc;
+
+    //print(sightingBloc.sighting.first.then((data) { print(data.photoFileName);}));
 
     return StreamBuilder(
-        stream: _sightingBloc.sighting,
-        initialData: Sighting(),
+        stream: sightingBloc.sighting,
+        initialData: this.sighting,
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
-          if(snapshot.hasData) {
+          if(snapshot.data != null) {
+            //print(snapshot.data);
             print("SNAPSHOT : ${snapshot.data.photoFileName}");
+
+            sighting = snapshot.data;
+
+            return ListView(children: <Widget>[
+              Container(
+                  child: Column(
+                    children: <Widget>[
+                      Container(height: 20),
+                      _buildPhotoSelection(snapshot.data),
+                      _buildImageListView(),
+                    ],
+                  ))
+            ]);
           }
 
-          return ListView(children: <Widget>[
-            Container(
-                child: Column(
-              children: <Widget>[
-                Container(height: 20),
-                _buildPhotoSelection(snapshot.data),
-                _buildImageListView(),
-              ],
-            ))
-          ]);
+          return Container();
+
         });
   }
+
 
   _showCameraPage() async {
     final cameras = await availableCameras();
@@ -85,8 +94,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
       Navigator.of(context).push(MaterialPageRoute(
           fullscreenDialog: true,
           builder: (BuildContext context) =>
-                    SightingGlobalValues(child:CameraPage(camera: firstCamera)),
-                  ));
+              SightingGlobalValues(
+                child:SightingGlobalValues(child:CameraPage(camera: firstCamera)),
+                  )));
     } catch (e) {
       print(e.toString());
     }
@@ -125,20 +135,24 @@ class _SightingEditPageState extends State<SightingEditPage> {
       {double size = Constants.cameraPhotoPlaceHolder,
       Color color = Constants.mainColor}) {
 
-    if (sighting.photoFileName == null) {
+    if(sighting != null) {
+      if (sighting.photoFileName == null) {
+        return Container(
+          child: Icon(
+            Icons.image,
+            size: size,
+            color: color,
+          ),
+        );
+      }
+
+      //TODO replace Text widget with Image widget
       return Container(
-        child: Icon(
-          Icons.image,
-          size: size,
-          color: color,
-        ),
+        child: Text(sighting.photoFileName),
       );
     }
 
-    //TODO replace Text widget with Image widget
-    return Container(
-      child: Text(sighting.photoFileName),
-    );
+    return Container();
   }
 
   _buildImageListView() {

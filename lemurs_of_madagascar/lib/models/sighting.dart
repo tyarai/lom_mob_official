@@ -155,5 +155,9 @@ class Sighting {
     );
   }
 
+  @override
+  String toString(){
+    return  this.photoFileName ;
+  }
 
 }
