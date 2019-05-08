@@ -4,7 +4,7 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 
 class SightingBloc {
 
-  Sighting _sighting = Sighting();
+  Sighting _sighting;
 
 
   final _sightingStateController = StreamController<Sighting>();
@@ -20,7 +20,7 @@ class SightingBloc {
   //  1- Stream<Sighting> get sighting => _sightingStateController.stream;  (to return state)
   //  2- Sink<SightingEvent> get sightingEventSink => _sightingEventController.sink; (to input event)
 
-  SightingBloc() {
+  SightingBloc(this._sighting) {
     // Map input event to output state
     _sightingEventController.stream.listen(_mapEventToState);
   }

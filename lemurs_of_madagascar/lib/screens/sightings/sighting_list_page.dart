@@ -135,7 +135,8 @@ class _SightingListPageState extends State<SightingListPage> {
             fullscreenDialog: true, builder: (buildContext) =>
             SightingGlobalValues(
                 child: SightingEditPage(title:"New sighting",sighting: null),
-                )));
+                bloc: SightingBloc(Sighting()), // empty Sighting
+            )));
       }
 
   }
