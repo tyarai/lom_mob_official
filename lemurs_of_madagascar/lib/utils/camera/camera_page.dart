@@ -72,7 +72,8 @@ class CameraPageState extends State<CameraPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(title: Text('Take a picture')),
+
+      appBar: AppBar(title: Text('Take a picture',style:Constants.appBarTitleStyle)),
       // You must wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner until
       // the controller has finished initializing
@@ -164,23 +165,25 @@ class DisplayPictureScreen extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext buildContext) {
 
-    return AppBar(actions: <Widget>[
-      IconButton(
-        icon: Icon(Icons.camera_alt,size: 40,color: Constants.iconColor,),
-        onPressed: () {
+    return AppBar(
+        title: Text("Preview",style:Constants.appBarTitleStyle),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.camera_alt,size: 40,color: Constants.iconColor,),
+            onPressed: () {
 
-          // Delete the previous file name and go back to camera
-          _close(buildContext);
+              // Delete the previous file name and go back to camera
+              _close(buildContext);
 
-        },
-      ),
-      Container(width:10),
-      IconButton(
-        icon: Icon(Icons.save,size:40,color: Constants.iconColor,),
-        onPressed: () {
-          _selectImage(buildContext);
-        },
-      ),
+            },
+          ),
+          Container(width:10),
+          IconButton(
+            icon: Icon(Icons.save,size:40,color: Constants.iconColor,),
+            onPressed: () {
+              _selectImage(buildContext);
+            },
+          ),
     ]);
   }
 
@@ -191,8 +194,8 @@ class DisplayPictureScreen extends StatelessWidget {
         file.deleteSync();
         print("DELETED " + imagePath  );
       }
-
     }
+    Navigator.of(buildContext).pop();
   }
 
 

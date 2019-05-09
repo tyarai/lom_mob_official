@@ -2,23 +2,26 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
+import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
-import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
+
 
 class SightingEditPage extends StatefulWidget {
   final String title;
   final Sighting sighting;
 
-  SightingEditPage(this.title,this.sighting);//,{this.sighting});
+  SightingEditPage(this.title, this.sighting); //,{this.sighting});
 
   @override
   State<StatefulWidget> createState() {
-    return _SightingEditPageState(this.title,this.sighting);//,sighting: this.sighting);
+    return _SightingEditPageState(
+        this.title, this.sighting); //,sighting: this.sighting);
   }
 }
 
@@ -31,81 +34,134 @@ class _SightingEditPageState extends State<SightingEditPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
-  //SightingBloc _sightingBloc = SightingBloc() ;
+  _SightingEditPageState(this.title, this.sighting);
 
 
+  Species _currentSpecies;
+  Future<List<Species>> _speciesList;
 
-  _SightingEditPageState(this.title,this.sighting);
 
   @override
   void initState() {
     super.initState();
+    _loadSpeciesList();
   }
 
   @override
   Widget build(BuildContext buildContext) {
-
-    return
-      Scaffold(
-        appBar: AppBar(
-          title: Text(this.title),
-        ),
-        body: _buildBody(),
-      );
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(this.title, style: Constants.appBarTitleStyle),
+      ),
+      body: _buildBody(),
+    );
   }
 
-   _buildBody()  {
+  _loadSpeciesList() async {
+     SpeciesDatabaseHelper speciesDB = SpeciesDatabaseHelper();
+     _speciesList = speciesDB.getSpeciesList();
+     print(_speciesList);
+     //_currentSpecies =  await_speciesList[0];
 
-    final SightingBloc bloc = BlocProvider.of <SightingBloc>(context);
+  }
+
+  void _onChangedSpecies(Species species){
+    setState(() {
+      _currentSpecies = species;
+    });
+  }
+
+  _buildBody() {
+    final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
     return StreamBuilder<Sighting>(
-
         stream: bloc.outSighting,
         initialData: this.sighting,
-
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
-
-          if(snapshot.data != null) {
+          if (snapshot.data != null) {
             //print(snapshot.data);
             print("SNAPSHOT : ${snapshot.data.photoFileName}");
 
             return ListView(children: <Widget>[
               Container(
                   child: Column(
-                    children: <Widget>[
-                      Container(height: 20),
-                      _buildPhotoSelection(snapshot.data),
-                      _buildImageListView(),
-                    ],
-                  ))
+                children: <Widget>[
+                  Container(height: 20),
+                  _buildPhotoSelection(snapshot.data),
+                  _buildSpeciesDropDown(),
+                  _buildImageListView(snapshot.data),
+                ],
+              ))
             ]);
           }
 
-          return Center(child:CircularProgressIndicator());
-
+          return Center(child: CircularProgressIndicator());
         });
   }
-
 
   _showCameraPage() async {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
     try {
-
       final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
-
-      Navigator.of(context).push(MaterialPageRoute(
-          fullscreenDialog: true,
-          builder: (BuildContext context) =>
-                 BlocProvider(
-                     bloc: bloc,
-                     child: CameraPage(camera: firstCamera))),
-          );
-
+      Navigator.of(context).push(
+        MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (BuildContext context) => BlocProvider(
+                bloc: bloc, child: CameraPage(camera: firstCamera))),
+      );
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  Widget _buildSpeciesDropDown(){
+
+    return FutureBuilder<List<Species>>(
+
+        future: _speciesList,
+
+        builder: (BuildContext context, AsyncSnapshot<List<Species>> snapshot){
+
+            if(snapshot.hasData) {
+
+              return
+
+                DropdownButton<Species>(
+
+                  value: _currentSpecies,
+
+                  items: snapshot.data.map((Species value) {
+                    return DropdownMenuItem(
+
+                        value: value,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width -50,
+                          height: 350,
+                          child:Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Species.buildLemurPhoto(value),
+                                Container(width: 5),
+                                Species.buildTextInfo(value),
+                              ]))
+                        );
+
+
+                  }).toList(),
+
+                  onChanged: (Species value) {
+                      _onChangedSpecies(value);
+                  },
+
+                );
+            }
+
+            return Center(child:Container(child:CircularProgressIndicator()));
+         }
+      );
+
   }
 
   _buildPhotoSelection(Sighting sighting) {
@@ -128,15 +184,17 @@ class _SightingEditPageState extends State<SightingEditPage> {
                       children: <Widget>[
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children:<Widget>[_buildPhoto(sighting)]),
+                            children: <Widget>[_buildPhoto(sighting)]),
                         Container(width: 20),
                         Column(
                             mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[Icon(
-                              Icons.camera_alt,
-                              size: 45,
-                              color: Constants.mainColor,
-                            )]),
+                            children: <Widget>[
+                              Icon(
+                                Icons.camera_alt,
+                                size: 45,
+                                color: Constants.mainColor,
+                              )
+                            ]),
                       ])),
             )));
   }
@@ -144,8 +202,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
   Widget _buildPhoto(Sighting sighting,
       {double size = Constants.cameraPhotoPlaceHolder,
       Color color = Constants.mainColor}) {
-
-    if(sighting != null) {
+    if (sighting != null) {
       if (sighting.photoFileName == null) {
         return Container(
           child: Icon(
@@ -156,29 +213,34 @@ class _SightingEditPageState extends State<SightingEditPage> {
         );
       }
 
-      return Container(child: Image.file(File(sighting.photoFileName),width: 200,));
-
+      return Container(
+          child: Image.file(
+        File(sighting.photoFileName),
+        width: 200,
+      ));
     }
 
     return Container();
   }
 
-  _buildImageListView() {
+  _buildImageListView(Sighting sighting) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Container(
-          height: 50.0,
+          height: 10.0,
         ),
         Container(
             child: Form(
           key: formKey,
           child: new Column(
             children: <Widget>[
-              /*new Padding(
+              new Padding(
                 padding: edgePadding,
                 child: new TextFormField(
+                  maxLines: 4,
+
                   onSaved: (val) => {},
                   /*validator: (String arg) {
                     if(arg.length < Constants.minUsernameLength) {
@@ -188,13 +250,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
                     }
                   }*/
                   decoration: InputDecoration(
-                      labelText: "Username",
-                      icon: new Icon(
-                        Icons.person,
-                        color: Constants.iconColor,
-                      ),
+                      labelText: "Sighting title",
                       contentPadding: edgeInsets,
-                      hintText: "Username",
+                      hintText: "Sighting title",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                               Constants.speciesImageBorderRadius))),
@@ -214,17 +272,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   }*/
                   decoration: InputDecoration(
                       labelText: "Password",
-                      icon: new Icon(
-                        Icons.lock,
-                        color: Constants.iconColor,
-                      ),
                       contentPadding: edgeInsets,
                       hintText: "Password",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                               Constants.speciesImageBorderRadius))),
                 ),
-              )*/
+              )
             ],
           ),
         )),
