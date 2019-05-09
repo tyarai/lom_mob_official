@@ -27,28 +27,28 @@ class Sighting {
   static String hasPhotoChangedKey = "_hasPhotoChanged";
 
 
-  int id;
-  int nid;
-  String uuid;
-  String speciesName;
-  int speciesNid;
-  int speciesCount;
-  String placeName;
-  double latitude;
-  double longitude;
-  double altitude;
-  String photoFileName;
-  String title;
-  double created;
-  double modified;
-  int uid;
-  int isLocal;
-  int isSynced;
-  double date;
-  int deleted;
-  int placeNID;
-  int locked;
-  int hasPhotoChanged;
+  int id =0;
+  int nid =0;
+  String uuid = "";
+  String speciesName = "";
+  int speciesNid = 0;
+  int speciesCount = 0;
+  String placeName = "";
+  double latitude = 0.0;
+  double longitude = 0.0;
+  double altitude = 0.0;
+  String photoFileName = "";
+  String title = "";
+  double created = 0.0;
+  double modified = 0.0;
+  int uid =0 ;
+  int isLocal = -1;
+  int isSynced = -1;
+  double date = 0.0;
+  int deleted = -1;
+  int placeNID = 0;
+  int locked = -1;
+  int hasPhotoChanged = -1;
 
 
   Sighting({this.id,this.uuid,this.nid,this.speciesName,

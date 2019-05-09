@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'dart:core';
@@ -9,19 +10,19 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.d
 
 class SightingEditPage extends StatefulWidget {
   final String title;
-  final Sighting sighting;
+  //final Sighting sighting;
 
-  SightingEditPage(this.title,{this.sighting});
+  SightingEditPage(this.title);//,{this.sighting});
 
   @override
   State<StatefulWidget> createState() {
-    return _SightingEditPageState(this.title,sighting: this.sighting);
+    return _SightingEditPageState(this.title);//,sighting: this.sighting);
   }
 }
 
 class _SightingEditPageState extends State<SightingEditPage> {
 
-  Sighting sighting;
+  //Sighting sighting;
   String title;
   List<String> imageFileNameList = List<String>();
   final formKey = GlobalKey<FormState>();
@@ -32,7 +33,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 
 
-  _SightingEditPageState(this.title,{this.sighting});
+  _SightingEditPageState(this.title);//,{this.sighting});
 
   @override
   void initState() {
@@ -47,27 +48,24 @@ class _SightingEditPageState extends State<SightingEditPage> {
         appBar: AppBar(
           title: Text(this.title),
         ),
-        body: _buildBody(buildContext),
+        body: _buildBody(),
       );
   }
 
-   _buildBody(BuildContext buildContext)  {
+   _buildBody()  {
 
-    var global = SightingGlobalValues.of(buildContext);
-    var sightingBloc = global.bloc;
+    final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
-    //print(sightingBloc.sighting.first.then((data) { print(data.photoFileName);}));
+    return StreamBuilder<Sighting>(
 
-    return StreamBuilder(
-        stream: sightingBloc.sighting,
-        initialData: this.sighting,
+        stream: bloc.outSighting,
+        initialData: Sighting(),
+
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
           if(snapshot.data != null) {
             //print(snapshot.data);
             print("SNAPSHOT : ${snapshot.data.photoFileName}");
-
-            sighting = snapshot.data;
 
             return ListView(children: <Widget>[
               Container(
@@ -81,7 +79,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
             ]);
           }
 
-          return Container();
+          return Center(child:CircularProgressIndicator());
 
         });
   }
@@ -91,12 +89,18 @@ class _SightingEditPageState extends State<SightingEditPage> {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
     try {
+
+      final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
+
       Navigator.of(context).push(MaterialPageRoute(
           fullscreenDialog: true,
           builder: (BuildContext context) =>
-              SightingGlobalValues(
-                child:SightingGlobalValues(child:CameraPage(camera: firstCamera)),
-                  )));
+                 BlocProvider(
+                     bloc: bloc,
+                     child: CameraPage(camera: firstCamera))),
+          );
+
     } catch (e) {
       print(e.toString());
     }
@@ -147,7 +151,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
       }
 
       //TODO replace Text widget with Image widget
-      return Container(
+      return Expanded(
         child: Text(sighting.photoFileName),
       );
     }

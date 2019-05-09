@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
-import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 
 
@@ -129,16 +130,26 @@ class _SightingListPageState extends State<SightingListPage> {
 
 
   void _handleBottomNavTap(int index){
+
+    Sighting emptySighting = Sighting(photoFileName: "EMPTY SIGHTING");
+    SightingBloc sightingBloc = SightingBloc();
+    sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
+
     switch(index) {
       case 0:
         Navigator.of(context).push(
             MaterialPageRoute(
             fullscreenDialog: true, builder: (buildContext) =>
-               SightingGlobalValues(
+               /*SightingGlobalValues(
                  child:SightingEditPage("New sighting", sighting : Sighting(photoFileName: "FROM_LIST_VIEW.jpg")),
                  bloc: SightingBloc(),
+               ))*/
+               BlocProvider(
+                 child: SightingEditPage("New sighting"),
+                 bloc: sightingBloc,
                ))
             );
+
     }
 
   }

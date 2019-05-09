@@ -1,4 +1,12 @@
+import 'package:lemurs_of_madagascar/models/sighting.dart';
+
 abstract class SightingEvent{}
+
+
+class SightingChangeEvent extends SightingEvent {
+  Sighting sighting;
+  SightingChangeEvent(this.sighting);
+}
 
 class SightingImageChangeEvent extends SightingEvent {
   String newFileName;

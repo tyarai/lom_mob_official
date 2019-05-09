@@ -1,10 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
-import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 
@@ -97,13 +98,27 @@ class CameraPageState extends State<CameraPage> {
             // Attempt to take a picture and log where it's been saved
             await _controller.takePicture(path);
 
+            final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
             // If the picture was taken, display it on a new screen
+            /*
             Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>  DisplayPictureScreen(imagePath: path),
-              ),
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      BlocProvider(bloc:bloc,child:DisplayPictureScreen(imagePath: path)),
+                ),
+              );
+            */
+
+            Navigator.of(context).push(MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (BuildContext context) =>
+                    BlocProvider(
+                        bloc: bloc,
+                        child: DisplayPictureScreen(imagePath: path))),
             );
+
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
@@ -161,13 +176,31 @@ class DisplayPictureScreen extends StatelessWidget {
 
   _selectImage(BuildContext buildContext){
 
-    var global = SightingGlobalValues.of(buildContext);
-    global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
+    //var global = SightingGlobalValues.of(buildContext);
+    //global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
 
-    Navigator.of(buildContext).push(
-        MaterialPageRoute(builder: (context) {
-          return SightingGlobalValues(child:SightingEditPage("New sighting"));
-        }));
+    final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+    bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
+
+
+    /*
+      Navigator.of(buildContext).pushReplacement(
+        MaterialPageRoute(builder: (context) =>
+          //return SightingEditPage("New sighting");
+
+          BlocProvider(
+            child: SightingEditPage("New sighting"),
+            bloc: bloc,
+          ),
+
+        ));
+      );
+    */
+    //Navigator.popUntil(buildContext, '/sighting_edit');
+
+    //Navigator.of(buildContext).popUntil(ModalRoute.withName('/sighting_edit'));
+    Navigator.of(buildContext).pop();
+    Navigator.of(buildContext).pop();
 
   }
 
