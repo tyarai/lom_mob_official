@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
@@ -10,19 +12,19 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.d
 
 class SightingEditPage extends StatefulWidget {
   final String title;
-  //final Sighting sighting;
+  final Sighting sighting;
 
-  SightingEditPage(this.title);//,{this.sighting});
+  SightingEditPage(this.title,this.sighting);//,{this.sighting});
 
   @override
   State<StatefulWidget> createState() {
-    return _SightingEditPageState(this.title);//,sighting: this.sighting);
+    return _SightingEditPageState(this.title,this.sighting);//,sighting: this.sighting);
   }
 }
 
 class _SightingEditPageState extends State<SightingEditPage> {
 
-  //Sighting sighting;
+  Sighting sighting;
   String title;
   List<String> imageFileNameList = List<String>();
   final formKey = GlobalKey<FormState>();
@@ -33,7 +35,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 
 
-  _SightingEditPageState(this.title);//,{this.sighting});
+  _SightingEditPageState(this.title,this.sighting);
 
   @override
   void initState() {
@@ -54,12 +56,12 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
    _buildBody()  {
 
-    final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+    final SightingBloc bloc = BlocProvider.of <SightingBloc>(context);
 
     return StreamBuilder<Sighting>(
 
         stream: bloc.outSighting,
-        initialData: Sighting(),
+        initialData: this.sighting,
 
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
@@ -121,16 +123,20 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   shadowColor: Colors.blueGrey,
                   //color: Constants.backGroundColor,
                   child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      //crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        _buildPhoto(sighting),
-                        Container(width: 10),
-                        Icon(
-                          Icons.camera_alt,
-                          size: 45,
-                          color: Constants.mainColor,
-                        ),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children:<Widget>[_buildPhoto(sighting)]),
+                        Container(width: 20),
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[Icon(
+                              Icons.camera_alt,
+                              size: 45,
+                              color: Constants.mainColor,
+                            )]),
                       ])),
             )));
   }
@@ -150,10 +156,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
         );
       }
 
-      //TODO replace Text widget with Image widget
-      return Expanded(
-        child: Text(sighting.photoFileName),
-      );
+      return Container(child: Image.file(File(sighting.photoFileName),width: 200,));
+
     }
 
     return Container();

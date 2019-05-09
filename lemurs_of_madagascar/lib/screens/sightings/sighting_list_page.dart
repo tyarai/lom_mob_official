@@ -28,7 +28,7 @@ class _SightingListPageState extends State<SightingListPage> {
   int currentUid = 0;
   int _bottomNavIndex = 0;
   List<Sighting> sightingList = List<Sighting>();
-
+  SightingBloc sightingBloc = SightingBloc();
 
   List<String> _menuName = [
     "New sighting",
@@ -36,6 +36,13 @@ class _SightingListPageState extends State<SightingListPage> {
   ];
 
   String _title = "";
+
+
+  @override
+  void dispose() {
+    sightingBloc.dispose();
+    super.dispose();
+  }
 
   @override
   initState()  {
@@ -131,8 +138,9 @@ class _SightingListPageState extends State<SightingListPage> {
 
   void _handleBottomNavTap(int index){
 
-    Sighting emptySighting = Sighting(photoFileName: "EMPTY SIGHTING");
-    SightingBloc sightingBloc = SightingBloc();
+
+    Sighting emptySighting = Sighting();
+    //SightingBloc sightingBloc = SightingBloc();
     sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
 
     switch(index) {
@@ -145,7 +153,7 @@ class _SightingListPageState extends State<SightingListPage> {
                  bloc: SightingBloc(),
                ))*/
                BlocProvider(
-                 child: SightingEditPage("New sighting"),
+                 child: SightingEditPage("New sighting",emptySighting),
                  bloc: sightingBloc,
                ))
             );

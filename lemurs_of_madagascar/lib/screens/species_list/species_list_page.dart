@@ -125,40 +125,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
           widget = GestureDetector(
               onTap: () {
 
-                //if(fromSearch) LOMSharedPreferences.addToRecentSpeciesSearch(species);
                 SpeciesListPageState.navigateToSpeciesDetails(context, species);
-
-                /*Navigator.of(context).push(
-                  PageRouteBuilder<Null>(
-                      pageBuilder: (BuildContext context, Animation<double> animation,
-                          Animation<double> secondaryAnimation) {
-                        return AnimatedBuilder(
-                            animation: animation,
-                            builder: (BuildContext context, Widget child) {
-                              return Opacity(
-                                opacity: animation.value,
-                                child: SpeciesDetailsPage(
-                                  species: species,
-                                ),
-                              );
-                            });
-                      },
-                      transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
-                );*/
-
-                /*Navigator.of(context).push(
-                    MaterialPageRoute(
-                        fullscreenDialog: true, builder: (BuildContext context) => SpeciesDetailsPage(
-                      species: species,
-                    )));
-                 */
-
-                /*MaterialPageRoute(builder: (context) {
-                    return SpeciesDetailsPage(
-                      species: species,
-                    );
-                  }),
-                );*/
 
               },
               child: Padding(

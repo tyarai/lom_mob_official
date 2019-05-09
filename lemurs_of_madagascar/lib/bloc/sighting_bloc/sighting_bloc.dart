@@ -7,7 +7,7 @@ class SightingBloc implements BlocBase {
 
   Sighting _sighting;
 
-  StreamController<Sighting> _sightingController = StreamController<Sighting>();
+  StreamController<Sighting> _sightingController = StreamController<Sighting>.broadcast();
   Sink<Sighting> get _inSightingAdd => _sightingController.sink;
   Stream<Sighting> get outSighting => _sightingController.stream;
 
@@ -16,7 +16,7 @@ class SightingBloc implements BlocBase {
   Sink<SightingEvent> get sightingEventController => _sightingEventController.sink;
 
 
-  SightingBloc(){
+  SightingBloc()  {
     _sightingEventController.stream.listen(_mapEventToState);
   }
 
@@ -32,7 +32,7 @@ class SightingBloc implements BlocBase {
 
     if (event is SightingChangeEvent) {
       _sighting = event.sighting;
-      print("...changed bloc's sighting to: ${_sighting.title}");
+      print("...changed bloc's sighting to: ${_sighting.photoFileName}");
     }
 
     if (event is SightingImageChangeEvent) {
