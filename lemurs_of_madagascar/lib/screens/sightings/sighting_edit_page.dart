@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
@@ -65,11 +66,25 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
   }
 
-  void _onChangedSpecies(Species species){
+  void _onSpeciesChanged(Species species){
     setState(() {
       _currentSpecies = species;
     });
+
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+    bloc.sightingEventController.add(SightingSpeciesChangeEvent(species));
+
   }
+
+
+  void _onTitleChanged(String value){
+
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+    bloc.sightingEventController.add(SightingTitleChangeEvent(value));
+
+  }
+
+
 
   _buildBody() {
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
@@ -80,7 +95,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
           if (snapshot.data != null) {
             //print(snapshot.data);
-            print("SNAPSHOT : ${snapshot.data.photoFileName}");
+            print(snapshot.data.toString());
 
             return ListView(children: <Widget>[
               Container(
@@ -89,7 +104,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   Container(height: 20),
                   _buildPhotoSelection(snapshot.data),
                   _buildSpeciesDropDown(),
-                  _buildImageListView(snapshot.data),
+                  //_buildImageListView(snapshot.data),
                 ],
               ))
             ]);
@@ -133,26 +148,31 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   value: _currentSpecies,
 
                   items: snapshot.data.map((Species value) {
+
                     return DropdownMenuItem(
 
                         value: value,
                         child: Container(
                           width: MediaQuery.of(context).size.width -50,
-                          height: 350,
-                          child:Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Species.buildLemurPhoto(value),
-                                Container(width: 5),
-                                Species.buildTextInfo(value),
-                              ]))
+                          height: 50,
+                          child:Column(
+                            children:<Widget> [Expanded(
+                              child:Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Species.buildLemurPhoto(value),
+                                    Container(width: 5),
+                                    Species.buildTextInfo(value),
+                                  ]),
+                            ),
+                          ]))
                         );
 
 
                   }).toList(),
 
                   onChanged: (Species value) {
-                      _onChangedSpecies(value);
+                    _onSpeciesChanged(value);
                   },
 
                 );
@@ -239,16 +259,17 @@ class _SightingEditPageState extends State<SightingEditPage> {
               new Padding(
                 padding: edgePadding,
                 child: new TextFormField(
+
                   maxLines: 4,
 
-                  onSaved: (val) => {},
-                  /*validator: (String arg) {
-                    if(arg.length < Constants.minUsernameLength) {
-                      return ErrorText.loginNameError;
-                    }else {
-                      return null;
-                    }
-                  }*/
+                  onSaved: (val) => {
+                    _onTitleChanged(val)
+                  },
+
+                  validator: (String arg) {
+
+                  },
+
                   decoration: InputDecoration(
                       labelText: "Sighting title",
                       contentPadding: edgeInsets,

@@ -201,8 +201,6 @@ class DisplayPictureScreen extends StatelessWidget {
 
   _selectImage(BuildContext buildContext){
 
-    //var global = SightingGlobalValues.of(buildContext);
-    //global.bloc.sightingEventSink.add(SightingImageChangeEvent(this.imagePath));
 
     SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
     bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));

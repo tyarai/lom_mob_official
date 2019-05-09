@@ -156,8 +156,7 @@ class Sighting {
   }
 
   @override
-  String toString(){
-    return  this.photoFileName ;
+  String toString() {
+    return "[ID]:${this.id} [title]:${this.title} [species]:${this.speciesName} [photo]:${this.photoFileName} ";
   }
-
 }

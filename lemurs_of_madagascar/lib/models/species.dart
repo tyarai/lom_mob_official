@@ -244,6 +244,8 @@ class Species {
   }
 
 
+  
+
   static Widget buildLemurPhoto(Species species,{double width = Constants.listViewImageWidth,double height = Constants.listViewImageHeight, SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular}) {
 
       Widget widget;
