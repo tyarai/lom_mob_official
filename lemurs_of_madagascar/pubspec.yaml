@@ -40,6 +40,8 @@ dependencies:
   #Camera plugin
   camera: ^0.5.0
 
+  #image-picker to select photo form gallery and/or take photo with camera
+  image_picker: ^0.6.0+2
 
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7

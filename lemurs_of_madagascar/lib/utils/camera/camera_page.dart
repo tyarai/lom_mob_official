@@ -6,9 +6,9 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_global_values.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
-import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 
 class CameraPage extends StatefulWidget {
@@ -32,6 +32,7 @@ class CameraPageState extends State<CameraPage> {
   CameraController _controller;
   Future<void> _initializeControllerFuture;
   String path = "";
+  Future<File> imageFile;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class CameraPageState extends State<CameraPage> {
   }
 
   _close(){
+
     if(path.length != 0) {
       File file = File(path);
       if(file.existsSync()) {
@@ -64,8 +66,94 @@ class CameraPageState extends State<CameraPage> {
   void dispose() {
     // Make sure to dispose of the controller when the Widget is disposed
     _controller.dispose();
+    print("DSIPOSED Camera Controlle ");
     _close();
     super.dispose();
+  }
+
+  pickImageFromGallery(ImageSource source) {
+    imageFile =  ImagePicker.pickImage(source: source);
+  }
+
+  handleImage(BuildContext context) {
+
+
+    pickImageFromGallery(ImageSource.gallery);
+
+    imageFile.then((file){
+
+      if(file != null) {
+
+        final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
+
+
+        Navigator.of(context).push(MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (BuildContext context) =>
+                BlocProvider(
+                    bloc: bloc,
+                    child: DisplayPictureScreen(imagePath: file.path))),
+        );
+      }
+
+    });
+
+    /*FutureBuilder<File>(
+
+      future: null,//pickImageFromGallery(ImageSource.gallery),
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+
+
+          print("FILE:"+snapshot.data.path);
+
+          final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
+          Navigator.of(context).push(MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (BuildContext context) =>
+                  BlocProvider(
+                      bloc: bloc,
+                      child: DisplayPictureScreen(imagePath: snapshot.data.path))),
+          );
+
+
+
+        } else if (snapshot.error != null) {
+          return const Text(
+            'Error Picking Image',
+            textAlign: TextAlign.center,
+          );
+        } else {
+          return const Text(
+            'No Image Selected',
+            textAlign: TextAlign.center,
+          );
+        }
+      },
+    );*/
+  }
+
+  _buildAppBar(BuildContext buildContext){
+    return
+      AppBar(
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+            child: IconButton(
+              icon: Icon(Icons.photo_album,size: 40,color: Constants.iconColor,),
+              onPressed: () {
+
+                handleImage(buildContext);
+
+              },
+            ),
+          ),
+        ],
+        title: Text('Take a picture',style:Constants.appBarTitleStyle)
+    );
   }
 
   @override
@@ -73,7 +161,7 @@ class CameraPageState extends State<CameraPage> {
 
     return Scaffold(
 
-      appBar: AppBar(title: Text('Take a picture',style:Constants.appBarTitleStyle)),
+      appBar: _buildAppBar(context),
       // You must wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner until
       // the controller has finished initializing
@@ -90,47 +178,49 @@ class CameraPageState extends State<CameraPage> {
         },
       ),
 
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton:
+          FloatingActionButton(
 
-        child: Icon(Icons.camera_alt),
-        // Provide an onPressed callback
-        onPressed: () async {
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
-          try {
-            // Ensure the camera is initialized
-            await _initializeControllerFuture;
+          child: Icon(Icons.photo_camera),
+          // Provide an onPressed callback
+          onPressed: () async {
+            // Take the Picture in a try / catch block. If anything goes wrong,
+            // catch the error.
+            try {
+              // Ensure the camera is initialized
+              await _initializeControllerFuture;
 
-            // Construct the path where the image should be saved using the path
-            // package.
-            path = join(
-              // In this example, store the picture in the temp directory. Find
-              // the temp directory using the `path_provider` plugin.
-              (await getTemporaryDirectory()).path,
-              '${DateTime.now()}.png',
-            );
+              // Construct the path where the image should be saved using the path
+              // package.
+              path = join(
+                // In this example, store the picture in the temp directory. Find
+                // the temp directory using the `path_provider` plugin.
+                (await getTemporaryDirectory()).path,
+                '${DateTime.now()}.png',
+              );
 
-            // Attempt to take a picture and log where it's been saved
-            await _controller.takePicture(path);
+              // Attempt to take a picture and log where it's been saved
+              await _controller.takePicture(path);
 
-            final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+              final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
-            // If the picture was taken, display it on a new screen
+              // If the picture was taken, display it on a new screen
 
-            Navigator.of(context).push(MaterialPageRoute(
-                fullscreenDialog: true,
-                builder: (BuildContext context) =>
-                    BlocProvider(
-                        bloc: bloc,
-                        child: DisplayPictureScreen(imagePath: path))),
-            );
+              Navigator.of(context).push(MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (BuildContext context) =>
+                      BlocProvider(
+                          bloc: bloc,
+                          child: DisplayPictureScreen(imagePath: path))),
+              );
 
-          } catch (e) {
-            // If an error occurs, log the error to the console.
-            print(e);
-          }
-        },
-      ),
+            } catch (e) {
+              // If an error occurs, log the error to the console.
+              print(e);
+            }
+          },
+        ),
+
     );
   } // Fill this out in the next steps
 
@@ -204,24 +294,6 @@ class DisplayPictureScreen extends StatelessWidget {
 
     SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
     bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
-
-
-    /*
-      Navigator.of(buildContext).pushReplacement(
-        MaterialPageRoute(builder: (context) =>
-          //return SightingEditPage("New sighting");
-
-          BlocProvider(
-            child: SightingEditPage("New sighting"),
-            bloc: bloc,
-          ),
-
-        ));
-      );
-    */
-    //Navigator.popUntil(buildContext, '/sighting_edit');
-
-    //Navigator.of(buildContext).popUntil(ModalRoute.withName('/sighting_edit'));
     Navigator.of(buildContext).pop();
     Navigator.of(buildContext).pop();
 
