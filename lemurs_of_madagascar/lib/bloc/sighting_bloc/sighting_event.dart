@@ -19,7 +19,9 @@ class SightingSpeciesChangeEvent extends SightingEvent {
   SightingSpeciesChangeEvent(this.species);
 }
 
-class SightingSiteChangeEvent extends SightingEvent {}
+class SightingSiteChangeEvent extends SightingEvent {
+
+}
 
 class SightingTitleChangeEvent extends SightingEvent {
   String newTitle;

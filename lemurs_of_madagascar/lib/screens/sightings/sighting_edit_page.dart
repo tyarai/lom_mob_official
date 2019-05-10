@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
-import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
-import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
@@ -60,24 +58,23 @@ class _SightingEditPageState extends State<SightingEditPage> {
     );
   }
 
-  /*_loadSpeciesList() async {
-     SpeciesDatabaseHelper speciesDB = SpeciesDatabaseHelper();
-     _speciesList = speciesDB.getSpeciesList();
-
-  }*/
 
   void _onSpeciesChanged(Species species){
 
-    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-    bloc.sightingEventController.add(SightingSpeciesChangeEvent(species));
+    if(species != null) {
+      SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+      bloc.sightingEventController.add(SightingSpeciesChangeEvent(species));
+    }
 
   }
 
 
   void _onTitleChanged(String value){
 
-    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-    bloc.sightingEventController.add(SightingTitleChangeEvent(value));
+    if(value != null && value.length > 0) {
+      SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+      bloc.sightingEventController.add(SightingTitleChangeEvent(value));
+    }
 
   }
 
@@ -103,6 +100,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   Container(height: 20),
                   _buildPhotoSelection(snapshot.data),
                   _buildSpeciesSelectButton(context,snapshot.data.species),
+                  _buildSitesSelectButton(context,snapshot.data.species),
                   _buildImageListView(snapshot.data),
                 ],
               ))
@@ -130,44 +128,28 @@ class _SightingEditPageState extends State<SightingEditPage> {
     }
   }
 
+  // Navigate to the Species select page
+  _navigateToSpeciesSelectList(BuildContext context,ListProvider<Species> provider){
 
-  _navigateToSpeciesList(ListProvider<Species> provider){
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) {
-          return ListProviderPage<Species>("Select species", provider);
+          return BlocProvider(
+              bloc: bloc,
+              child: ListProviderPage<Species>("Select species", provider)
+          );
         }));
   }
 
+
   Widget _buildSpeciesSelectButton(BuildContext buildContext, Species species){
 
-        VoidCallBack onTap = () {
+        OnTapCallback onTap = () {
 
+          //TODO : Initialize the ListProvider.selected to the current Sighting.species in the stream
           ListProvider<Species> speciesListProvider = ListProvider();
-
-          //if (_speciesList.length == 0) {
-
-            SpeciesDatabaseHelper speciesDatabaseHelper = SpeciesDatabaseHelper();
-
-            FutureBuilder(
-              future  : speciesDatabaseHelper.getSpeciesList(),
-              builder : (context,snapshot) {
-
-                if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
-
-                  print("#1");
-                  speciesListProvider.list = snapshot.data;
-                  _navigateToSpeciesList(speciesListProvider);
-                }
-
-              }
-            );
-          //}else {
-            //print("#2 ${_speciesList.length}");
-            //speciesListProvider.list = _speciesList;
-            //_navigateToSpeciesList(speciesListProvider);
-          //}
-
-          print("#3 ${_speciesList.length}");
+          _navigateToSpeciesSelectList(buildContext,speciesListProvider);
 
         };
 
@@ -187,6 +169,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
             trailing: Icon(Icons.arrow_forward_ios),
             title: Text("Select species"),
         ));
+
+  }
+
+
+  _buildSitesSelectButton(BuildContext context,Site site){
+
+
 
   }
 

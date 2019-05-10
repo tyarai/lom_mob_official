@@ -157,6 +157,11 @@ class Species extends SelectableListItem {
 
   }
 
+  @override
+  String toString() {
+      return " ${this.id} ${this.title} ${this.malagasy}";
+  }
+
   Species.fromSpecies(Species species) {
 
     this.id               = species.id;
@@ -347,7 +352,7 @@ class Species extends SelectableListItem {
   */
 
 
-  Widget getItemCell(int index,BuildContext context, OnTapCallback onTap,
+  Widget getItemCell(ListProvider provider,int index,BuildContext context, OnSelectCallback onSelectCallback,
       {
         double borderRadius = Constants.speciesImageBorderRadius,
         double elevation    = 2.5,
@@ -359,16 +364,17 @@ class Species extends SelectableListItem {
     return GestureDetector(
         onTap: () {
 
-          //SpeciesListPageState.navigateToSpeciesDetails(context, species);
-          onTap(context,this);
-          //selectedItem = species;
-          //selectedItemIndex = index;
+          provider.selectedItem = this;
+          provider.selectedItemIndex = index;
+          onSelectCallback(this);
+
 
         },
         child: Padding(
             padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
             child: Container(
                 child: Material(
+                  color: _buildBackGroundColor(provider,index),
                   elevation: elevation,
                   borderRadius: BorderRadius.circular(borderRadius),
                   shadowColor: Colors.blueGrey,
@@ -381,13 +387,24 @@ class Species extends SelectableListItem {
                             Container(width: 10),
                             Species.buildTextInfo(this),
                             Container(width: 10),
-                            /*(selectedItemIndex == index) ? Container(
-                              child: Icon(Icons.check,color: Colors.greenAccent,),
-                            ) : Container(),*/
+                            _buildCheckBox(provider,index),
 
                           ])),
                 ))));
 
+  }
+
+  _buildBackGroundColor(ListProvider provider, int index ){
+    return (provider.selectedItemIndex == index) ?
+    Constants.selectedListItemBackgroundColor : Constants.defaultListItemBackgroundColor;
+  }
+
+  _buildCheckBox(ListProvider provider, int index ){
+    return (provider.selectedItemIndex == index) ?
+    Container(
+      child: Icon(Icons.check,size:35,color: Colors.green,),
+    )
+    : Container();
   }
 
 }

@@ -64,6 +64,9 @@ class Sighting {
   }
 
   Species get species => this._species;
+  set species(Species value){
+    this._species = value;
+  }
 
 
   Map<String, dynamic> toMap(){

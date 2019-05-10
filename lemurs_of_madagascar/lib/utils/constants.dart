@@ -42,6 +42,10 @@ class Constants {
 
   // Documents and folders inside the app document folder
   static const String appImagesFolder = "images";
+
+  // List Item Color
+  static const Color selectedListItemBackgroundColor = Colors.lime;
+  static const Color defaultListItemBackgroundColor = Colors.white;
 }
 
 

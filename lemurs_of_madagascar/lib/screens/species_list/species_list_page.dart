@@ -88,7 +88,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
       future: _loadData(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(backgroundColor: Colors.white,));
 
         return ListView.builder(
             scrollDirection: Axis.vertical,
@@ -171,56 +171,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
     return widget;
   }
-
-  /*
-  Widget _buildSpeciesGridList() {
-    return FutureBuilder<List<Species>>(
-      future: _loadData(),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
-
-        return ListView.builder(
-            itemCount: snapshot.data.length,
-            itemBuilder: (BuildContext context, int index) {
-              return SpeciesListPageState.buildCellItem(context,this._speciesList,index);
-            });
-      },
-    );
-  }*/
-
-  /*Widget _buildSpeciesGridList() {
-
-    return ListView.builder(
-        itemCount: _speciesList != null ? _speciesList.length : 0,
-        itemBuilder: (BuildContext context, int index) {
-          Species species = _speciesList[index];
-
-          return GestureDetector(
-            child: Card(
-              elevation: 2.5,
-              child: Container(
-                alignment: Alignment.center,
-                child: Column(
-                  children: <Widget>[
-                    Image.asset(
-                      species.imageFile,
-                      width: 150.0,
-                      height: 150.0,
-                      fit: BoxFit.fill,
-                    ),
-                    Text(species.title),
-                    Text(species.imageFile != null ? species.imageFile : "NULL")
-                  ],
-                ),
-              ),
-            ),
-            onTap: () {},
-          );
-        });
-  }
-  */
-
 
   static void navigateToSpeciesDetails(BuildContext context,Species species){
 

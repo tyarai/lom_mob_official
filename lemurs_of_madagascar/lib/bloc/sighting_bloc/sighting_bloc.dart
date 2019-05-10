@@ -45,7 +45,8 @@ class SightingBloc implements BlocBase {
     }
 
     if (event is SightingSpeciesChangeEvent) {
-      print("...changed bloc's sighting species to");
+      _sighting.species = event.species;
+      print("...changed bloc's sighting species to ${_sighting.species}" );
     }
     //Add the new value of sighting to the sink state controller so that this can be returned
     //through the stream int the future
