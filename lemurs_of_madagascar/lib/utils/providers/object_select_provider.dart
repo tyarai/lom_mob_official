@@ -8,44 +8,44 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 
 typedef OnTapCallback(BuildContext context,T);
 
-abstract class ListProvider<T> {
 
-  List<T> list;
-  T selectedItem;
-  int selectedItemIndex;
+abstract class SelectableListItem {
 
-  T getItemAt(int index);
-
-  Widget getItemCell(T item,int index,BuildContext context,OnTapCallback onTap,
-      {
-        double borderRadius = Constants.speciesImageBorderRadius,
-          double elevation    = 2.5,
-        double imageWidth   = Constants.listViewImageWidth,
-        double imageHeight  = Constants.listViewImageHeight,
-        SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular
-
-      });
-
+  Widget getItemCell(int index,BuildContext context, OnTapCallback onTap,
+  {
+    double borderRadius = Constants.speciesImageBorderRadius,
+    double elevation    = 2.5,
+    double imageWidth   = Constants.listViewImageWidth,
+    double imageHeight  = Constants.listViewImageHeight,
+    SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular
+  });
 
 }
 
-class SpeciesListProvider implements ListProvider<Species>{
 
-  @override
-  List<Species> list ;
+class ListProvider<T extends SelectableListItem> {
 
-  @override
-  Species selectedItem;
-
-  @override
+  List<T> _list = List<T>();
+  T selectedItem;
   int selectedItemIndex;
 
 
-  SpeciesListProvider(this.list){
-    selectedItem = null;
-    selectedItemIndex = -1;
+  ListProvider(){
+    resetSelectedItem();
   }
 
+  set list(List<T> list) {
+    this._list = list;
+  }
+
+  List<T> get list => this._list;
+
+  void resetSelectedItem(){
+    selectedItemIndex = -1;
+    selectedItem      = null;
+  }
+
+  /*
   @override
   Widget getItemCell(Species species,int index,BuildContext context, OnTapCallback onTap,
       {
@@ -89,57 +89,49 @@ class SpeciesListProvider implements ListProvider<Species>{
                 ))));
 
   }
+  */
 
-  @override
-  Species getItemAt(int index) => (index >= 0 && index < list.length) ? list[index] : null;
+  T getItemAt(int index) => (index >= 0 && index < _list.length) ? _list[index] : null;
 
 }
 
-class ListProviderPage<T> extends StatefulWidget {
+class ListProviderPage<T extends SelectableListItem> extends StatefulWidget {
 
   final String title;
+  final ListProvider<T> listProvider;
 
-  ListProviderPage(this.title);
+  ListProviderPage(this.title,this.listProvider);
 
   @override
   State<StatefulWidget> createState() {
-    return _ListProviderPageState<Species>(title);
-
+    return _ListProviderPageState<T>(title,this.listProvider);
   }
 
 }
 
-class _ListProviderPageState<T> extends State<ListProviderPage> {
+class _ListProviderPageState<T extends SelectableListItem> extends State<ListProviderPage> {
 
   String title;
-  ListProvider<T> listProvider;
+  ListProvider<T> _listProvider ;
 
 
-  _ListProviderPageState(this.title);
-
+  _ListProviderPageState(this.title,this._listProvider);
 
   @override
   void initState() {
 
     super.initState();
-
-    if(T is Species) {
-      Future<List<Species>> list = loadData();
-
-      list.then((_list){
-        SpeciesListProvider provider = SpeciesListProvider(_list);
-        listProvider = provider as ListProvider;
-      });
-    }
+    //loadData();
   }
 
-  Future<List> loadData() async {
-    if (T is Species){
+  /*void loadData() async {
+    if (T is Species && listProvider.list.length == 0){
       SpeciesDatabaseHelper speciesDatabaseHelper = SpeciesDatabaseHelper();
-      return await speciesDatabaseHelper.getSpeciesList();
+      List<Species> speciesList =   await speciesDatabaseHelper.getSpeciesList();
+      listProvider.list = speciesList;
     }
-    return List();
-  }
+
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -161,12 +153,12 @@ class _ListProviderPageState<T> extends State<ListProviderPage> {
       child:
       ListView.builder(
           scrollDirection: Axis.vertical,
-          itemCount: listProvider.list.length,
+          itemCount: _listProvider.list.length,
           itemBuilder: (BuildContext context, int index) {
 
-            T item = listProvider.getItemAt(index);
+            T item = _listProvider.getItemAt(index);
 
-            return  listProvider.getItemCell(item, index, context, null);
+            return  item.getItemCell(index, context, null);
 
     }));
 

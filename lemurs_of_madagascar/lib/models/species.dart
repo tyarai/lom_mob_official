@@ -4,6 +4,7 @@ import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/speciesmap_database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 
 
 
@@ -18,7 +19,7 @@ enum CellType {
   FittedBox,
 }
 
-class Species {
+class Species extends SelectableListItem {
 
   static String idKey          = "_species_id";
   static String profilePhotoKey = "_profile_photograph_id";
@@ -345,6 +346,49 @@ class Species {
   int get hasCode => id.hashCode ^ title.hashCode;
   */
 
+
+  Widget getItemCell(int index,BuildContext context, OnTapCallback onTap,
+      {
+        double borderRadius = Constants.speciesImageBorderRadius,
+        double elevation    = 2.5,
+        double imageWidth   = Constants.listViewImageWidth,
+        double imageHeight  = Constants.listViewImageHeight,
+        SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular
+      })
+  {
+    return GestureDetector(
+        onTap: () {
+
+          //SpeciesListPageState.navigateToSpeciesDetails(context, species);
+          onTap(context,this);
+          //selectedItem = species;
+          //selectedItemIndex = index;
+
+        },
+        child: Padding(
+            padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+            child: Container(
+                child: Material(
+                  elevation: elevation,
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  shadowColor: Colors.blueGrey,
+                  child: Padding(
+                      padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Species.buildLemurPhoto(this,width: imageWidth,height: imageHeight,imageClipper: imageClipper),
+                            Container(width: 10),
+                            Species.buildTextInfo(this),
+                            Container(width: 10),
+                            /*(selectedItemIndex == index) ? Container(
+                              child: Icon(Icons.check,color: Colors.greenAccent,),
+                            ) : Container(),*/
+
+                          ])),
+                ))));
+
+  }
 
 }
 

@@ -41,14 +41,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
   _SightingEditPageState(this.title, this.sighting);
 
 
-  //Species _currentSpecies;
-  //Future<List<Species>> _speciesList;
+
+  List<Species> _speciesList = List<Species>();
 
 
   @override
   void initState() {
     super.initState();
-    //_loadSpeciesList();
   }
 
   @override
@@ -131,14 +130,44 @@ class _SightingEditPageState extends State<SightingEditPage> {
     }
   }
 
+
+  _navigateToSpeciesList(ListProvider<Species> provider){
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) {
+          return ListProviderPage<Species>("Select species", provider);
+        }));
+  }
+
   Widget _buildSpeciesSelectButton(BuildContext buildContext, Species species){
 
         VoidCallBack onTap = () {
 
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) {
-                return ListProviderPage<Species>("Select species");
-          }));
+          ListProvider<Species> speciesListProvider = ListProvider();
+
+          //if (_speciesList.length == 0) {
+
+            SpeciesDatabaseHelper speciesDatabaseHelper = SpeciesDatabaseHelper();
+
+            FutureBuilder(
+              future  : speciesDatabaseHelper.getSpeciesList(),
+              builder : (context,snapshot) {
+
+                if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
+
+                  print("#1");
+                  speciesListProvider.list = snapshot.data;
+                  _navigateToSpeciesList(speciesListProvider);
+                }
+
+              }
+            );
+          //}else {
+            //print("#2 ${_speciesList.length}");
+            //speciesListProvider.list = _speciesList;
+            //_navigateToSpeciesList(speciesListProvider);
+          //}
+
+          print("#3 ${_speciesList.length}");
 
         };
 
