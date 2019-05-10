@@ -52,7 +52,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
   @override
   Widget build(BuildContext buildContext) {
     return Scaffold(
+      backgroundColor: Constants.mainColor,
       appBar: AppBar(
+        elevation: 0,
         title: Text(this.title, style: Constants.appBarTitleStyle),
       ),
       body: _buildBody(),
@@ -91,27 +93,37 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
           if (snapshot.data != null) {
 
-            //print(snapshot.data);
-            //print(snapshot.data.toString());
+
+
 
             return ListView(
                 children: <Widget>[
 
-                  Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Container(height: 10),
-                      _buildPhotoSelection(snapshot.data),
-                      Container(height: 10,),
-                      Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                      _buildSpeciesSelectButton(context,snapshot.data.species),
-                      Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                      _buildSitesSelectButton(context,snapshot.data.site),
-                      Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                      _buildImageListView(snapshot.data),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                    child: Material(
+                      color: Colors.white,
+                      elevation: 5.0,
+                      borderRadius:
+                      BorderRadius.circular(Constants.speciesImageBorderRadius),
+                      shadowColor: Colors.blueGrey,
+                      child: Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Container(height: 10),
+                          _buildPhotoSelection(snapshot.data),
+                          Container(height: 10,),
+                          Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                          _buildSpeciesSelectButton(context,snapshot.data.species),
+                          Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                          _buildSitesSelectButton(context,snapshot.data.site),
+                          Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                          _buildImageListView(snapshot.data),
                 ],
-              ))
+              )),
+                    ),
+                  )
             ]);
           }
 
@@ -200,18 +212,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                     ))),
           );
 
-          /*return ListTile(
-              onTap: onTap,
-              trailing: Icon(Icons.arrow_forward_ios),
-              leading:  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children:<Widget>[ Species.loadHeroImage(species,width: 100,height: 100)
-                  ]),
-              title: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children:<Widget>[ Species.loadHeroTitle(species)]),
 
-          );*/
         }
 
         return Container(
@@ -348,7 +349,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   elevation: 0,
                   borderRadius: BorderRadius.circular(0),
                   shadowColor: Colors.blueGrey,
-                  //color: Constants.backGroundColor,
+                  color: Colors.transparent,
                   child: Row(
                       //crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -458,6 +459,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                       labelText: "Number observed",
                       contentPadding: edgeInsets,
                       hintText: "Number observed",
+
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                               Constants.speciesImageBorderRadius))),

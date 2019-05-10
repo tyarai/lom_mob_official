@@ -65,7 +65,7 @@ class IntroductionPage extends StatefulWidget {
 class _IntroductionPageState extends State<IntroductionPage> implements IntroductionPageContract {
 
   var _menuItemFontSize = 18.0;
-  var _iconSize = 24.0;
+  var _iconSize = 30.0;
   LogOutPresenter logOutPresenter;
   bool _isLoading = false;
 
