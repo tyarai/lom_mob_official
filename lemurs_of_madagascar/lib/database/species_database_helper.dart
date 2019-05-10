@@ -83,9 +83,9 @@ class SpeciesDatabaseHelper  {
     return list;
   }
 
-  Future<Species> getSpeciesWithID({id: int}) async {
+  Future<Species> getSpeciesWithID(int id) async {
     var list = await this.getSpeciesListWithID(id: id);
-    return list[0];
+    return list.length > 0 ? list[0] : null;
   }
 
 }

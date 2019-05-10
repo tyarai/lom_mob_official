@@ -95,7 +95,8 @@ class SpeciesListPageState extends State<SpeciesListPage> {
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
               //return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
-              return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
+              Species currentSpecies = this._speciesList[index];
+              return  SpeciesListPageState.buildCellItem(context,currentSpecies);
             });
       },
     );
@@ -103,15 +104,19 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
   static Widget buildCellItem(
       BuildContext context,
-      List<Species> list,
-      int index,
+      Species species,
       {
-        CellType cellType = CellType.FittedBox,
-        bool fromSearch = false,
+        CellType cellType   = CellType.FittedBox,
+        bool fromSearch     = false,
+        double elevation    = 2.5,
+        double borderRadius = Constants.speciesImageBorderRadius,
+        double imageWidth   = Constants.listViewImageWidth,
+        double imageHeight  = Constants.listViewImageHeight,
+        SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular
       })
   {
 
-    Species species = list[index];
+    //Species species = list[index];
 
     Widget widget;
 
@@ -132,15 +137,15 @@ class SpeciesListPageState extends State<SpeciesListPage> {
                   padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
                   child: Container(
                       child: Material(
-                        elevation: 2.5,
-                        borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
+                        elevation: elevation,
+                        borderRadius: BorderRadius.circular(borderRadius),
                         shadowColor: Colors.blueGrey,
                         child: Padding(
                             padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
                             child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Species.buildLemurPhoto(species),
+                                  Species.buildLemurPhoto(species,width: imageWidth,height: imageHeight,imageClipper: imageClipper),
                                   Container(width: 10),
                                   Species.buildTextInfo(species),
                                 ])),
@@ -307,7 +312,7 @@ class DataSearch extends SearchDelegate<List<Species>> {
     return ListView.builder(
 
       itemCount: suggestionsList.length,
-      itemBuilder: (BuildContext context, int index) => SpeciesListPageState.buildCellItem(context,suggestionsList, index,fromSearch: true),
+      itemBuilder: (BuildContext context, int index) => SpeciesListPageState.buildCellItem(context,suggestionsList[index],fromSearch: true),
 
     );
   }
@@ -316,7 +321,7 @@ class DataSearch extends SearchDelegate<List<Species>> {
     return ListView.builder(
         itemCount: this.suggestionsList.length,
         itemBuilder: (BuildContext context,int index){
-          return SpeciesListPageState.buildCellItem(context,this.suggestionsList,index);
+          return SpeciesListPageState.buildCellItem(context,this.suggestionsList[index]);
     });
   }
 

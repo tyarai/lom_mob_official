@@ -1,3 +1,5 @@
+import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
+import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +28,7 @@ class Sighting {
   static String altKey        = "_placeAltitude";
   static String hasPhotoChangedKey = "_hasPhotoChanged";
 
+  Species _species;
 
   int id =0;
   int nid =0;
@@ -56,7 +59,11 @@ class Sighting {
             this.longitude,this.altitude,this.photoFileName,this.title,
             this.created,this.modified,this.uid,this.isLocal,
             this.isSynced,this.date,this.deleted,this.placeNID,
-            this.locked,this.hasPhotoChanged});
+            this.locked,this.hasPhotoChanged}){
+    this._loadSpecies();
+  }
+
+  Species get species => this._species;
 
 
   Map<String, dynamic> toMap(){
@@ -116,8 +123,19 @@ class Sighting {
     this.locked = map[Sighting.lockedKey]      ;
     this.altitude = map[Sighting.altKey]      ;
     this.hasPhotoChanged = map[Sighting.hasPhotoChangedKey] ;
+
+
+    this._loadSpecies();
   }
 
+
+  void _loadSpecies() async {
+
+    if(this.speciesNid != 0){
+      SpeciesDatabaseHelper speciesDatabaseHelper = SpeciesDatabaseHelper();
+      this._species = await speciesDatabaseHelper.getSpeciesWithID(this.speciesNid);
+    }
+  }
 
   static Widget buildSightingPhoto(Sighting sighting,{double width = Constants.listViewImageWidth,double height = Constants.listViewImageHeight}) {
 

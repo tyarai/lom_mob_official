@@ -45,7 +45,7 @@ class LOMSharedPreferences{
     if(idList != null) {
       for (int i = 0; i < idList.length; i++) {
           SpeciesDatabaseHelper helper = SpeciesDatabaseHelper();
-          Species species = await helper.getSpeciesWithID(id: int.parse(idList[i]));
+          Species species = await helper.getSpeciesWithID(int.parse(idList[i]));
           //print("2-"+species.toString());
           recentSearchList.add(species);
 

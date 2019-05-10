@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
-import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/screens/Introduction.dart';
-import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
-
-
 
 
 final routes = {

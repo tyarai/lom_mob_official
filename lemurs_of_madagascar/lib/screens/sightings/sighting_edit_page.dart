@@ -1,16 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 
 
 class SightingEditPage extends StatefulWidget {
@@ -38,14 +41,14 @@ class _SightingEditPageState extends State<SightingEditPage> {
   _SightingEditPageState(this.title, this.sighting);
 
 
-  Species _currentSpecies;
-  Future<List<Species>> _speciesList;
+  //Species _currentSpecies;
+  //Future<List<Species>> _speciesList;
 
 
   @override
   void initState() {
     super.initState();
-    _loadSpeciesList();
+    //_loadSpeciesList();
   }
 
   @override
@@ -58,18 +61,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
     );
   }
 
-  _loadSpeciesList() async {
+  /*_loadSpeciesList() async {
      SpeciesDatabaseHelper speciesDB = SpeciesDatabaseHelper();
      _speciesList = speciesDB.getSpeciesList();
-     print(_speciesList);
-     //_currentSpecies =  await_speciesList[0];
 
-  }
+  }*/
 
   void _onSpeciesChanged(Species species){
-    setState(() {
-      _currentSpecies = species;
-    });
 
     SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
     bloc.sightingEventController.add(SightingSpeciesChangeEvent(species));
@@ -86,16 +84,18 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 
 
-  _buildBody() {
+  _buildBody()  {
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
     return StreamBuilder<Sighting>(
         stream: bloc.outSighting,
         initialData: this.sighting,
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
+
           if (snapshot.data != null) {
+
             //print(snapshot.data);
-            print(snapshot.data.toString());
+            //print(snapshot.data.toString());
 
             return ListView(children: <Widget>[
               Container(
@@ -103,8 +103,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
                 children: <Widget>[
                   Container(height: 20),
                   _buildPhotoSelection(snapshot.data),
-                  _buildSpeciesDropDown(),
-                  //_buildImageListView(snapshot.data),
+                  _buildSpeciesSelectButton(context,snapshot.data.species),
+                  _buildImageListView(snapshot.data),
                 ],
               ))
             ]);
@@ -131,7 +131,37 @@ class _SightingEditPageState extends State<SightingEditPage> {
     }
   }
 
-  Widget _buildSpeciesDropDown(){
+  Widget _buildSpeciesSelectButton(BuildContext buildContext, Species species){
+
+        VoidCallBack onTap = () {
+
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) {
+                return ListProviderPage<Species>("Select species");
+          }));
+
+        };
+
+        if(species != null) {
+          return ListTile(
+              onTap: onTap,
+              trailing: Icon(Icons.arrow_forward_ios),
+              leading: Species.loadHeroImage(species),
+              title: Species.loadHeroTitle(species));
+
+        }
+
+        return Container(
+          child: ListTile(
+            onTap: onTap,
+            leading: Icon(Icons.photo),
+            trailing: Icon(Icons.arrow_forward_ios),
+            title: Text("Select species"),
+        ));
+
+  }
+
+  /*Widget _buildSpeciesDropDown(){
 
     return FutureBuilder<List<Species>>(
 
@@ -182,7 +212,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
          }
       );
 
-  }
+  }*/
 
   _buildPhotoSelection(Sighting sighting) {
     return GestureDetector(
@@ -204,7 +234,10 @@ class _SightingEditPageState extends State<SightingEditPage> {
                       children: <Widget>[
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[_buildPhoto(sighting)]),
+                            children: <Widget>[
+                              _buildPhoto(sighting)
+                            ]
+                        ),
                         Container(width: 20),
                         Column(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -269,6 +302,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   validator: (String arg) {
 
                   },
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
 
                   decoration: InputDecoration(
                       labelText: "Sighting title",
@@ -282,7 +317,29 @@ class _SightingEditPageState extends State<SightingEditPage> {
               new Padding(
                 padding: edgePadding,
                 child: new TextFormField(
-                  obscureText: true,
+                  onSaved: (val) => {
+                    _onTitleChanged(val)
+                  },
+
+                  validator: (String arg) {
+
+                  },
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+
+                  decoration: InputDecoration(
+                      labelText: "Number observed",
+                      contentPadding: edgeInsets,
+                      hintText: "Number observed",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              Constants.speciesImageBorderRadius))),
+                ),
+              ),
+              new Padding(
+                padding: edgePadding,
+                child: new TextFormField(
                   onSaved: (val) {} ,
                   /*validator: (String arg) {
                     if(arg.length == 0) {
@@ -291,10 +348,11 @@ class _SightingEditPageState extends State<SightingEditPage> {
                       return null;
                     }
                   }*/
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                      labelText: "Password",
+                      labelText: "Sighting date",
                       contentPadding: edgeInsets,
-                      hintText: "Password",
+                      hintText: "Sighting date",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                               Constants.speciesImageBorderRadius))),
@@ -307,3 +365,4 @@ class _SightingEditPageState extends State<SightingEditPage> {
     );
   }
 }
+

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+typedef void VoidCallBack();
+
 class Constants {
 
   static const double listViewImageWidth = 120.0;
