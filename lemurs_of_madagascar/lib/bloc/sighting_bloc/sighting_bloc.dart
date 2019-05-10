@@ -41,7 +41,8 @@ class SightingBloc implements BlocBase {
     }
 
     if (event is SightingSiteChangeEvent) {
-      print("...changed bloc's sighting site event to");
+      _sighting.site = event.site;
+      print("...changed bloc's sighting site event to ${_sighting.site}");
     }
 
     if (event is SightingSpeciesChangeEvent) {
@@ -55,55 +56,3 @@ class SightingBloc implements BlocBase {
 
 }
 
-
-/*
-class SightingBloc {
-
-  Sighting _sighting = Sighting(photoFileName: "FROM_SIGHTING_BLOC.jpg");
-
-
-  final _sightingStateController = StreamController<Sighting>();
-  StreamSink<Sighting> get _inSighting => _sightingStateController.sink; // INPUT <=> SINK
-  Stream<Sighting> get sighting => _sightingStateController.stream; // OUTPUT <=> STREAM
-
-
-  final _sightingEventController = StreamController<SightingEvent>();
-  // UI will input event into this sink
-  Sink<SightingEvent> get sightingEventSink => _sightingEventController.sink;
-
-  // NOTE: In this class the UI will only be exposed to two public properties which are
-  //  1- Stream<Sighting> get sighting => _sightingStateController.stream;  (to return state)
-  //  2- Sink<SightingEvent> get sightingEventSink => _sightingEventController.sink; (to input event)
-
-  SightingBloc() {
-    // Map input event to output state
-    _sightingEventController.stream.listen(_mapEventToState);
-  }
-
-
-  void _mapEventToState(SightingEvent event){
-
-      if (event is SightingImageChangeEvent) {
-        _sighting.photoFileName = event.newFileName;
-        print("Sighting Image Event  ${_sighting.photoFileName}");
-      }
-
-      if (event is SightingSiteChangeEvent) {
-        print("Sighting Site Event");
-      }
-
-      if (event is SightingSpeciesChangeEvent) {
-        print("Sighting Species Event");
-      }
-      //Add the new value of sighting to the sink state controller so that this can be returned
-      //through the stream int the future
-      _inSighting.add(_sighting);
-  }
-
-  void dispose() {
-    _sightingStateController.close();
-    _sightingEventController.close();
-  }
-
-}
-*/

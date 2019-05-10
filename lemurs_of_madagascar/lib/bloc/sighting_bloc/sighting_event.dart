@@ -1,4 +1,5 @@
 import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 
 abstract class SightingEvent{}
@@ -20,7 +21,8 @@ class SightingSpeciesChangeEvent extends SightingEvent {
 }
 
 class SightingSiteChangeEvent extends SightingEvent {
-
+  Site site;
+  SightingSiteChangeEvent(this.site);
 }
 
 class SightingTitleChangeEvent extends SightingEvent {

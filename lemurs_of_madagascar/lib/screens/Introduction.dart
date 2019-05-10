@@ -124,7 +124,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                     Container(height: 20,),
                     Text(
                       introduction != null ? introduction.content : "",
-                      style: TextStyle(fontSize: 20.0),
+                      style: Constants.defaultTextStyle,
                     )
                   ],
                 )

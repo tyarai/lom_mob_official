@@ -1,4 +1,6 @@
+import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
+import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,7 @@ class Sighting {
   static String hasPhotoChangedKey = "_hasPhotoChanged";
 
   Species _species;
+  Site _site;
 
   int id =0;
   int nid =0;
@@ -61,7 +64,11 @@ class Sighting {
             this.isSynced,this.date,this.deleted,this.placeNID,
             this.locked,this.hasPhotoChanged}){
     this._loadSpecies();
+    this._loadSite();
   }
+
+  Site get site => this._site;
+  set site(Site value) => this._site = value;
 
   Species get species => this._species;
   set species(Species value){
@@ -129,6 +136,7 @@ class Sighting {
 
 
     this._loadSpecies();
+    this._loadSite();
   }
 
 
@@ -137,6 +145,14 @@ class Sighting {
     if(this.speciesNid != 0){
       SpeciesDatabaseHelper speciesDatabaseHelper = SpeciesDatabaseHelper();
       this._species = await speciesDatabaseHelper.getSpeciesWithID(this.speciesNid);
+    }
+  }
+
+  void _loadSite() async {
+
+    if(this.placeNID != 0){
+      SiteDatabaseHelper db = SiteDatabaseHelper();
+      this._site = await db.getSiteWithID(this.speciesNid);
     }
   }
 

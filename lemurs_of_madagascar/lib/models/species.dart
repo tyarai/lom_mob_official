@@ -379,11 +379,11 @@ class Species extends SelectableListItem {
                   borderRadius: BorderRadius.circular(borderRadius),
                   shadowColor: Colors.blueGrey,
                   child: Padding(
-                      padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
+                      padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
                       child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Species.buildLemurPhoto(this,width: imageWidth,height: imageHeight,imageClipper: imageClipper),
+                            Species.buildLemurPhoto(this,width: 100,height: 100,imageClipper: imageClipper),
                             Container(width: 10),
                             Species.buildTextInfo(this),
                             Container(width: 10),

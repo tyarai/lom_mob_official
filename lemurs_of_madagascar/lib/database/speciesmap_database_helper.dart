@@ -57,7 +57,7 @@ class SpeciesMapDatabaseHelper  {
 
   Future<SpeciesMap> getSpeciesMapWithID({id: int}) async {
     var list = await this.getSpeciesMapList(id: id);
-    return list[0];
+    return list.length > 0 ? list[0] : null;
   }
 
 }

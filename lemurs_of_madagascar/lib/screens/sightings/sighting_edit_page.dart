@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'dart:core';
@@ -93,15 +94,22 @@ class _SightingEditPageState extends State<SightingEditPage> {
             //print(snapshot.data);
             //print(snapshot.data.toString());
 
-            return ListView(children: <Widget>[
-              Container(
-                  child: Column(
+            return ListView(
                 children: <Widget>[
-                  Container(height: 20),
-                  _buildPhotoSelection(snapshot.data),
-                  _buildSpeciesSelectButton(context,snapshot.data.species),
-                  _buildSitesSelectButton(context,snapshot.data.species),
-                  _buildImageListView(snapshot.data),
+
+                  Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Container(height: 10),
+                      _buildPhotoSelection(snapshot.data),
+                      Container(height: 10,),
+                      Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                      _buildSpeciesSelectButton(context,snapshot.data.species),
+                      Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                      _buildSitesSelectButton(context,snapshot.data.site),
+                      Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                      _buildImageListView(snapshot.data),
                 ],
               ))
             ]);
@@ -142,6 +150,20 @@ class _SightingEditPageState extends State<SightingEditPage> {
         }));
   }
 
+  // Navigate to the Species select page
+  _navigateToSiteSelectList(BuildContext context,ListProvider<Site> provider){
+
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) {
+          return BlocProvider(
+              bloc: bloc,
+              child: ListProviderPage<Site>("Select site", provider)
+          );
+        }));
+  }
+
 
   Widget _buildSpeciesSelectButton(BuildContext buildContext, Species species){
 
@@ -154,27 +176,108 @@ class _SightingEditPageState extends State<SightingEditPage> {
         };
 
         if(species != null) {
-          return ListTile(
+          return  GestureDetector(
+            onTap: onTap,
+            child: Padding(
+                padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+                child: Container(
+                    child: Material(
+                      elevation: 0,
+                      borderRadius: BorderRadius.circular(0),
+                      shadowColor: Colors.blueGrey,
+                      child: Padding(
+                          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                          child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Species.buildLemurPhoto(species,width: 100,height: 100),
+                                Container(width: 10),
+                                Species.buildTextInfo(species),
+                                Container(width: 10),
+                                _buildArrow(),
+
+                              ])),
+                    ))),
+          );
+
+          /*return ListTile(
               onTap: onTap,
               trailing: Icon(Icons.arrow_forward_ios),
-              leading: Species.loadHeroImage(species),
-              title: Species.loadHeroTitle(species));
+              leading:  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children:<Widget>[ Species.loadHeroImage(species,width: 100,height: 100)
+                  ]),
+              title: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children:<Widget>[ Species.loadHeroTitle(species)]),
 
+          );*/
         }
 
         return Container(
           child: ListTile(
             onTap: onTap,
-            leading: Icon(Icons.photo),
+            leading: Icon(Icons.pets),
             trailing: Icon(Icons.arrow_forward_ios),
-            title: Text("Select species"),
+            title: Text("Select species",style: Constants.defaultTextStyle,),
         ));
 
   }
 
 
-  _buildSitesSelectButton(BuildContext context,Site site){
+  _buildArrow(){
+    return Container(
+      child: Icon(Icons.arrow_forward_ios,size:25,color: Constants.mainColor,),
+    );
 
+  }
+
+  Widget _buildSitesSelectButton(BuildContext buildContext,Site site){
+
+    OnTapCallback onTap = () {
+
+      ListProvider<Site> siteListProvider = ListProvider();
+      _navigateToSiteSelectList(buildContext,siteListProvider);
+
+    };
+
+    if(site != null) {
+      return  GestureDetector(
+        onTap: onTap,
+        child: Padding(
+            padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+            child: Container(
+                child: Material(
+                  elevation: 0,
+                  borderRadius: BorderRadius.circular(0),
+                  shadowColor: Colors.blueGrey,
+                  child: Padding(
+                      padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(width: 10),
+                            Expanded(child:Column(children:<Widget>[Site.loadHeroTitle(site)])),
+                            Container(width: 10),
+                            _buildArrow(),
+
+                          ])),
+                ))),
+      );
+      /*return ListTile(
+          onTap: onTap,
+          trailing: Icon(Icons.arrow_forward_ios),
+          title: Site.loadHeroTitle(site));*/
+
+    }
+
+    return Container(
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(Icons.place),
+          trailing: _buildArrow(),
+          title: Text("Select site",style:Constants.defaultTextStyle),
+        ));
 
 
   }
@@ -242,7 +345,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
             padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
             child: Container(
               child: Material(
-                  elevation: 0.5,
+                  elevation: 0,
                   borderRadius: BorderRadius.circular(0),
                   shadowColor: Colors.blueGrey,
                   //color: Constants.backGroundColor,
@@ -308,9 +411,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
           child: new Column(
             children: <Widget>[
               new Padding(
-                padding: edgePadding,
+                padding: EdgeInsets.all(10),
                 child: new TextFormField(
-
+                  style: Constants.formDefaultTextStyle,
                   maxLines: 4,
 
                   onSaved: (val) => {
@@ -324,17 +427,20 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   textInputAction: TextInputAction.done,
 
                   decoration: InputDecoration(
-                      labelText: "Sighting title",
+                      hintStyle: Constants.formHintTextStyle,
+                      labelStyle: Constants.formLabelTextStyle,
+                      labelText: "Title",
                       contentPadding: edgeInsets,
-                      hintText: "Sighting title",
+                      hintText: "give a title to your sighting",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
                               Constants.speciesImageBorderRadius))),
                 ),
               ),
               new Padding(
-                padding: edgePadding,
+                padding: EdgeInsets.all(10),
                 child: new TextFormField(
+                  style: Constants.formDefaultTextStyle,
                   onSaved: (val) => {
                     _onTitleChanged(val)
                   },
@@ -347,6 +453,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
 
                   decoration: InputDecoration(
+                      hintStyle: Constants.formHintTextStyle,
+                      labelStyle: Constants.formLabelTextStyle,
                       labelText: "Number observed",
                       contentPadding: edgeInsets,
                       hintText: "Number observed",
@@ -356,7 +464,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                 ),
               ),
               new Padding(
-                padding: edgePadding,
+                padding: EdgeInsets.all(10),
                 child: new TextFormField(
                   onSaved: (val) {} ,
                   /*validator: (String arg) {

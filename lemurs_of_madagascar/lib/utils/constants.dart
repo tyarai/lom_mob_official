@@ -7,7 +7,9 @@ class Constants {
   static const double listViewImageWidth = 120.0;
   static const double listViewImageHeight = 120.0;
   static const double titleFontSize = 20.0;
-  static const double textFontSize = 20.0;
+  static const double labelFontSize = 20.0;
+  static const double hintFontSize = 20.0;
+  static const double textFontSize = 22.0;
   static const double subTitleFontSize = 16.0;
   static const double speciesImageBorderRadius = 15.0;
   static const int speciesHeroTransitionDuration = 800;
@@ -24,8 +26,13 @@ class Constants {
   static const Color mainColor = Colors.blueGrey;
   static const Color backGroundColor = Colors.grey;
   static const Color iconColor = Colors.lime;
-  static const TextStyle speciesTitleStyle = TextStyle(fontSize: Constants.titleFontSize);
-  static const TextStyle defaultTextStyle = TextStyle(fontSize: Constants.textFontSize);
+  static const TextStyle speciesTitleStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.titleFontSize);
+  static const TextStyle defaultTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.textFontSize);
+
+  // Form Input text
+  static const TextStyle formLabelTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.labelFontSize);
+  static const TextStyle formHintTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.hintFontSize,color: mainColor);
+  static const TextStyle formDefaultTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.textFontSize,color: mainColor);
 
   // Camera
   static const double cameraPhotoPlaceHolder = 225.0;
@@ -46,6 +53,9 @@ class Constants {
   // List Item Color
   static const Color selectedListItemBackgroundColor = Colors.lime;
   static const Color defaultListItemBackgroundColor = Colors.white;
+  static const double listViewDividerHeight = 10.0;
+  static const Color listViewDividerColor = Colors.grey;
+
 }
 
 

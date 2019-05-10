@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 
@@ -33,6 +35,7 @@ class ListProvider<T extends SelectableListItem> {
   List<T> _list = List<T>();
   T selectedItem;
   int selectedItemIndex;
+
 
 
   ListProvider(){
@@ -78,6 +81,9 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
   @override
   void initState() {
+
+    print("#0");
+
     super.initState();
     if(_listProvider.list != null && _listProvider.list.length == 0) {
       Future<List> futureList = _loadData();
@@ -96,9 +102,18 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
     if( typeOf<T>() == typeOf<Species>()){
       SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
       List<Species> futureList = await speciesDBHelper.getSpeciesList();
+      //print("#SPecies");
       return futureList;
-
     }
+
+    if( typeOf<T>() == typeOf<Site>()){
+      //print("#Sites");
+      SiteDatabaseHelper siteDBHelper = SiteDatabaseHelper();
+      List<Site> futureList = await siteDBHelper.getSiteList();
+
+      return futureList;
+    }
+
     return null;
   }
 
@@ -125,6 +140,10 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
         future: _loadData(),
         builder:(BuildContext context,AsyncSnapshot<List> snapshot) {
 
+          if(snapshot.hasError){
+            print(snapshot.error);
+          }
+
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
 
 
@@ -138,10 +157,23 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
                 T item = _listProvider.getItemAt(index);
 
+
+
                 OnSelectCallback onSelect = (item) {
 
                   setState(() {});
-                  bloc.sightingEventController.add(SightingSpeciesChangeEvent(item));
+
+                  if(typeOf<T>() == typeOf<Species>()) {
+
+                    bloc.sightingEventController.add(
+                        SightingSpeciesChangeEvent(item));
+
+                  }else if(typeOf<T>() == typeOf<Site>()) {
+                    Site site = item as Site;
+                    print(site.title);
+                    bloc.sightingEventController.add(
+                        SightingSiteChangeEvent(item));
+                  }
 
                 };
 
