@@ -35,7 +35,8 @@ class Constants {
   static const TextStyle formDefaultTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.textFontSize,color: mainColor);
 
   // Camera
-  static const double cameraPhotoPlaceHolder = 225.0;
+  static const double cameraPhotoPlaceHolder = 100.0;
+  static const Color cameraPlaceHolderColor = Colors.grey;
   static const String imageType = "jpg";
 
   // Info message

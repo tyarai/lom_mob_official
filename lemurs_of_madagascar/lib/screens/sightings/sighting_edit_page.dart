@@ -100,7 +100,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                 children: <Widget>[
 
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                    padding: const EdgeInsets.all(5),
                     child: Material(
                       color: Colors.white,
                       elevation: 5.0,
@@ -360,7 +360,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                               _buildPhoto(sighting)
                             ]
                         ),
-                        Container(width: 20),
+                        /*Container(width: 20),
                         Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
@@ -369,7 +369,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                                 size: 45,
                                 color: Constants.mainColor,
                               )
-                            ]),
+                            ]),*/
                       ])),
             )));
   }
@@ -381,18 +381,24 @@ class _SightingEditPageState extends State<SightingEditPage> {
       if (sighting.photoFileName == null) {
         return Container(
           child: Icon(
-            Icons.image,
+            Icons.camera,
             size: size,
-            color: color,
+            color: Constants.cameraPlaceHolderColor,
           ),
         );
       }
 
-      return Container(
-          child: Image.file(
-        File(sighting.photoFileName),
-        width: 200,
-      ));
+      return SizedBox(
+        width: 250,
+        height:200,
+        child: Container(
+
+            child: Image.file(
+          File(sighting.photoFileName),
+          //width: 200,
+          //height:200,
+        )),
+      );
     }
 
     return Container();
