@@ -9,6 +9,7 @@ import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/location/gps_location.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
@@ -17,6 +18,7 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:lemurs_of_madagascar/utils/error_text.dart';
 
 
 class SightingEditPage extends StatefulWidget {
@@ -45,7 +47,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 
 
-  List<Species> _speciesList = List<Species>();
+  //List<Species> _speciesList = List<Species>();
 
 
   @override
@@ -58,6 +60,15 @@ class _SightingEditPageState extends State<SightingEditPage> {
     return Scaffold(
       backgroundColor: Constants.mainColor,
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            iconSize: Constants.iconSize,
+            icon: Icon(Icons.save,color: Constants.iconColor,),
+            onPressed: () {
+              _submit();
+            },
+          ),
+        ],
         elevation: 0,
         title: Text(this.title, style: Constants.appBarTitleStyle),
       ),
@@ -85,6 +96,30 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
   }
 
+  void _onNumberChanged(String value){
+
+    if(value != null && int.parse(value) > 0) {
+      SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+      bloc.sightingEventController.add(SightingNumberObservedChangeEvent(int.parse(value)));
+    }
+
+  }
+
+
+  void _submit() {
+
+    final form = formKey.currentState;
+
+    if (form.validate()) {
+
+      setState(() {
+
+        form.save();
+
+      });
+
+    }
+  }
 
 
   _buildBody()  {
@@ -126,8 +161,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
                           _buildFormInput(snapshot.data),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildGPSWidget(bloc,snapshot.data),
-                ],
-              )),
+                        ],
+                      )),
                     ),
                   )
             ]);
@@ -229,6 +264,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
   _getUpdateLocationButton(SightingBloc bloc) {
     return OutlineButton(
+      padding: EdgeInsets.all(15),
       child: Text("update GPS location",
           textAlign: TextAlign.center,
           style: Constants.flatButtonTextStyle
@@ -551,7 +587,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
                         },
 
                         validator: (String arg) {
-
+                          if(arg == null || arg.length == 0 ){
+                            return ErrorText.emptyString;
+                          }
                         },
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.done,
@@ -559,9 +597,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
                         decoration: InputDecoration(
                             hintStyle: Constants.formHintTextStyle,
                             labelStyle: Constants.formLabelTextStyle,
-                            labelText: "Title",
+                            labelText: "Sighting title",
                             contentPadding: edgeInsets,
-                            hintText: "give a title to your sighting",
+                            //hintText: "give a title to your sighting",
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(
                                     Constants.speciesImageBorderRadius))),
@@ -573,11 +611,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
                       child: new TextFormField(
                         style: Constants.formDefaultTextStyle,
                         onSaved: (val) => {
-                          _onTitleChanged(val)
+                          _onNumberChanged(val)
                         },
 
                         validator: (String arg) {
-
+                          if(arg == null || arg.length == 0 || int.parse(arg) <= 0){
+                            return ErrorText.invalidIntegerNumber;
+                          }
                         },
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.done,
@@ -588,7 +628,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                             labelStyle: Constants.formLabelTextStyle,
                             labelText: "Number observed",
                             contentPadding: edgeInsets,
-                            hintText: "Number observed",
+                            //hintText: "Number observed",
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(

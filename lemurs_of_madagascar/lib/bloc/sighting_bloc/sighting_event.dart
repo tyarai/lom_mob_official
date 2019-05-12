@@ -30,6 +30,12 @@ class SightingTitleChangeEvent extends SightingEvent {
   SightingTitleChangeEvent(this.newTitle);
 }
 
+class SightingNumberObservedChangeEvent extends SightingEvent {
+  int newNumber;
+  SightingNumberObservedChangeEvent(this.newNumber);
+}
+
+
 class SightingDateChangeEvent extends SightingEvent {
   double newDate;
   SightingDateChangeEvent(this.newDate);

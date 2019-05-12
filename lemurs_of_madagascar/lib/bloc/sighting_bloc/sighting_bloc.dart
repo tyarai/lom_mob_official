@@ -55,6 +55,14 @@ class SightingBloc implements BlocBase {
       print("...changed bloc's date to ${_sighting.date} ${ DateTime.fromMillisecondsSinceEpoch(_sighting.date.toInt())}" );
     }
 
+    if (event is SightingTitleChangeEvent) {
+      _sighting.title = event.newTitle;
+      print("...changed bloc's sighting title to ${_sighting.title}");
+    }
+    if (event is SightingNumberObservedChangeEvent) {
+      _sighting.speciesCount = event.newNumber;
+      print("...changed bloc's sighting number ${_sighting.speciesCount}");
+    }
 
     if (event is SightingLocationChangeEvent) {
       _sighting.longitude = event.longitude;
