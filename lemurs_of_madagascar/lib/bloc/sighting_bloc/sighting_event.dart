@@ -35,3 +35,11 @@ class SightingDateChangeEvent extends SightingEvent {
   SightingDateChangeEvent(this.newDate);
 }
 
+class SightingLocationChangeEvent extends SightingEvent {
+  double longitude = 0.0;
+  double latitude = 0.0;
+  double altitude = 0.0;
+
+  SightingLocationChangeEvent({this.longitude,this.latitude,this.altitude});
+}
+

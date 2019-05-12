@@ -49,6 +49,14 @@ class SightingBloc implements BlocBase {
       _sighting.species = event.species;
       print("...changed bloc's sighting species to ${_sighting.species}" );
     }
+
+    if (event is SightingLocationChangeEvent) {
+      _sighting.longitude = event.longitude;
+      _sighting.latitude  = event.latitude;
+      _sighting.altitude  = event.altitude;
+      print("...changed bloc's location to LONG: ${_sighting.longitude} LAT: ${_sighting.latitude}  ALT: ${_sighting.altitude}" );
+    }
+
     //Add the new value of sighting to the sink state controller so that this can be returned
     //through the stream int the future
     _inSightingAdd.add(_sighting);

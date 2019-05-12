@@ -2,7 +2,7 @@ import 'package:location/location.dart';
 
 class GPSLocation {
 
-  static getOneTimeLocation() async {
+  static Future<LocationData> getOneTimeLocation() async {
 
     var currentLocation;
     var location = new Location();

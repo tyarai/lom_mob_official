@@ -10,12 +10,14 @@ class Constants {
   static const double labelFontSize = 20.0;
   static const double hintFontSize = 20.0;
   static const double textFontSize = 22.0;
+  static const double subTextFontSize = 16.0;
   static const double subTitleFontSize = 16.0;
   static const double speciesImageBorderRadius = 15.0;
   static const int speciesHeroTransitionDuration = 800;
   static const double iconSize = 40.0;
 
   static const String fontFamily = 'Montserrat';
+  static const TextStyle flatButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 22.0,color: mainColor);
   static const TextStyle buttonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0);
   static const TextStyle subButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 15.0);
   static const TextStyle appTitle = TextStyle(fontFamily: fontFamily, fontSize: 15.0,color: Colors.green);
@@ -28,6 +30,7 @@ class Constants {
   static const Color iconColor = Colors.lime;
   static const TextStyle speciesTitleStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.titleFontSize);
   static const TextStyle defaultTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.textFontSize);
+  static const TextStyle defaultSubTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.subTextFontSize);
 
   // Form Input text
   static const TextStyle formLabelTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.labelFontSize);
