@@ -46,6 +46,8 @@ dependencies:
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7
 
+  location: ^2.3.5
+
 
   # http api call
   http: ^0.12.0+2

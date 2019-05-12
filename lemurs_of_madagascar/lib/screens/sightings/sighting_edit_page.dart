@@ -8,6 +8,7 @@ import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/location/gps_location.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';

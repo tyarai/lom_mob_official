@@ -4,6 +4,14 @@ MTECHVIRAL : Flutter Tutorial
 2- Expandable and sticky header list
 3- Integrate Google MAPs
 4- MLKit
+5- Splash screen
+6- Pageview
+       //TODO Replace the Carousel Image with PageViewController/PageView widget
+       //TODO Update Introduction page with PageView to split long text
+
+7- QUIZZ App
+8- Face ID, Touche ID, FingerPrint
+9- Programmatically check if in debug or release mode
 
 VOID REALMS
 
@@ -12,3 +20,15 @@ VOID REALMS
 3- Switch
 4- Dropdown Button
 5- Date and Time
+
+
+TENSOR PROGRAMMING
+
+1- Drag & drop widget
+2- GPS
+
+
+GOOGLE
+
+1- Safe area
+2- Table widget
