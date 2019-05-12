@@ -46,7 +46,10 @@ dependencies:
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7
 
+  # GPS location
   location: ^2.3.5
+
+  flutter_datetime_picker: ^1.2.0
 
 
   # http api call

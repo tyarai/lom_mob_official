@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 typedef void VoidCallBack();
 
@@ -59,6 +60,9 @@ class Constants {
   static const Color defaultListItemBackgroundColor = Colors.white;
   static const double listViewDividerHeight = 10.0;
   static const Color listViewDividerColor = Colors.grey;
+
+  //Date
+  static String dateFormat = "yyyy-MMMM-dd";
 
 }
 

@@ -31,7 +31,7 @@ class SightingTitleChangeEvent extends SightingEvent {
 }
 
 class SightingDateChangeEvent extends SightingEvent {
-  DateTime newDate;
+  double newDate;
   SightingDateChangeEvent(this.newDate);
 }
 
