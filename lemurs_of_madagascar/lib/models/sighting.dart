@@ -194,6 +194,6 @@ class Sighting {
 
   @override
   String toString() {
-    return "[ID]:${this.id} [title]:${this.title} [species]:${this.speciesName} [photo]:${this.photoFileName} ";
+    return "[ID]:${this.id} \n [title]:${this.title} \n[species]:${this.speciesName}  \n[photo]:${this.photoFileName} \n[date]:${this.date.toString()} \n[count]:${this.speciesCount} \n[long]:${this.longitude} \n[lat]:${this.latitude} \n[alt]:${this.altitude}";
   }
 }

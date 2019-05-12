@@ -65,7 +65,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
             iconSize: Constants.iconSize,
             icon: Icon(Icons.save,color: Constants.iconColor,),
             onPressed: () {
-              _submit();
+              _submit(buildContext);
             },
           ),
         ],
@@ -106,17 +106,34 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
 
-  void _submit() {
+  void _submit(BuildContext buildContext) {
 
     final form = formKey.currentState;
 
     if (form.validate()) {
 
+      print("#0");
       setState(() {
-
         form.save();
-
       });
+
+      SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+      print(bloc);
+
+      StreamBuilder(
+        stream: bloc.outSighting,
+        initialData: this.sighting,
+        builder: (BuildContext context,AsyncSnapshot<Sighting> snapshot){
+
+          print("#1");
+          if(snapshot.hasData && snapshot.data != null){
+            print("#2");
+            print(snapshot.data.toString());
+          }
+
+        },
+
+      );
 
     }
   }
