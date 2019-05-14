@@ -49,6 +49,8 @@ class Site extends SelectableListItem {
   SpeciesMap get map => _map;
 
 
+
+
   set map(SpeciesMap value) => this._map = value;
   set title(String value){
     if(value.length <= 255){

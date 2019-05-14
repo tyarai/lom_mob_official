@@ -1,9 +1,11 @@
+import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class Sighting {
 
@@ -33,6 +35,8 @@ class Sighting {
   Species _species;
   Site _site;
 
+
+
   int id =0;
   int nid =0;
   String uuid = "";
@@ -57,6 +61,7 @@ class Sighting {
   int hasPhotoChanged = -1;
 
 
+
   Sighting({this.id,this.uuid,this.nid,this.speciesName,
             this.speciesNid,this.speciesCount,this.placeName,this.latitude,
             this.longitude,this.altitude,this.photoFileName,this.title,
@@ -75,6 +80,37 @@ class Sighting {
     this._species = value;
   }
 
+
+  void saveToDatabase(){
+
+    var _uuid = Uuid();
+    this.uuid = _uuid.v1(); // time-based
+    //this.nid  = 0;
+    this.speciesNid = this.species.id;
+    this.placeName  = this.site.title;
+
+    this.created    = this.created  == null ? DateTime.now().millisecondsSinceEpoch.toDouble() : this.created;
+    print("Created " + DateTime.now().millisecondsSinceEpoch.toDouble().toString());
+    this.modified   = DateTime.now().millisecondsSinceEpoch.toDouble();
+    this.placeNID   = this.site.id;
+    this.uid        = this.uid == null ? 9999 : this.uid; //TODO update the '9999' to the uid of the current user
+    //this.isLocal    = 1;
+    //this.isSynced   = 0;
+    //this.deleted    = 0;
+
+    //this.locked     = 0;
+    //this.hasPhotoChanged = 0;
+    //this.latitude   = this.latitude == 0 ? 0.0 : this.latitude;
+    //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
+
+
+    SightingDatabaseHelper db = SightingDatabaseHelper();
+    Future<int> id = db.insertSighting(sighting:this);
+
+    id.then((newID) {
+      print("New id : ${newID}");
+    });
+  }
 
   Map<String, dynamic> toMap(){
 
@@ -194,6 +230,6 @@ class Sighting {
 
   @override
   String toString() {
-    return "[ID]:${this.id} \n [title]:${this.title} \n[species]:${this.speciesName}  \n[photo]:${this.photoFileName} \n[date]:${this.date.toString()} \n[count]:${this.speciesCount} \n[long]:${this.longitude} \n[lat]:${this.latitude} \n[alt]:${this.altitude}";
+    return "[ID]:${this.id} \n [title]:${this.title} \n[species]:${this.species?.title}  \n[photo]:${this.photoFileName} \n[date]:${this.date.toString()} \n[count]:${this.speciesCount} \n[long]:${this.longitude} \n[lat]:${this.latitude} \n[alt]:${this.altitude} \n[placename]:${this._site?.title}";
   }
 }

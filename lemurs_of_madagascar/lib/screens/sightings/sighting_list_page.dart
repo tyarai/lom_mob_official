@@ -139,7 +139,7 @@ class _SightingListPageState extends State<SightingListPage> {
   void _handleBottomNavTap(int index){
 
 
-    Sighting emptySighting = Sighting();
+    Sighting emptySighting = Sighting(title: "empty sighting");
     //SightingBloc sightingBloc = SightingBloc();
     sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
 

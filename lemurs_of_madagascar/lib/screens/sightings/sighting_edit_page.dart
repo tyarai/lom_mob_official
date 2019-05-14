@@ -46,13 +46,23 @@ class _SightingEditPageState extends State<SightingEditPage> {
   _SightingEditPageState(this.title, this.sighting);
 
 
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _countController = TextEditingController();
 
-  //List<Species> _speciesList = List<Species>();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _titleController.dispose();
+    _countController.dispose();
+  } //List<Species> _speciesList = List<Species>();
 
 
   @override
   void initState() {
     super.initState();
+    _titleController.addListener(_onTitleChanged);
+    _countController.addListener(_onNumberChanged);
   }
 
   @override
@@ -72,7 +82,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
         elevation: 0,
         title: Text(this.title, style: Constants.appBarTitleStyle),
       ),
-      body: _buildBody(),
+      body: _buildBody(buildContext),
     );
   }
 
@@ -87,68 +97,64 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
 
-  void _onTitleChanged(String value){
+  void _onTitleChanged(){
 
-    if(value != null && value.length > 0) {
       SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-      bloc.sightingEventController.add(SightingTitleChangeEvent(value));
-    }
+      bloc.sightingEventController.add(SightingTitleChangeEvent(_titleController.text));
 
   }
 
-  void _onNumberChanged(String value){
+  void _onNumberChanged(){
 
-    if(value != null && int.parse(value) > 0) {
-      SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-      bloc.sightingEventController.add(SightingNumberObservedChangeEvent(int.parse(value)));
+    int value = 0;
+
+    try {
+      value = int.parse(_countController.text);
+    }catch(e){
+      _countController.clear();
     }
+
+    if (value >= 0) {
+      SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+      bloc.sightingEventController.add(SightingNumberObservedChangeEvent(value));
+    }
+
 
   }
 
 
-  void _submit(BuildContext buildContext) {
+  _submit(BuildContext buildContext) {
 
     final form = formKey.currentState;
 
     if (form.validate()) {
 
-      print("#0");
       setState(() {
+
         form.save();
+        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+        bloc.saveSighting();
+
       });
 
-      SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-      print(bloc);
-
-      StreamBuilder(
-        stream: bloc.outSighting,
-        initialData: this.sighting,
-        builder: (BuildContext context,AsyncSnapshot<Sighting> snapshot){
-
-          print("#1");
-          if(snapshot.hasData && snapshot.data != null){
-            print("#2");
-            print(snapshot.data.toString());
-          }
-
-        },
-
-      );
 
     }
   }
 
 
-  _buildBody()  {
+  _buildBody(BuildContext buildContext)  {
 
-    final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+    final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
 
     return StreamBuilder<Sighting>(
         stream: bloc.outSighting,
         initialData: this.sighting,
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
-          if (snapshot.data != null) {
+          if (snapshot.data != null && snapshot.hasData) {
+
+
+            //print(snapshot.data.toString());
 
             return ListView(
                 children: <Widget>[
@@ -169,9 +175,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
                           _buildPhotoSelection(snapshot.data),
                           Container(height: 10,),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                          _buildSpeciesSelectButton(context,snapshot.data.species),
+                          _buildSpeciesSelectButton(buildContext,snapshot.data.species),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                          _buildSitesSelectButton(context,snapshot.data.site),
+                          _buildSitesSelectButton(buildContext,snapshot.data.site),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildDatePicker(bloc,snapshot.data),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
@@ -441,10 +447,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                           ])),
                 ))),
       );
-      /*return ListTile(
-        onTap: onTap,
-        trailing: Icon(Icons.arrow_forward_ios),
-        title: Site.loadHeroTitle(site));*/
+
 
     }
 
@@ -596,11 +599,12 @@ class _SightingEditPageState extends State<SightingEditPage> {
                     new Padding(
                       padding: EdgeInsets.all(10),
                       child: new TextFormField(
+                        controller: _titleController,
                         style: Constants.formDefaultTextStyle,
                         maxLines: 4,
 
                         onSaved: (val) => {
-                          _onTitleChanged(val)
+                          //_onTitleChanged(val)
                         },
 
                         validator: (String arg) {
@@ -626,9 +630,10 @@ class _SightingEditPageState extends State<SightingEditPage> {
                     new Padding(
                       padding: EdgeInsets.all(10),
                       child: new TextFormField(
+                        controller: _countController,
                         style: Constants.formDefaultTextStyle,
                         onSaved: (val) => {
-                          _onNumberChanged(val)
+                          //_onNumberChanged(val)
                         },
 
                         validator: (String arg) {

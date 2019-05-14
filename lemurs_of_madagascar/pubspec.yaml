@@ -62,6 +62,8 @@ dependencies:
 
   bloc: ^0.13.0
 
+  uuid: 2.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

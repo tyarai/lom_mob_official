@@ -20,9 +20,15 @@ class SightingBloc implements BlocBase {
     _sightingEventController.stream.listen(_mapEventToState);
   }
 
+
+  void saveSighting(){
+    print("Saving this sighting " + _sighting.toString());
+    _sighting.saveToDatabase();
+  }
+
   @override
   void dispose() {
-    print("SIGHTING BLOC : Close");
+    //print(.*)
     _sightingEventController.close();
     _sightingController.close();
   }
@@ -32,48 +38,52 @@ class SightingBloc implements BlocBase {
 
     if (event is SightingChangeEvent) {
       _sighting = event.sighting;
-      print("...changed bloc's sighting to: ${_sighting.photoFileName}");
+      //print(.*)
     }
 
     if (event is SightingImageChangeEvent) {
       _sighting.photoFileName = event.newFileName;
-      print("...changed bloc's sighting image name to: ${_sighting.photoFileName}");
+      //print(.*)
     }
 
     if (event is SightingSiteChangeEvent) {
       _sighting.site = event.site;
-      print("...changed bloc's sighting site event to ${_sighting.site}");
+      _sighting.placeName = event.site.title;
+      //print(.*)
     }
 
     if (event is SightingSpeciesChangeEvent) {
       _sighting.species = event.species;
-      print("...changed bloc's sighting species to ${_sighting.species}" );
+      _sighting.speciesName = event.species.title;
+      //print("new title ${_sighting.species.title}");
     }
 
     if (event is SightingDateChangeEvent) {
       _sighting.date = event.newDate;
-      print("...changed bloc's date to ${_sighting.date} ${ DateTime.fromMillisecondsSinceEpoch(_sighting.date.toInt())}" );
+      //print(.*)
     }
 
     if (event is SightingTitleChangeEvent) {
       _sighting.title = event.newTitle;
-      print("...changed bloc's sighting title to ${_sighting.title}");
+
     }
     if (event is SightingNumberObservedChangeEvent) {
       _sighting.speciesCount = event.newNumber;
-      print("...changed bloc's sighting number ${_sighting.speciesCount}");
+      //print(.*)
     }
 
     if (event is SightingLocationChangeEvent) {
       _sighting.longitude = event.longitude;
       _sighting.latitude  = event.latitude;
       _sighting.altitude  = event.altitude;
-      print("...changed bloc's location to LONG: ${_sighting.longitude} LAT: ${_sighting.latitude}  ALT: ${_sighting.altitude}" );
+      //print(.*)
     }
 
     //Add the new value of sighting to the sink state controller so that this can be returned
     //through the stream int the future
     _inSightingAdd.add(_sighting);
+
+    //print(_sighting.toString());
   }
 
 }

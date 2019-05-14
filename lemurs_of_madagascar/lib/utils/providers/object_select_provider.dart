@@ -82,7 +82,7 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
   @override
   void initState() {
 
-    print("#0");
+    //print("#0");
 
     super.initState();
     if(_listProvider.list != null && _listProvider.list.length == 0) {
@@ -119,18 +119,20 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext buildContext) {
 
     return Scaffold(
       backgroundColor: Constants.backGroundColor,
-      appBar: _buildAppBar(context),
-
-      body: _buildBody(),)
+      appBar: _buildAppBar(buildContext),
+      body: _buildBody(buildContext),)
 
     ;
   }
 
-  Widget _buildBody(){
+  Widget _buildBody(BuildContext buildContext){
+
+    //print("BUIL "+ buildContext.toString());
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -140,14 +142,13 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
         future: _loadData(),
         builder:(BuildContext context,AsyncSnapshot<List> snapshot) {
 
+          //print("FUTURE "+ context.toString());
+
           if(snapshot.hasError){
             print(snapshot.error);
           }
 
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-
-
-          SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
 
           return ListView.builder(
@@ -157,23 +158,24 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
                 T item = _listProvider.getItemAt(index);
 
+                //print("LIST "+ context.toString());
 
 
                 OnSelectCallback onSelect = (item) {
 
-                  setState(() {});
+                  setState(() {
 
-                  if(typeOf<T>() == typeOf<Species>()) {
+                    if(typeOf<T>() == typeOf<Species>()) {
 
-                    bloc.sightingEventController.add(
-                        SightingSpeciesChangeEvent(item));
+                      bloc.sightingEventController.add(SightingSpeciesChangeEvent(item));
 
-                  }else if(typeOf<T>() == typeOf<Site>()) {
-                    Site site = item as Site;
-                    print(site.title);
-                    bloc.sightingEventController.add(
-                        SightingSiteChangeEvent(item));
-                  }
+                    }else if(typeOf<T>() == typeOf<Site>()) {
+                      Site site = item as Site;
+                      print(site.title);
+                      bloc.sightingEventController.add(
+                          SightingSiteChangeEvent(item));
+                    }
+                  });
 
                 };
 
