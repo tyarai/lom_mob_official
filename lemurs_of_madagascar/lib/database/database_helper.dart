@@ -50,6 +50,7 @@ class DatabaseHelper {
 
 
 
+
    _onUpgrade(Database db, int oldVersion, int newVersion) {}
 
    //@TODO : Check if we can find other method to copy the database to the working directory
