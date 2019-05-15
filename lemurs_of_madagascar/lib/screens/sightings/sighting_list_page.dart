@@ -4,9 +4,9 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
-import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/user_session.dart';
 
 
 class SightingListPage extends StatefulWidget {
@@ -47,40 +47,42 @@ class _SightingListPageState extends State<SightingListPage> {
   @override
   initState()  {
 
+
+    //Sighting.deleteAllSightings();
+
     super.initState();
 
-    try {
+    Future<int> _currentID = UserSession.loadCurrentUserUID();
 
-      if (currentUid == 0) {
+    _currentID.then((value){
 
-        Future<String> _currentUid = LOMSharedPreferences.loadString(
-            Sighting.uidKey);
-        _currentUid.then((currentUID) {
+      this.currentUid = value;
 
-          if(currentUID != null) {
+      try {
 
-            currentUid = int.parse(currentUID);
+        if (currentUid > 0) {
 
-            if(sightingList.length == 0) {
-              Future<List<Sighting>> futureList = _loadData(currentUid);
-              futureList.then((list) {
-                setState(() {
-                  sightingList = list;
+          //print("current UID " + this.currentUid.toString());
+
+              if(sightingList.length == 0) {
+                Future<List<Sighting>> futureList = _loadData(currentUid);
+                futureList.then((list) {
+                  setState(() {
+                    sightingList = list;
+                  });
                 });
-              });
+              }
+
+            }else{
+              //TODO : The user is not connected. Redirect to login page
             }
 
-          }else{
-            //TODO : The user is not connected. Redirect to login page
-          }
-
-        });
-
+      }catch(e){
+        print(e.toString());
       }
 
-    }catch(e){
-      print(e.toString());
-    }
+    });
+
 
   }
 
@@ -183,18 +185,23 @@ class _SightingListPageState extends State<SightingListPage> {
   }
 
   Widget _buildSightingListView() {
+
     return FutureBuilder<List<Sighting>>(
       future: _loadData(this.currentUid),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      initialData: this.sightingList,
+      builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
+
         if (!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
+
+        //print("Sighting count in DB :"+snapshot.data.length.toString());
 
         return ListView.builder(
             scrollDirection: Axis.vertical,
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
               //return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
-              return  _SightingListPageState.buildCellItem(context,this.sightingList,index);
+              return  _SightingListPageState.buildCellItem(context,snapshot.data,index);
             });
       },
     );
@@ -212,29 +219,35 @@ class _SightingListPageState extends State<SightingListPage> {
   static Widget buildCellItem(BuildContext context,List<Sighting> list,int index)
   {
 
-    Sighting sighting = list[index];
+    if(list != null && list.length > 0 && (index >= 0 && index < list.length)) {
 
-    return GestureDetector(
-      onTap: () {
-        //SpeciesListPageState.navigateToSpeciesDetails(context, sighting);
-      },
-      child: Padding(
-          padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-          child: Container(
-              child: Material(
-                elevation: 2.5,
-                borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
-                shadowColor: Colors.blueGrey,
-                child: Padding(
-                    padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Sighting.buildSightingPhoto(sighting),
-                          Container(height: 10),
-                          Sighting.buildTextInfo(sighting),
-                        ])),
-    ))));
+      Sighting sighting = list[index];
+      //print(sighting);
+
+      return GestureDetector(
+          onTap: () {
+            //SpeciesListPageState.navigateToSpeciesDetails(context, sighting);
+          },
+          child: Padding(
+              padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+              child: Container(
+                  child: Material(
+                    elevation: 1.0,
+                    borderRadius: BorderRadius.circular(0),
+                    shadowColor: Colors.blueGrey,
+                    child: Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              //Sighting.buildSightingPhoto(sighting),
+                              Container(height: 10),
+                              Sighting.buildCellInfo(sighting),
+                            ])),
+                  ))));
+    }
+
+    return Container();
 
   }
 }

@@ -47,7 +47,7 @@ class User {
 
   User.fromJSONMap(dynamic userObj,{dynamic userSession}){
 
-    if(userObj != null) {
+    if(userObj != null && userSession != null) {
       this.uid = int.parse(userObj[uidKey]);
       this.name = userObj[nameKey];
       this.mail = userObj[mailKey];
@@ -62,17 +62,12 @@ class User {
       this.language = userObj[languageKey];
       this.uuid = userObj[uuidKey];
 
-      this._saveToSharedPreferences();
-    }
-
-    if(userSession != null) {
       this.sessionName = userSession[sessionNameKey];
       this.sessionID = userSession[sessionIDKey];
       this.token = userSession[tokenKey];
 
-      LOMSharedPreferences.setString(User.sessionIDKey, this.sessionID);
-      LOMSharedPreferences.setString(User.sessionNameKey, this.sessionName);
-      LOMSharedPreferences.setString(User.tokenKey, this.token);
+      this._saveToSharedPreferences();
+
 
 
       /*LOMSharedPreferences.loadString(User.tokenKey).then((value){
@@ -103,7 +98,6 @@ class User {
 
   }
 
-
   void _saveToSharedPreferences(){
     LOMSharedPreferences.setString(User.uidKey, this.uid.toString());
     LOMSharedPreferences.setString(User.nameKey, this.name);
@@ -118,8 +112,39 @@ class User {
     LOMSharedPreferences.setString(User.timezoneKey, this.timezone);
     LOMSharedPreferences.setString(User.languageKey, this.language);
     LOMSharedPreferences.setString(User.uuidKey, this.uuid);
+
+    LOMSharedPreferences.setString(User.sessionIDKey, this.sessionID);
+    LOMSharedPreferences.setString(User.sessionNameKey, this.sessionName);
+    LOMSharedPreferences.setString(User.tokenKey, this.token);
+
+
+    print(LOMSharedPreferences.loadString("uid :" + User.uidKey));
+    print(LOMSharedPreferences.loadString("sessionID :" + User.sessionIDKey));
+    print(LOMSharedPreferences.loadString("sessionName :" + User.sessionNameKey));
+    print(LOMSharedPreferences.loadString("token :" + User.tokenKey));
   }
 
+  static void clearSharedPreferences(){
+    
+    LOMSharedPreferences.setString(User.uidKey, "");
+    LOMSharedPreferences.setString(User.nameKey, "");
+    LOMSharedPreferences.setString(User.mailKey, "");
+    LOMSharedPreferences.setString(User.themeKey, "");
+    LOMSharedPreferences.setString(User.signatureKey, "");
+    LOMSharedPreferences.setString(User.signatureFormatKey, "");
+    LOMSharedPreferences.setString(User.createdKey, "");
+    LOMSharedPreferences.setString(User.accessKey, "");
+    LOMSharedPreferences.setString(User.loginKey, "");
+    LOMSharedPreferences.setString(User.statusKey, "");
+    LOMSharedPreferences.setString(User.timezoneKey, "");
+    LOMSharedPreferences.setString(User.languageKey, "");
+    LOMSharedPreferences.setString(User.uuidKey, "");
+
+    LOMSharedPreferences.setString(User.sessionIDKey, "");
+    LOMSharedPreferences.setString(User.sessionNameKey, "");
+    LOMSharedPreferences.setString(User.tokenKey, "");
+
+  }
 
   Map<String,dynamic> toMap(){
     var map = Map<String,dynamic>();

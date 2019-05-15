@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
 
 class Photograph {
 
@@ -30,6 +31,10 @@ class Photograph {
 
   set content(String value){
     this._photograph = value;
+  }
+
+  String photoAssetPath({String ext = Constants.imageType}){
+    return Constants.appImagesAssetsFolder + this._photograph + "." +  ext;
   }
 
   Map<String, dynamic> toMap(){

@@ -8,6 +8,7 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/location/gps_location.dart';
@@ -15,6 +16,7 @@ import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -137,6 +139,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
       });
 
+      Navigator.of(context).pop();
 
     }
   }
@@ -572,12 +575,17 @@ class _SightingEditPageState extends State<SightingEditPage> {
         height:200,
         child: Container(
 
-            child: Image.file(
+            child: Sighting.getImage(sighting),
+              //width: 200,
+              //height:200,
+            ));
+
+              /*child: Image.file(
               File(sighting.photoFileName),
               //width: 200,
               //height:200,
-            )),
-      );
+            )),*/
+
     }
 
     return Container();

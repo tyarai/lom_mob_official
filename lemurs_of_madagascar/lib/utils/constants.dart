@@ -53,7 +53,8 @@ class Constants {
   static const int minPasswordLength = 6;
 
   // Documents and folders inside the app document folder
-  static const String appImagesFolder = "images";
+  static const String appImagesFolder = "/images/";
+  static const String appImagesAssetsFolder = "assets/images/";
 
   // List Item Color
   static const Color selectedListItemBackgroundColor = Colors.lime;
@@ -63,6 +64,13 @@ class Constants {
 
   //Date
   static String dateFormat = "yyyy-MMMM-dd";
+
+  //Sighting List
+  static const TextStyle sightingTitleTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 18);
+  static const TextStyle sightingSpeciesNameTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 15,fontWeight: FontWeight.bold);
+  static const TextStyle sightingSpeciesCountTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 15,color: Colors.grey,fontWeight: FontWeight.bold);
+
+
 
 }
 

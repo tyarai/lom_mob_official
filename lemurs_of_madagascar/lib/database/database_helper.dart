@@ -34,6 +34,7 @@ class DatabaseHelper {
    Future<Database> _initializeDatabase() async {
       Directory directory = await getApplicationDocumentsDirectory();
       var dbPath = join(directory.path, databaseName);
+      print("APp Path" + dbPath);
 
       // copy db file from Assets folder to Documents folder (only if not already there...)
       if (FileSystemEntity.typeSync(dbPath) == FileSystemEntityType.notFound) {

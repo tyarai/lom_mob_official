@@ -15,7 +15,7 @@ final routes = {
   '/register'        : (BuildContext context) => RegisterPage(),
   //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),//(BuildContext context) => LoginPage(),
   '/'                : (BuildContext context) => LoginPage(),
-  '/sighting_list'   : (BuildContext context) => SightingListPage(title:"Sightings"),
+  '/sighting_list'   : (BuildContext context) => SightingListPage(title:"My sightings"),
 
 
 };
@@ -23,6 +23,7 @@ final routes = {
 void main() => runApp(LOMApp());
 
 class LOMApp extends StatelessWidget {
+
 
   @override
   Widget build(BuildContext context) {

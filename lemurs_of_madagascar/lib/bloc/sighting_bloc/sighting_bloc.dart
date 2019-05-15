@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
@@ -22,8 +23,25 @@ class SightingBloc implements BlocBase {
 
 
   void saveSighting(){
-    print("Saving this sighting " + _sighting.toString());
+    //print("Saving this sighting " + _sighting.toString());
     _sighting.saveToDatabase();
+  }
+
+  void _deleteOldPhotoFile(){
+
+    if(_sighting.photoFileName != null && _sighting.photoFileName.length > 0){
+
+        File file = File(_sighting.photoFileName);
+        if(file.existsSync()) {
+          file.deleteSync();
+          print("Bloc Event Image Changed - deleted old file " +
+              _sighting.photoFileName);
+        }else{
+          print("Bloc Event Image Changed - no file to delete at " +
+              _sighting.photoFileName);
+        }
+
+      }
   }
 
   @override
@@ -42,6 +60,7 @@ class SightingBloc implements BlocBase {
     }
 
     if (event is SightingImageChangeEvent) {
+      _deleteOldPhotoFile();
       _sighting.photoFileName = event.newFileName;
       //print(.*)
     }

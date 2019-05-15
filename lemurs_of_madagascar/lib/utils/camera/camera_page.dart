@@ -8,8 +8,40 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lemurs_of_madagascar/utils/user_session.dart';
 
 
+  Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
+
+   String newFilePath =  (await getApplicationDocumentsDirectory()).path;
+
+    newFilePath = join(newFilePath,"$currentUID-${DateTime.now()}.$ext");
+
+    if(oldFile != null && oldFile.existsSync()) {
+
+        Future<File> newFile = oldFile.copy(newFilePath);
+
+        newFile.then((_newFile){
+
+          print("file copied to " + _newFile.path);
+
+        }).then((_){
+
+          String oldPath = oldFile.path;
+          oldFile.deleteSync();
+          print("old file deleted " + oldPath);
+
+        }).then((_newFile) {
+
+          return _newFile;
+
+        });
+
+    }
+
+    return newFilePath;
+
+}
 
 class CameraPage extends StatefulWidget {
   final CameraDescription camera;
@@ -26,13 +58,14 @@ class CameraPage extends StatefulWidget {
 
 class CameraPageState extends State<CameraPage> {
 
-
   // Add two variables to the state class to store the CameraController and
   // the Future
   CameraController _controller;
   Future<void> _initializeControllerFuture;
   String path = "";
   Future<File> imageFile;
+  int _currentUID;
+
 
   @override
   void initState() {
@@ -48,26 +81,40 @@ class CameraPageState extends State<CameraPage> {
 
     // Next, you need to initialize the controller. This returns a Future
     _initializeControllerFuture = _controller.initialize();
+
+
+    Future<int> currentUID = UserSession.loadCurrentUserUID();
+
+    this._currentUID =  0;
+    currentUID.then((uid){
+       this._currentUID =  uid;
+    });
+
+
   }
 
-  _close(){
+  /* _close({bool delete=false}){
 
     if(path.length != 0) {
       File file = File(path);
       if(file.existsSync()) {
-        file.deleteSync();
-        print("DELETED " + path  );
+        if (delete) {
+          file.deleteSync();
+          print("Camera screen - deleted " + path);
+        }
+      }else{
+        print("Camera screen - no file to deleted ");
       }
 
     }
   }
+  */
 
   @override
   void dispose() {
     // Make sure to dispose of the controller when the Widget is disposed
     _controller.dispose();
     print("DSIPOSED Camera Controlle ");
-    _close();
     super.dispose();
   }
 
@@ -75,26 +122,36 @@ class CameraPageState extends State<CameraPage> {
     imageFile =  ImagePicker.pickImage(source: source);
   }
 
-  handleImage(BuildContext context) {
+  handleImage(BuildContext context) async {
 
 
     pickImageFromGallery(ImageSource.gallery);
 
     imageFile.then((file){
 
+      //Future<String> docDirectory =  (getApplicationDocumentsDirectory());
+
       if(file != null) {
 
         final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
 
+        Future<String> newFileName = copyFileToDocuments(this._currentUID,oldFile: file);
+
+        newFileName.then((_newFilePath){
+
+          print("IMAGE PICKER new file" + _newFilePath);
+
+          Navigator.of(context).push(MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (BuildContext context) =>
+                  BlocProvider(
+                      bloc: bloc,
+                      //child: DisplayPictureScreen(imagePath: file.path))),
+                      child: DisplayPictureScreen(_newFilePath))),
+          );
+        });
 
 
-        Navigator.of(context).push(MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (BuildContext context) =>
-                BlocProvider(
-                    bloc: bloc,
-                    child: DisplayPictureScreen(imagePath: file.path))),
-        );
       }
 
     });
@@ -159,97 +216,117 @@ class CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
 
-      appBar: _buildAppBar(context),
-      // You must wait until the controller is initialized before displaying the
-      // camera preview. Use a FutureBuilder to display a loading spinner until
-      // the controller has finished initializing
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If the Future is complete, display the preview
-            return CameraPreview(_controller);
-          } else {
-            // Otherwise, display a loading indicator
-            return Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+        SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+        bloc.sightingEventController.add(SightingImageChangeEvent(""));
+        print("CAMERA - reset sighting image");
+        print("CAMERA will Pop ");
+        return true;
+      }
+      ,
+      child: Scaffold(
 
-      floatingActionButton:
-          FloatingActionButton(
-
-          child: Icon(Icons.photo_camera),
-          // Provide an onPressed callback
-          onPressed: () async {
-            // Take the Picture in a try / catch block. If anything goes wrong,
-            // catch the error.
-            try {
-              // Ensure the camera is initialized
-              await _initializeControllerFuture;
-
-              // Construct the path where the image should be saved using the path
-              // package.
-              path = join(
-                // In this example, store the picture in the temp directory. Find
-                // the temp directory using the `path_provider` plugin.
-                (await getTemporaryDirectory()).path,
-                '${DateTime.now()}.png',
-              );
-
-              // Attempt to take a picture and log where it's been saved
-              await _controller.takePicture(path);
-
-              final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-
-              // If the picture was taken, display it on a new screen
-
-              Navigator.of(context).push(MaterialPageRoute(
-                  fullscreenDialog: true,
-                  builder: (BuildContext context) =>
-                      BlocProvider(
-                          bloc: bloc,
-                          child: DisplayPictureScreen(imagePath: path))),
-              );
-
-            } catch (e) {
-              // If an error occurs, log the error to the console.
-              print(e);
+        appBar: _buildAppBar(context),
+        // You must wait until the controller is initialized before displaying the
+        // camera preview. Use a FutureBuilder to display a loading spinner until
+        // the controller has finished initializing
+        body: FutureBuilder<void>(
+          future: _initializeControllerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              // If the Future is complete, display the preview
+              return CameraPreview(_controller);
+            } else {
+              // Otherwise, display a loading indicator
+              return Center(child: CircularProgressIndicator());
             }
           },
         ),
 
+        floatingActionButton:
+            FloatingActionButton(
+
+            child: Icon(Icons.photo_camera),
+            // Provide an onPressed callback
+            onPressed: () async {
+              // Take the Picture in a try / catch block. If anything goes wrong,
+              // catch the error.
+              try {
+                // Ensure the camera is initialized
+                await _initializeControllerFuture;
+
+                // Construct the path where the image should be saved using the path
+                // package.
+                // In this example, store the picture in the temp directory. Find
+                // the temp directory using the `path_provider` plugin.
+
+                //path = join((await getApplicationDocumentsDirectory()).path,"${this._currentUID}-${DateTime.now()}.${Constants.imageType}",);
+                path = await copyFileToDocuments(this._currentUID);
+                print(" CAMERA FILE NAME $path");
+
+                // Attempt to take a picture and log where it's been saved
+                await _controller.takePicture(path);
+
+                final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+
+                // If the picture was taken, display it on a new screen
+
+                Navigator.of(context).push(MaterialPageRoute(
+                    fullscreenDialog: true,
+                    builder: (BuildContext context) =>
+                        BlocProvider(
+                            bloc: bloc,
+                            child: DisplayPictureScreen(path))),
+                );
+
+              } catch (e) {
+                // If an error occurs, log the error to the console.
+                print(e);
+              }
+            },
+          ),
+
+      ),
     );
+
   } // Fill this out in the next steps
 
 }
 
 // A Widget that displays the picture taken by the user
-class DisplayPictureScreen extends StatelessWidget {
+/* class DisplayPictureScreen extends StatelessWidget {
 
   final String imagePath;
 
-
   const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
 
 
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      // The image is stored as a file on the device. Use the `Image.file`
-      // constructor with the given path to display the image
-      body:
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView(children: <Widget>[
-            Image.file(File(imagePath)),
-          ]),
-        ),
+
+    return WillPopScope(
+
+      onWillPop: () async {
+        print("preview screen will pop");
+        _close(context,delete: true);
+        return true; //
+
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        // The image is stored as a file on the device. Use the `Image.file`
+        // constructor with the given path to display the image
+        body:
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView(children: <Widget>[
+              Image.file(File(imagePath)),
+            ]),
+          ),
+      ),
     );
   }
 
@@ -261,10 +338,7 @@ class DisplayPictureScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.camera_alt,size: 40,color: Constants.iconColor,),
             onPressed: () {
-
-              // Delete the previous file name and go back to camera
-              _close(buildContext);
-
+             _close(buildContext,delete: true);
             },
           ),
           Container(width:10),
@@ -277,28 +351,124 @@ class DisplayPictureScreen extends StatelessWidget {
     ]);
   }
 
-  _close(BuildContext buildContext){
+  _close(BuildContext buildContext,{bool delete = false}){
     if(imagePath.length != 0) {
       File file = File(imagePath);
       if(file.existsSync()) {
-        file.deleteSync();
-        print("DELETED " + imagePath  );
+        if(delete) {
+          file.deleteSync();
+          print("Preview screen - deleted " + imagePath);
+        }
       }
     }
     Navigator.of(buildContext).pop();
   }
 
-
   _selectImage(BuildContext buildContext){
 
-
     SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+    //File file = File(this.imagePath);
     bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
     Navigator.of(buildContext).pop();
     Navigator.of(buildContext).pop();
 
   }
+} */
 
 
+class DisplayPictureScreen extends StatefulWidget {
+
+  final String imagePath;
+
+  DisplayPictureScreen(this.imagePath);
+
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DisplayPictureScreenState(this.imagePath);
+  }
+
+
+
+}
+
+class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
+
+  final String imagePath;
+  bool gotImage = false;
+
+  _DisplayPictureScreenState(this.imagePath);
+
+  @override
+  Widget build(BuildContext context) {
+
+    return WillPopScope(
+
+      onWillPop: () async {
+        print("preview screen will pop");
+        _close(context,this.gotImage);
+        return true; //
+
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        // The image is stored as a file on the device. Use the `Image.file`
+        // constructor with the given path to display the image
+        body:
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(children: <Widget>[
+            Image.file(File(imagePath)),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext buildContext) {
+
+    return AppBar(
+        title: Text("Preview",style:Constants.appBarTitleStyle),
+        actions: <Widget>[
+          /*IconButton(
+            icon: Icon(Icons.camera_alt,size: 40,color: Constants.iconColor,),
+            onPressed: () {
+              //_close(buildContext,this.gotImage);
+              Navigator.of(buildContext).pop();
+            },
+          ),*/
+          Container(width:10),
+          IconButton(
+            icon: Icon(Icons.save,size:40,color: Constants.iconColor,),
+            onPressed: () {
+              this.gotImage = true;
+              _selectImage(buildContext);
+            },
+          ),
+        ]);
+  }
+
+  _close(BuildContext buildContext,bool gotImage){
+    if(imagePath.length != 0) {
+      File file = File(imagePath);
+      if(file.existsSync()) {
+        if(! gotImage) {
+          file.deleteSync();
+          print("Preview screen - deleted " + imagePath);
+        }
+      }
+    }
+    //Navigator.of(buildContext).pop();
+  }
+
+  _selectImage(BuildContext buildContext){
+
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+    //File file = File(this.imagePath);
+    bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
+    Navigator.of(buildContext).pop();
+    Navigator.of(buildContext).pop();
+
+  }
 
 }

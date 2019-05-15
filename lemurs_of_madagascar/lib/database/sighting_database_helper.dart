@@ -5,7 +5,7 @@ import 'package:lemurs_of_madagascar/database/database_helper.dart';
 
 class SightingDatabaseHelper  {
 
-  String sightingsTable    = "Sightings";
+  static const String sightingsTable    = "Sightings";
   final idCol             = Sighting.idKey;
   final modifiedCol       = Sighting.modifiedKey;
   final uidCol            = Sighting.uidKey;
@@ -39,6 +39,13 @@ class SightingDatabaseHelper  {
     Database database = await DatabaseHelper.instance.database;
     var result =
     await database.delete(sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
+    return result;
+  }
+
+  static Future<int> deleteAllSightings() async {
+    Database database = await DatabaseHelper.instance.database;
+    var result =
+    await database.delete(sightingsTable);
     return result;
   }
 

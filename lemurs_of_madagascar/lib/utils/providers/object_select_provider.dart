@@ -171,7 +171,7 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
                     }else if(typeOf<T>() == typeOf<Site>()) {
                       Site site = item as Site;
-                      print(site.title);
+                      //print(site.title);
                       bloc.sightingEventController.add(
                           SightingSiteChangeEvent(item));
                     }

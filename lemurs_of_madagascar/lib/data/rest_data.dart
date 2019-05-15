@@ -16,7 +16,7 @@ class RestData {
   NetworkUtil _networkUtil = NetworkUtil();
 
   //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  static const  SERVER               = "http://192.168.3.242";
+  static const  SERVER               = "http://192.168.2.242";
   static const  LOGIN_ENDPOINT       = SERVER + "/lom_endpoint/api/v1/services/user/login.json";
   static const  LOGOUT_ENDPOINT      = SERVER + "/lom_endpoint/api/v1/services/user/logout.json";
   static const  REGISTER_ENDPOINT    = SERVER + "/lom_endpoint/api/v1/services/user/register.json";
@@ -135,7 +135,7 @@ class RestData {
 
     print("logout .....");
 
-    String userName = await LOMSharedPreferences.loadString(User.nameKey);
+    String userName    = await LOMSharedPreferences.loadString(User.nameKey);
     String sessionName = await LOMSharedPreferences.loadString(User.sessionNameKey);
     String sessionID   = await LOMSharedPreferences.loadString(User.sessionIDKey);
     String token       = await LOMSharedPreferences.loadString(User.tokenKey);
@@ -161,7 +161,15 @@ class RestData {
       ).then((dynamic resultMap) {
 
 
-        /*
+        /*LOMSharedPreferences.setString(User.nameKey,"");
+        LOMSharedPreferences.setString(User.sessionNameKey,"");
+        LOMSharedPreferences.setString(User.sessionIDKey,"");
+        LOMSharedPreferences.setString(User.tokenKey,"");
+        */
+
+        User.clearSharedPreferences(); // Clear all shared preferences
+
+      /*
         if(resultMap[RestData.errorKey] != null) {
           print("#2");
           throw new Exception(resultMap["error_msg"]);

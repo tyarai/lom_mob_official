@@ -107,6 +107,26 @@ class Species extends SelectableListItem {
   }
 
 
+  Future<Photograph> getPhotographObjectAtIndex(int index) async {
+
+    List<String> photoListsID = this.photoIDs.split(",");
+
+    try {
+
+      if (index >= 0 && index < photoListsID.length) {
+        int photoID = int.parse(photoListsID[index]);
+        PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
+        Photograph futurePhoto = await photographDatabaseHelper
+            .getPhotographWithID(id: photoID);
+        return futurePhoto;
+      }
+    }
+    catch(e){
+      print("Species::getPhotoImageAtIndex(int index):" + e.toString());
+    }
+    return null;
+  }
+
   Map<String, dynamic> toMap(){
     var map = Map<String, dynamic>();
 

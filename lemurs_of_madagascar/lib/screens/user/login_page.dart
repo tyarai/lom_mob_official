@@ -100,21 +100,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
         ),
     )
 
-      /*Material(
-          elevation: 1.0,
-          borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
-          color: Colors.limeAccent,
-          //color: Constants.backGroundColor,
-          child:  MaterialButton(
-            minWidth: MediaQuery.of(context).size.width,
-            padding: edgePadding,
-            onPressed: _submit,
-            child:  Text("Register",
-                textAlign: TextAlign.center,
-                style: Constants.buttonTextStyle
-                    .copyWith(color: Constants.mainColor, fontWeight: FontWeight.bold)),
-          ),
-        )*/);
+    );
 
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
