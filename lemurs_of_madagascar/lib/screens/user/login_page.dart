@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
+import 'package:lemurs_of_madagascar/screens/user/user_session.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
@@ -9,7 +10,7 @@ import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 
 
 abstract class LoginPageContract {
-  void onLoginSuccess(User user, {String destPageName = "/introduction"});
+  void onLoginSuccess(List<dynamic> userAndSession, {String destPageName = "/introduction"});
   void onLoginFailure(int statusCode);
   void onSocketFailure();
 }
@@ -22,8 +23,7 @@ class LoginPagePresenter {
   doLogin(String userName, String passWord) {
     loginRestAPI
         .login(userName, passWord)
-        .then((user) => _loginView.onLoginSuccess(user))
-
+        .then((listOfUserAndSession) => _loginView.onLoginSuccess(listOfUserAndSession))
         .catchError((error) {
 
           if(error is SocketException) _loginView.onSocketFailure();
@@ -227,14 +227,17 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
 
   @override
-  void onLoginSuccess(User user, {String destPageName = "/introduction"}) async {
-    //_showSnackBar(user.toString());
+  void onLoginSuccess(List<dynamic> listOfUserAndSession, {String destPageName = "/introduction"}) async {
     setState(() {
       _isLoading = false;
     });
-    //var db = new DatabaseHelper();
-    //await db.saveUser(user);
-    //Navigator.of(context).pushNamed(destPageName);
+
+    User user = listOfUserAndSession[0];
+    UserSession userSession = listOfUserAndSession[1];
+
+    user.saveToSharedPreferences();
+    UserSession.startSession(userSession);
+
     Navigator.of(context).pushReplacementNamed(destPageName);
   }
 

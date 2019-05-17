@@ -35,7 +35,7 @@ class _SightingListPageState extends State<SightingListPage> {
     "Favorite species",
   ];
 
-  String _title = "";
+  //String _title = "";
 
 
   @override
@@ -119,7 +119,7 @@ class _SightingListPageState extends State<SightingListPage> {
           onTap: (int index) {
             setState(() {
               _bottomNavIndex = index;
-              _title = _menuName[_bottomNavIndex];
+              //_title = _menuName[_bottomNavIndex];
             });
             _handleBottomNavTap(_bottomNavIndex);
           },
@@ -141,8 +141,7 @@ class _SightingListPageState extends State<SightingListPage> {
   void _handleBottomNavTap(int index){
 
 
-    Sighting emptySighting = Sighting(title: "empty sighting");
-    //SightingBloc sightingBloc = SightingBloc();
+    Sighting emptySighting = Sighting();
     sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
 
     switch(index) {
@@ -150,10 +149,6 @@ class _SightingListPageState extends State<SightingListPage> {
         Navigator.of(context).push(
             MaterialPageRoute(
             fullscreenDialog: true, builder: (buildContext) =>
-               /*SightingGlobalValues(
-                 child:SightingEditPage("New sighting", sighting : Sighting(photoFileName: "FROM_LIST_VIEW.jpg")),
-                 bloc: SightingBloc(),
-               ))*/
                BlocProvider(
                  child: SightingEditPage("New sighting",emptySighting),
                  bloc: sightingBloc,
@@ -164,14 +159,14 @@ class _SightingListPageState extends State<SightingListPage> {
 
   }
 
-  Widget _newSightingTab() {
+  /*Widget _newSightingTab() {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(height: 10),
 
         ]);
-  }
+  }*/
 
   Widget _buildSearch(){
     return IconButton(
@@ -201,7 +196,7 @@ class _SightingListPageState extends State<SightingListPage> {
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
               //return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
-              return  _SightingListPageState.buildCellItem(context,snapshot.data,index);
+              return  _SightingListPageState.buildCellItem(context,snapshot.data,index,this.sightingBloc);
             });
       },
     );
@@ -216,17 +211,30 @@ class _SightingListPageState extends State<SightingListPage> {
     return null;
   }
 
-  static Widget buildCellItem(BuildContext context,List<Sighting> list,int index)
+  static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc)
   {
 
     if(list != null && list.length > 0 && (index >= 0 && index < list.length)) {
 
       Sighting sighting = list[index];
-      //print(sighting);
+
+
 
       return GestureDetector(
           onTap: () {
-            //SpeciesListPageState.navigateToSpeciesDetails(context, sighting);
+
+            bloc.sightingEventController.add(SightingChangeEvent(sighting));
+            //print("TAPPED ON "+ sighting.toString());
+
+            Navigator.of(context).push(
+                MaterialPageRoute(
+                    fullscreenDialog: true, builder: (buildContext) =>
+                BlocProvider(
+                  child: SightingEditPage("Edit sighting",sighting),
+                  bloc: bloc,
+                ))
+            );
+
           },
           child: Padding(
               padding: EdgeInsets.fromLTRB(5, 5, 5, 5),

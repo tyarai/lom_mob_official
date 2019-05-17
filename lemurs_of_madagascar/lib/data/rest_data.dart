@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:lemurs_of_madagascar/screens/user/user_session.dart';
 import 'package:lemurs_of_madagascar/utils/network_util.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
@@ -57,7 +58,7 @@ class RestData {
   static const  CHANGED_NODES = SERVER +  "/lom_endpoint/api/v1/services/lom_node_services/changed_nodes"; // Misy parama from_date
 
 
-  Future<User> login(String userName, String passWord){
+  Future<List<dynamic>> login(String userName, String passWord){
 
     print("login .....");
 
@@ -83,7 +84,15 @@ class RestData {
           //print("#2");
           throw new Exception(resultMap["error_msg"]);
         }
-        return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
+
+        List<dynamic> userAndSession = List();
+
+        userAndSession.add(User.fromJSONMap(resultMap[userStructureKey]));
+        userAndSession.add(UserSession.fromJSONMap(resultMap));
+
+        return userAndSession;
+
+        //return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
 
       });/* .catchError((LOMException lomException) {
         throw new lomException;
@@ -131,56 +140,51 @@ class RestData {
 
   }
 
-  Future<bool> logOut() async {
+  Future<bool> logOut(User user,UserSession session) async {
 
-    print("logout .....");
+    if(user != null && session != null) {
 
-    String userName    = await LOMSharedPreferences.loadString(User.nameKey);
-    String sessionName = await LOMSharedPreferences.loadString(User.sessionNameKey);
-    String sessionID   = await LOMSharedPreferences.loadString(User.sessionIDKey);
-    String token       = await LOMSharedPreferences.loadString(User.tokenKey);
-    String cookie = sessionName + "=" + sessionID;
+      print("logout .....");
 
-    if(userName.length == 0 || sessionName.length == 0 || sessionID.length == 0 || token.length == 0) return false;
+      /*
+      String userName    = await LOMSharedPreferences.loadString(User.nameKey);
+      String sessionName = await LOMSharedPreferences.loadString(User.sessionNameKey);
+      String sessionID   = await LOMSharedPreferences.loadString(User.sessionIDKey);
+      String token       = await LOMSharedPreferences.loadString(User.tokenKey);
+      String cookie = sessionName + "=" + sessionID;
 
+      if(userName.length == 0 || sessionName.length == 0 || sessionID.length == 0 || token.length == 0) return false;
+      */
 
-    Map<String,String> body = {
-      "username": userName
-    };
+      String cookie = session.sessionName + "=" + session.sessionID;
+      String token = session.token;
 
-    Map<String,String> headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "Cookie": cookie,
-      "X-CSRF-Token": token
-    };
+      Map<String, String> body = {
+        "username": user.name
+      };
 
-    return _networkUtil.post(LOGOUT_ENDPOINT,
+      Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Cookie": cookie,
+        "X-CSRF-Token": token
+      };
+
+      return _networkUtil.post(LOGOUT_ENDPOINT,
         body: json.encode(body),
         headers: headers,
       ).then((dynamic resultMap) {
 
-
-        /*LOMSharedPreferences.setString(User.nameKey,"");
-        LOMSharedPreferences.setString(User.sessionNameKey,"");
-        LOMSharedPreferences.setString(User.sessionIDKey,"");
-        LOMSharedPreferences.setString(User.tokenKey,"");
-        */
-
-        User.clearSharedPreferences(); // Clear all shared preferences
-
-      /*
-        if(resultMap[RestData.errorKey] != null) {
-          print("#2");
-          throw new Exception(resultMap["error_msg"]);
-        }*/
+        //User.clearSharedPreferences(); // Clear all shared preferences
 
         print("LOM :(logout result): " + resultMap.toString());
         return true;
-
-      });/*.catchError((Object error) {
+      }); /*.catchError((Object error) {
           return false;
       });*/
+    }
+
+    return false;
 
   }
 

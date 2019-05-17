@@ -65,7 +65,7 @@ class LOMSharedPreferences{
       resultValue = prefs.getString(paramName);
 
     }catch(e){
-      print(" [Shared preferences - loadUserSession()]  :" + e.toString());
+      print("[Shared preferences - loadUserSession()]  :" + e.toString());
     }
 
     return resultValue;
@@ -79,7 +79,7 @@ class LOMSharedPreferences{
       prefs.setString(paramName,value);
 
     }catch(e){
-      print(" [Shared preferences - saveUserSession()]" + e.toString());
+      print("[Shared preferences - saveUserSession()]" + e.toString());
     }
 
 

@@ -29,7 +29,7 @@ class LOMApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Lemurs of Madagascar',
       theme: ThemeData(
         primarySwatch: Constants.mainColor,
       ),

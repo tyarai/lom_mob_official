@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
+import 'package:lemurs_of_madagascar/screens/user/user_session.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
@@ -32,9 +33,9 @@ class LogOutPresenter {
   RestData logOutRestAPI = RestData();
   LogOutPresenter(this._logOutView);
 
-  doLogOut() {
+  doLogOut(user,session) {
     logOutRestAPI
-        .logOut()
+        .logOut(user,session)
         .then( (bool success) {
           _logOutView.onLogOutSuccess();
           //else print("Bad thing happened");
@@ -284,7 +285,17 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     }
 
     _logOut() {
-      logOutPresenter.doLogOut();
+
+      Future<UserSession> session = UserSession.getCurrentSession();
+      session.then((_session) {
+
+        Future<User> user = User.getCurrentUser();
+        user.then((_user){
+          logOutPresenter.doLogOut(_user,_session);
+        });
+
+      });
+
     }
 
 
@@ -323,10 +334,13 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     void onLogOutSuccess({String destPageName = "/introduction"}) {
 
 
-      LOMSharedPreferences.setString(User.nameKey,"");
+      /*LOMSharedPreferences.setString(User.nameKey,"");
       LOMSharedPreferences.setString(User.sessionNameKey,"");
       LOMSharedPreferences.setString(User.sessionIDKey,"");
-      LOMSharedPreferences.setString(User.tokenKey,"");
+      LOMSharedPreferences.setString(User.tokenKey,"");*/
+
+      UserSession.closeCurrentSession();
+      User.clearCurrentUser();
 
       Navigator.of(context).pushReplacementNamed(destPageName);
 

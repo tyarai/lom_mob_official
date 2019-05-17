@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -8,7 +6,6 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
-import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/location/gps_location.dart';
@@ -16,11 +13,9 @@ import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
-import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:lemurs_of_madagascar/utils/error_text.dart';
 
 
 class SightingEditPage extends StatefulWidget {
@@ -63,6 +58,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
   @override
   void initState() {
     super.initState();
+    _titleController.text = this.sighting.title != null ? this.sighting.title : "";
+    _countController.text = this.sighting.speciesCount != null ? this.sighting.speciesCount.toString() : "";
     _titleController.addListener(_onTitleChanged);
     _countController.addListener(_onNumberChanged);
   }
@@ -149,9 +146,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
 
+    print("EDIT Sighting "+ this.sighting.toString());
+
+    Sighting initialSighting = Sighting.withSighting(this.sighting);
+
     return StreamBuilder<Sighting>(
         stream: bloc.outSighting,
-        initialData: this.sighting,
+        initialData: initialSighting,
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
           if (snapshot.data != null && snapshot.hasData) {
@@ -178,7 +179,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                           _buildPhotoSelection(snapshot.data),
                           Container(height: 10,),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                          _buildSpeciesSelectButton(buildContext,snapshot.data.species),
+                          _buildSpeciesSelectButton(buildContext,Sighting.withSighting(snapshot.data)),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildSitesSelectButton(buildContext,snapshot.data.site),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
@@ -362,51 +363,66 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
 
-  Widget _buildSpeciesSelectButton(BuildContext buildContext, Species species){
+  _buildSpeciesSelectButton(BuildContext buildContext, Sighting sighting){
 
     OnTapCallback onTap = () {
-
       //TODO : Initialize the ListProvider.selected to the current Sighting.species in the stream
       ListProvider<Species> speciesListProvider = ListProvider();
       _navigateToSpeciesSelectList(buildContext,speciesListProvider);
 
     };
 
-    if(species != null) {
-      return  GestureDetector(
-        onTap: onTap,
-        child: Padding(
-            padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-            child: Container(
-                child: Material(
-                  elevation: 0,
-                  borderRadius: BorderRadius.circular(0),
-                  shadowColor: Colors.blueGrey,
-                  child: Padding(
-                      padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Species.buildLemurPhoto(species,width: 100,height: 100),
-                            Container(width: 10),
-                            Species.buildTextInfo(species),
-                            Container(width: 10),
-                            _buildArrow(),
 
-                          ])),
-                ))),
+    Species species = sighting.species;
+
+
+
+    species = sighting.species;
+
+    return  GestureDetector(
+      onTap: onTap,
+      child: Padding(
+          padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+          child: FutureBuilder<bool>(
+            future:sighting.loadSpeciesAndSite(),
+            builder:(context,snapshot){
+
+               if(snapshot.data == null || ! snapshot.hasData){
+
+                 return Container(
+                     child: ListTile(
+                       onTap: onTap,
+                       leading: Icon(Icons.pets),
+                       trailing: Icon(Icons.arrow_forward_ios),
+                       title: Text("Select species",style: Constants.defaultTextStyle,),
+                     ));
+               }
+
+               return Container(
+                   child: Material(
+                     elevation: 0,
+                     borderRadius: BorderRadius.circular(0),
+                     shadowColor: Colors.blueGrey,
+                     child: Padding(
+                         padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                         child: Row(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: <Widget>[
+                               Species.buildLemurPhoto(species,width: 100,height: 100),
+                               Container(width: 10),
+                               Species.buildTextInfo(species),
+                               Container(width: 10),
+                               _buildArrow(),
+
+                             ])),
+
+              ));
+            }))
       );
 
 
-    }
 
-    return Container(
-        child: ListTile(
-          onTap: onTap,
-          leading: Icon(Icons.pets),
-          trailing: Icon(Icons.arrow_forward_ios),
-          title: Text("Select species",style: Constants.defaultTextStyle,),
-        ));
+
 
   }
 
@@ -592,6 +608,9 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
   _buildFormInput(Sighting sighting) {
+
+      print("TEXT "+sighting.toString());
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -610,7 +629,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                         controller: _titleController,
                         style: Constants.formDefaultTextStyle,
                         maxLines: 4,
-
+                        //initialValue: sighting.title,
                         onSaved: (val) => {
                           //_onTitleChanged(val)
                         },
