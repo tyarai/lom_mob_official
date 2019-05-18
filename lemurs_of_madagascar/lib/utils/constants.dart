@@ -5,6 +5,10 @@ typedef void VoidCallBack();
 
 class Constants {
 
+
+  static const String appName  = "Lemurs Of Madagascar";
+  static const String appCreed = "Lemur-watching with Russ. Mittermeier";
+
   static const double listViewImageWidth = 120.0;
   static const double listViewImageHeight = 120.0;
   static const double titleFontSize = 20.0;
@@ -26,7 +30,7 @@ class Constants {
   static const TextStyle titleTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0,color: Colors.black,fontWeight: FontWeight.bold);
 
 
-  static const Color mainColor = Colors.blueGrey;
+
   static const Color backGroundColor = Colors.grey;
   static const Color iconColor = Colors.lime;
   static const TextStyle speciesTitleStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.titleFontSize);
@@ -71,6 +75,14 @@ class Constants {
   static const TextStyle sightingSpeciesCountTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 15,color: Colors.grey,fontWeight: FontWeight.bold);
 
 
+  //Splash screen
+  static const int splashDurationInSecond = 5;
+  static const int splashTransitionDuration = 1000;
+  static const TextStyle splashAppTitleStyle = TextStyle(fontFamily: fontFamily,fontWeight: FontWeight.bold, fontSize: 25,color: Colors.white);
+  static const TextStyle splashAppCreedStyle = TextStyle(fontFamily: fontFamily, fontSize: 18,color: Colors.limeAccent,fontWeight: FontWeight.bold);
+
+  static const Color mainColor = Colors.blueGrey;
+  static const Color mainSplashColor = Colors.blueGrey;
 
 }
 

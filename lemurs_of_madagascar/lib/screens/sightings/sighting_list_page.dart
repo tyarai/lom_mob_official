@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
@@ -52,33 +53,34 @@ class _SightingListPageState extends State<SightingListPage> {
 
     super.initState();
 
-    Future<int> _currentID = UserSession.loadCurrentUserUID();
+    //Future<int> _currentID = UserSession.loadCurrentUserUID();
+    Future<User> user = User.getCurrentUser();
 
-    _currentID.then((value){
+    user.then((_user){
 
-      this.currentUid = value;
+      if(_user != null) {
 
-      try {
+        this.currentUid = _user.uid;
 
-        if (currentUid > 0) {
+        try {
+          if (currentUid > 0) {
+            //print("current UID " + this.currentUid.toString());
 
-          //print("current UID " + this.currentUid.toString());
-
-              if(sightingList.length == 0) {
-                Future<List<Sighting>> futureList = _loadData(currentUid);
-                futureList.then((list) {
-                  setState(() {
-                    sightingList = list;
-                  });
+            if (sightingList.length == 0) {
+              Future<List<Sighting>> futureList = _loadData(currentUid);
+              futureList.then((list) {
+                setState(() {
+                  sightingList = list;
                 });
-              }
-
-            }else{
-              //TODO : The user is not connected. Redirect to login page
+              });
             }
+          } else {
+            //TODO : The user is not connected. Redirect to login page
+          }
+        } catch (e) {
+          print(e.toString());
+        }
 
-      }catch(e){
-        print(e.toString());
       }
 
     });

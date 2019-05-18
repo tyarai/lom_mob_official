@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lemurs_of_madagascar/utils/user_session.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 
 
   Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
@@ -83,12 +83,26 @@ class CameraPageState extends State<CameraPage> {
     _initializeControllerFuture = _controller.initialize();
 
 
-    Future<int> currentUID = UserSession.loadCurrentUserUID();
+    this._currentUID =  0;
+    Future<User> user = User.getCurrentUser();
 
+    user.then((user){
+
+      if(user != null){
+        this._currentUID = user.uid;
+      }
+
+    });
+
+    /*
+
+    Future<int> currentUID = UserSession.loadCurrentUserUID();
     this._currentUID =  0;
     currentUID.then((uid){
        this._currentUID =  uid;
     });
+
+    */
 
 
   }

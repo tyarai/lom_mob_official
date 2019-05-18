@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
-import 'package:lemurs_of_madagascar/screens/user/user_session.dart';
+import 'package:lemurs_of_madagascar/utils/user_session.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';

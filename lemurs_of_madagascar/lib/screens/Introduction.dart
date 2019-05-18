@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
-import 'package:lemurs_of_madagascar/screens/user/user_session.dart';
+import 'package:lemurs_of_madagascar/utils/user_session.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';

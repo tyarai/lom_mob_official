@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/user_session.dart';
@@ -127,48 +128,66 @@ class Sighting {
   }
 
   void saveToDatabase() async {
-    Future<int> _uid = UserSession.loadCurrentUserUID();
 
-    _uid.then((_currentUID) async {
-      this.uid = _currentUID;
 
-      var _uuid = Uuid();
-      this.uuid = _uuid.v1(); // time-based
-      //this.nid  = 0;
-      this.speciesNid = this.species.id;
-      this.placeName = this.site.title;
+    Future<User> user = User.getCurrentUser();
 
-      this.date = this.date == null
-          ? DateTime.now().millisecondsSinceEpoch.toDouble()
-          : this.date;
-      this.created = this.created == null
-          ? DateTime.now().millisecondsSinceEpoch.toDouble()
-          : this.created;
-      this.modified = DateTime.now().millisecondsSinceEpoch.toDouble();
-      this.placeNID = this.site.id;
-      this.uid = this.uid == null ? this.uid : this.uid;
+    //Future<int> _uid = UserSession.loadCurrentUserUID();
 
-      Photograph defaultImage =
-          await this._species.getPhotographObjectAtIndex(0);
-      this.photoFileName = this.photoFileName != null
-          ? this.photoFileName
-          : defaultImage.photoAssetPath(ext: Constants.imageType);
-      print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
-      //this.isLocal    = 1;
-      //this.isSynced   = 0;
-      //this.deleted    = 0;
+    user.then((user) async {
 
-      //this.locked     = 0;
-      //this.hasPhotoChanged = 0;
-      //this.latitude   = this.latitude == 0 ? 0.0 : this.latitude;
-      //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
+      if(user != null) {
 
-      SightingDatabaseHelper db = SightingDatabaseHelper();
-      Future<int> id = db.insertSighting(sighting: this);
+        this.uid = user.uid;
 
-      id.then((newID) {
-        print("Insert successful! New id : $newID");
-      });
+        var _uuid = Uuid();
+        this.uuid = _uuid.v1(); // time-based
+        //this.nid  = 0;
+        this.speciesNid = this.species.id;
+        this.placeName = this.site.title;
+
+        this.date = this.date == null
+            ? DateTime
+            .now()
+            .millisecondsSinceEpoch
+            .toDouble()
+            : this.date;
+        this.created = this.created == null
+            ? DateTime
+            .now()
+            .millisecondsSinceEpoch
+            .toDouble()
+            : this.created;
+        this.modified = DateTime
+            .now()
+            .millisecondsSinceEpoch
+            .toDouble();
+        this.placeNID = this.site.id;
+        this.uid = this.uid == null ? this.uid : this.uid;
+
+        Photograph defaultImage =
+        await this._species.getPhotographObjectAtIndex(0);
+        this.photoFileName = this.photoFileName != null
+            ? this.photoFileName
+            : defaultImage.photoAssetPath(ext: Constants.imageType);
+        print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+        //this.isLocal    = 1;
+        //this.isSynced   = 0;
+        //this.deleted    = 0;
+
+        //this.locked     = 0;
+        //this.hasPhotoChanged = 0;
+        //this.latitude   = this.latitude == 0 ? 0.0 : this.latitude;
+        //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
+
+        SightingDatabaseHelper db = SightingDatabaseHelper();
+        Future<int> id = db.insertSighting(sighting: this);
+
+        id.then((newID) {
+          print("Insert successful! New id : $newID");
+        });
+      }
+
     });
   }
 

@@ -1,7 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:lemurs_of_madagascar/screens/user/user_session.dart';
+import 'package:lemurs_of_madagascar/utils/user_session.dart';
 import 'package:lemurs_of_madagascar/utils/network_util.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
