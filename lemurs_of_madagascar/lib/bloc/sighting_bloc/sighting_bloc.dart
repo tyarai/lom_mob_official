@@ -22,9 +22,9 @@ class SightingBloc implements BlocBase {
   }
 
 
-  void saveSighting(){
-    //print("Saving this sighting " + _sighting.toString());
-    _sighting.saveToDatabase();
+  void saveSighting(bool editing){
+    _sighting.saveToDatabase(editing);
+
   }
 
   Sighting get sighting => this._sighting;

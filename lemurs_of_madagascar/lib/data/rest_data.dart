@@ -80,10 +80,10 @@ class RestData {
 
         print("[REST_DATA::login()] " + resultMap.toString());
 
-        /*if(resultMap[RestData.errorKey] != null) {
+        if(resultMap[RestData.errorKey] != null) {
           //print("#2");
           throw new Exception(resultMap["error_msg"]);
-        }*/
+        }
 
         List<dynamic> userAndSession = List();
 
@@ -95,11 +95,10 @@ class RestData {
         userAndSession.add(UserSession.fromJSONMap(resultMap));
         return userAndSession;
 
-        //  return List();
-        //return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
 
       }).catchError((error) {
           print("[REST_DATA:login()] error:" + error.toString());
+          throw error;
       });
 
   }

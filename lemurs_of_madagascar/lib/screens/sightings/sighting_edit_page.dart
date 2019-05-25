@@ -22,19 +22,21 @@ import 'package:flutter_alert/flutter_alert.dart';
 
 class SightingEditPage extends StatefulWidget {
   final String title;
+  final bool editing;
   final Sighting sighting;
 
-  SightingEditPage(this.title, this.sighting); //,{this.sighting});
+  SightingEditPage(this.title, this.sighting,this.editing); //,{this.sighting});
 
   @override
   State<StatefulWidget> createState() {
     return _SightingEditPageState(
-        this.title, this.sighting); //,sighting: this.sighting);
+        this.title, this.sighting,this.editing); //,sighting: this.sighting);
   }
 }
 
 class _SightingEditPageState extends State<SightingEditPage> {
 
+  final bool _editing;
   Sighting sighting;
   String title;
   List<String> imageFileNameList = List<String>();
@@ -42,7 +44,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
-  _SightingEditPageState(this.title, this.sighting);
+  _SightingEditPageState(this.title, this.sighting,this._editing);
 
 
   TextEditingController _titleController = TextEditingController();
@@ -155,7 +157,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
         setState(() {
           form.save();
           SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-          bloc.saveSighting();
+          bloc.saveSighting(this._editing);
         });
 
         Navigator.of(context).pop();

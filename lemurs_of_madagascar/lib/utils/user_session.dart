@@ -55,10 +55,10 @@ class UserSession {
 
   static Future<UserSession> getCurrentSession() async {
     try {
-      var token = await LOMSharedPreferences.loadString(UserSession.tokenKey);
-      var sessionID = await LOMSharedPreferences.loadString(UserSession.sessionIDKey);
-      var sessionName = await LOMSharedPreferences.loadString(UserSession.sessionNameKey);
-      var date = await LOMSharedPreferences.loadString(UserSession.dateKey);
+      var token = await LOMSharedPreferences.loadString(UserSession.tokenKey) ?? "";
+      var sessionID = await LOMSharedPreferences.loadString(UserSession.sessionIDKey) ?? "";
+      var sessionName = await LOMSharedPreferences.loadString(UserSession.sessionNameKey) ?? "";
+      var date = await LOMSharedPreferences.loadString(UserSession.dateKey) ?? "";
       return UserSession(token, sessionID,sessionName,int.parse(date));
     }catch(e){
       print("[UserSession getCurrentsession()] ${e.toString()}");

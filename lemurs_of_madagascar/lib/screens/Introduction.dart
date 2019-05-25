@@ -36,7 +36,7 @@ class LogOutPresenter {
     logOutRestAPI
         .logOut(user,session)
         .then( (bool success) {
-          _logOutView.onLogOutSuccess();
+          _logOutView.onLogOutSuccess(destPageName: "/login");
           //else print("Bad thing happened");
         })
         .catchError((Object error) {
@@ -115,11 +115,13 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                   children: <Widget>[
                    Row(
                       children:<Widget>[
-                        ConstantImage.getRussImage(),
+                        Expanded(flex:1,child:ConstantImage.getRussImage()),
                         Container(width: 10,),
-                        Hero(
-                          tag: "creed",
-                          child: Expanded(child:Text("Lemur-watching with Russ Mittermeier",
+                        Expanded(
+                          flex:2,
+                          child: Hero(
+                            tag: "creed",
+                            child:Text("Lemur-watching with Russ Mittermeier",
                             style: Constants.titleTextStyle),
                           ),
                         )
@@ -277,9 +279,9 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Icon(Icons.close,size: _iconSize),
         onTap: () {
-          Navigator.pop(context); // Close the drawer
+          //Navigator.pop(context); // Close the drawer
           _logOut();
-          _showIntroduction();
+          //_showIntroduction();
 
         },
       ));
@@ -301,6 +303,9 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     }
 
+    _showLoginPage(){
+      Navigator.pushReplacementNamed(context, '/login');
+    }
 
     _showIntroduction() {
       Navigator.pushNamed(context, '/introduction');
@@ -337,22 +342,17 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     void onLogOutSuccess({String destPageName = "/introduction"}) {
 
 
-      /*LOMSharedPreferences.setString(User.nameKey,"");
-      LOMSharedPreferences.setString(User.sessionNameKey,"");
-      LOMSharedPreferences.setString(User.sessionIDKey,"");
-      LOMSharedPreferences.setString(User.tokenKey,"");*/
-
       UserSession.closeCurrentSession();
       User.clearCurrentUser();
 
       Navigator.of(context).pushReplacementNamed(destPageName);
 
-      showAlert(
+      /*showAlert(
         context: context,
         title: ErrorText.credentialTitle,
         body: SuccessText.logOutSuccess,
         actions: [],
-      );
+      );*/
     }
 
     @override

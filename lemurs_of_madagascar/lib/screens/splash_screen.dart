@@ -146,19 +146,19 @@ class _SplashScreenState extends State<SplashScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: Row(
-                            children: <Widget>[
-                              ConstantImage.getRussImage(),
-                              Padding(
-                                padding: const EdgeInsets.only(top:10.0,left:10),
-                                child: SizedBox(width: 150, child:
-                                Align(alignment: Alignment.center, child:
-                                  Hero(
-                                      tag:"creed",
-                                      child:
-                                    Text(Constants.appCreed,style: Constants.splashAppCreedStyle,textScaleFactor: 1.0,)))),
+                          children:<Widget>[
+                            Expanded(flex:1,child:ConstantImage.getRussImage()),
+                            Container(width: 10,),
+                            Expanded(
+                              flex:2,
+                              child: Hero(
+                                tag: "creed",
+                                child:Text("Lemur-watching with Russ Mittermeier",
+                                    style: Constants.splashAppCreedStyle),
                               ),
-                            ],
-                          ),
+                            )
+                          ],
+                        ),
                       ),
 
 

@@ -108,18 +108,18 @@ class User {
     try {
 
       var uid = int.tryParse(await LOMSharedPreferences.loadString(User.uidKey)) ?? 0;
-      var name = await LOMSharedPreferences.loadString(User.nameKey);
-      var mail = await LOMSharedPreferences.loadString(User.mailKey);
-      var theme = await LOMSharedPreferences.loadString(User.themeKey);
-      var signature = await LOMSharedPreferences.loadString(User.signatureKey);
-      var signatureFormat = await LOMSharedPreferences.loadString(User.signatureFormatKey);
+      var name = await LOMSharedPreferences.loadString(User.nameKey) ?? "";
+      var mail = await LOMSharedPreferences.loadString(User.mailKey) ?? "";
+      var theme = await LOMSharedPreferences.loadString(User.themeKey) ?? "";
+      var signature = await LOMSharedPreferences.loadString(User.signatureKey) ?? "";
+      var signatureFormat = await LOMSharedPreferences.loadString(User.signatureFormatKey) ?? "";
       var created = int.tryParse(await LOMSharedPreferences.loadString(User.createdKey)) ?? 0;
       var access = int.tryParse(await LOMSharedPreferences.loadString(User.accessKey)) ?? 0;
       var login = int.tryParse(await LOMSharedPreferences.loadString(User.loginKey)) ?? 0;
       var status = int.tryParse(await LOMSharedPreferences.loadString(User.statusKey)) ?? 0;
-      var timeZone = await LOMSharedPreferences.loadString(User.timezoneKey);
-      var language = await LOMSharedPreferences.loadString(User.languageKey);
-      var uuid = await LOMSharedPreferences.loadString(User.uuidKey);
+      var timeZone = await LOMSharedPreferences.loadString(User.timezoneKey) ?? "";
+      var language = await LOMSharedPreferences.loadString(User.languageKey) ?? "";
+      var uuid = await LOMSharedPreferences.loadString(User.uuidKey) ?? "";
       //var password = await LOMSharedPreferences.loadString(User.passKey);
 
       return User(

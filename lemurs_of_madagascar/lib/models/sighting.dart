@@ -127,11 +127,9 @@ class Sighting {
     this._species = value;
   }
 
-  void saveToDatabase() async {
+  void saveToDatabase(bool editing) async {
 
     Future<User> user = User.getCurrentUser();
-
-    //Future<int> _uid = UserSession.loadCurrentUserUID();
 
     user.then((user) async {
 
@@ -140,7 +138,7 @@ class Sighting {
         this.uid = user.uid;
 
         var _uuid = Uuid();
-        this.uuid = _uuid.v1(); // time-based
+        this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
         //this.nid  = 0;
         this.speciesNid = this.species.id;
         this.placeName = this.site.title;
@@ -151,12 +149,14 @@ class Sighting {
             .millisecondsSinceEpoch
             .toDouble()
             : this.date;
+
         this.created = this.created == null
             ? DateTime
             .now()
             .millisecondsSinceEpoch
             .toDouble()
             : this.created;
+
         this.modified = DateTime
             .now()
             .millisecondsSinceEpoch
@@ -164,12 +164,12 @@ class Sighting {
         this.placeNID = this.site.id;
         this.uid = this.uid == null ? user.uid  : this.uid;
 
-        Photograph defaultImage =
-        await this._species.getPhotographObjectAtIndex(0);
+        Photograph defaultImage = await this._species.getPhotographObjectAtIndex(0);
         this.photoFileName = this.photoFileName != null
             ? this.photoFileName
             : defaultImage.photoAssetPath(ext: Constants.imageType);
         print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+
         //this.isLocal    = 1;
         //this.isSynced   = 0;
         //this.deleted    = 0;
@@ -180,10 +180,17 @@ class Sighting {
         //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
 
         SightingDatabaseHelper db = SightingDatabaseHelper();
-        Future<int> id = db.insertSighting(sighting: this);
+        Future<int> id;
+
+        if(editing) {
+          id = db.updateSighting(sighting: this);
+        }
+        else{
+          id = db.insertSighting(sighting: this);
+        }
 
         id.then((newID) {
-          print("Insert successful! New id : $newID");
+          print("Successful! New id : $newID");
         });
 
       }else{
@@ -281,7 +288,7 @@ class Sighting {
   Future<bool> _loadSite() async {
     if (this.placeNID != 0) {
       SiteDatabaseHelper db = SiteDatabaseHelper();
-      this._site = await db.getSiteWithID(this.speciesNid);
+      this._site = await db.getSiteWithID(this.placeNID);
       return true;
     }
     return false;

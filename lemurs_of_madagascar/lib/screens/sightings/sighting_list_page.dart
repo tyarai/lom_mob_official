@@ -152,7 +152,7 @@ class _SightingListPageState extends State<SightingListPage> {
             MaterialPageRoute(
             fullscreenDialog: true, builder: (buildContext) =>
                BlocProvider(
-                 child: SightingEditPage("New sighting",emptySighting),
+                 child: SightingEditPage("New sighting",emptySighting,false),
                  bloc: sightingBloc,
                ))
             );
@@ -220,8 +220,6 @@ class _SightingListPageState extends State<SightingListPage> {
 
       Sighting sighting = list[index];
 
-
-
       return GestureDetector(
           onTap: () {
 
@@ -232,7 +230,7 @@ class _SightingListPageState extends State<SightingListPage> {
                 MaterialPageRoute(
                     fullscreenDialog: true, builder: (buildContext) =>
                 BlocProvider(
-                  child: SightingEditPage("Edit sighting",sighting),
+                  child: SightingEditPage("Edit sighting",sighting,true),
                   bloc: bloc,
                 ))
             );

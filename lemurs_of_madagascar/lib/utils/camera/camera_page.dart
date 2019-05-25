@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
+import 'package:flutter_alert/flutter_alert.dart';
 
 
   Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
@@ -69,6 +70,7 @@ class CameraPageState extends State<CameraPage> {
 
   @override
   void initState() {
+
     super.initState();
     // In order to display the current output from the Camera, you need to
     // create a CameraController.
@@ -79,20 +81,36 @@ class CameraPageState extends State<CameraPage> {
       ResolutionPreset.medium,
     );
 
+    this._currentUID =  0;
+
     // Next, you need to initialize the controller. This returns a Future
     _initializeControllerFuture = _controller.initialize();
 
+    _initializeControllerFuture.then((controller){
 
-    this._currentUID =  0;
-    Future<User> user = User.getCurrentUser();
+      Future<User> user = User.getCurrentUser();
 
-    user.then((user){
+      user.then((user){
 
-      if(user != null){
-        this._currentUID = user.uid;
-      }
+        if(user != null){
+          this._currentUID = user.uid;
+        }
+
+      });
+
+    }).catchError((error){
+
+       if(error is CameraException){
+
+         //showAlert(context: context,title: "Camera",body: error.toString(),actions: []);
+         print("[CAMERA_PAGE::initState()] Error "+ error.toString());
+
+       }
 
     });
+
+
+
 
     /*
 
@@ -128,20 +146,29 @@ class CameraPageState extends State<CameraPage> {
   void dispose() {
     // Make sure to dispose of the controller when the Widget is disposed
     _controller.dispose();
-    print("DSIPOSED Camera Controlle ");
+    print("[CAMERA_PAGE::initState()] Disposed camera controller ");
     super.dispose();
   }
 
-  pickImageFromGallery(ImageSource source) {
-    imageFile =  ImagePicker.pickImage(source: source);
+   _pickImageFromGallery(ImageSource source) async {
+
+    try {
+
+      setState(() {
+        this.imageFile = ImagePicker.pickImage(source: source);
+      });
+
+    }catch(e){
+      print("[CAMERA_PAGE::_pickImageFromGallery()] Error :"+e.toString());
+      throw e;
+    }
   }
 
   handleImage(BuildContext context) async {
 
+    _pickImageFromGallery(ImageSource.gallery);
 
-    pickImageFromGallery(ImageSource.gallery);
-
-    imageFile.then((file){
+    this.imageFile.then((file){
 
       //Future<String> docDirectory =  (getApplicationDocumentsDirectory());
 
@@ -153,20 +180,28 @@ class CameraPageState extends State<CameraPage> {
 
         newFileName.then((_newFilePath){
 
-          print("IMAGE PICKER new file" + _newFilePath);
+          if(_newFilePath != null) {
 
-          Navigator.of(context).push(MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (BuildContext context) =>
-                  BlocProvider(
-                      bloc: bloc,
-                      //child: DisplayPictureScreen(imagePath: file.path))),
-                      child: DisplayPictureScreen(_newFilePath))),
-          );
+            print("[CAMERA_PAGE::handleImage()] - Image picker new file :" + _newFilePath);
+
+            Navigator.of(context).push(MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (BuildContext context) =>
+                    BlocProvider(
+                        bloc: bloc,
+                        //child: DisplayPictureScreen(imagePath: file.path))),
+                        child: DisplayPictureScreen(_newFilePath))),
+            );
+          }
+
         });
 
 
       }
+
+    }).catchError((error){
+
+      showAlert(context: context,title: "Camera",body: error.toString(),actions: []);
 
     });
 

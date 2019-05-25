@@ -23,23 +23,41 @@ class SightingDatabaseHelper  {
   }
 
   Future<int> insertSighting({sighting:Sighting}) async {
-    Database database = await DatabaseHelper.instance.database;
-    var result = await database.insert(sightingsTable, sighting.toMap());
-    return result;
+    try {
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.insert(sightingsTable, sighting.toMap());
+      return result;
+    }catch(e){
+      print("[SIGHTING_DATABASE_HELPER::insertSighting()] "+e.toString());
+      return null;
+    }
   }
 
   Future<int> updateSighting({sighting : Sighting}) async {
-    Database database = await DatabaseHelper.instance.database;
-    var result = await database.update(sightingsTable, sighting.toMap(),
-        where: '$idCol = ?', whereArgs: [sighting.id]);
-    return result;
+    try{
+
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.update(sightingsTable, sighting.toMap(),
+          where: '$idCol = ?', whereArgs: [sighting.id]);
+      print(".............updating sighting....");
+      return result;
+
+    }catch(e){
+      print("[SIGHTING_DATABASE_HELPER::updateSighting()] "+e.toString());
+      return null;
+    }
   }
 
   Future<int> deleteSighting({sighting : Sighting}) async {
-    Database database = await DatabaseHelper.instance.database;
-    var result =
-    await database.delete(sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
-    return result;
+    try{
+      Database database = await DatabaseHelper.instance.database;
+      var result =
+      await database.delete(sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
+      return result;
+    }catch(e){
+      print("[SIGHTING_DATABASE_HELPER::deleteSighting()] "+e.toString());
+      return null;
+    }
   }
 
   static Future<int> deleteAllSightings() async {
