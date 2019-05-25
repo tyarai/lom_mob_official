@@ -27,6 +27,8 @@ class SightingBloc implements BlocBase {
     _sighting.saveToDatabase();
   }
 
+  Sighting get sighting => this._sighting;
+
   void _deleteOldPhotoFile(){
 
     if(_sighting.photoFileName != null && _sighting.photoFileName.length > 0){
@@ -56,7 +58,7 @@ class SightingBloc implements BlocBase {
 
     if (event is SightingChangeEvent) {
       _sighting = Sighting.withSighting(event.sighting);
-      //print("Bloc sighting change  "+ _sighting.id.toString());
+      //print("Bloc sighting change  "+ _sighting.toString());
     }
 
     if (event is SightingImageChangeEvent) {
@@ -74,7 +76,7 @@ class SightingBloc implements BlocBase {
     if (event is SightingSpeciesChangeEvent) {
       _sighting.species = event.species;
       _sighting.speciesName = event.species.title;
-      //print("new title ${_sighting.species.title}");
+      //print("new species ${_sighting.species.title}");
     }
 
     if (event is SightingDateChangeEvent) {

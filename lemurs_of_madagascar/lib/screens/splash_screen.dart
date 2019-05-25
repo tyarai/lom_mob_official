@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 
   Future<UserSession> userSession;
-
+  Widget _nextPage;
 
   @override
   void initState() {
@@ -30,19 +30,19 @@ class _SplashScreenState extends State<SplashScreen> {
     userSession.then((session){
 
       if(session != null) {
-        /*Timer(
+        Timer(
             Duration(seconds: Constants.splashDurationInSecond), () {
           _navigateToNextPage(IntroductionPage(title: Constants.appName,),);
           }
-        );*/
+        );
 
       }else{
 
-        /*Timer(
+        Timer(
             Duration(seconds: Constants.splashDurationInSecond), () {
           _navigateToNextPage(LoginPage());
           }
-        );*/
+        );
 
       }
 
@@ -77,6 +77,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -99,13 +101,18 @@ class _SplashScreenState extends State<SplashScreen> {
               children:<Widget>[
 
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     child:Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-
-                        Center(child: Text(Constants.appName,textAlign: TextAlign.center,style: Constants.splashAppTitleStyle, textScaleFactor: 1,)),
+                        /*RaisedButton(
+                          child: Text("TAP"),
+                          onPressed: (){
+                            _navigateToNextPage(context,IntroductionPage(title: Constants.appName,),);
+                          },
+                        ),*/
+                        Center(child: Text(Constants.appName,textAlign: TextAlign.center,style: Constants.splashAppTitleStyle, textScaleFactor: 1.10,)),
                         Padding(padding: EdgeInsets.only(bottom:100),),
                         /*CircleAvatar(
                           backgroundColor:Colors.white,
@@ -140,18 +147,15 @@ class _SplashScreenState extends State<SplashScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: Row(
                             children: <Widget>[
-                              CircleAvatar(
-                                backgroundColor:Colors.white,
-                                radius: 50,
-                                //child: Icon(Icons.pets,color: Constants.mainColor,size:50),
-                                backgroundImage :
-                                AssetImage(
-                                    "assets/images/ram-everglades(resized).jpg"),
-
-                              ),
+                              ConstantImage.getRussImage(),
                               Padding(
                                 padding: const EdgeInsets.only(top:10.0,left:10),
-                                child: SizedBox(width: 150, child: Align(alignment: Alignment.center, child: Text(Constants.appCreed,style: Constants.splashAppCreedStyle,textScaleFactor: 1.0,))),
+                                child: SizedBox(width: 150, child:
+                                Align(alignment: Alignment.center, child:
+                                  Hero(
+                                      tag:"creed",
+                                      child:
+                                    Text(Constants.appCreed,style: Constants.splashAppCreedStyle,textScaleFactor: 1.0,)))),
                               ),
                             ],
                           ),

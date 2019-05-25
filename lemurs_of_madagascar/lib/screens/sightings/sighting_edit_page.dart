@@ -146,19 +146,20 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
 
-    print("EDIT Sighting "+ this.sighting.toString());
+    //print("EDIT Sighting "+ this.sighting.toString());
 
-    Sighting initialSighting = Sighting.withSighting(this.sighting);
+    //Sighting initialSighting = Sighting.withSighting(this.sighting);
 
     return StreamBuilder<Sighting>(
         stream: bloc.outSighting,
-        initialData: initialSighting,
+        //initialData: initialSighting,
+        initialData: this.sighting,
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
 
           if (snapshot.data != null && snapshot.hasData) {
 
-
-            //print(snapshot.data.toString());
+            //print("----->"+ snapshot.data.toString());
+            //print("----->"+ sighting.toString());
 
             return ListView(
                 children: <Widget>[
@@ -179,7 +180,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                           _buildPhotoSelection(snapshot.data),
                           Container(height: 10,),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
-                          _buildSpeciesSelectButton(buildContext,Sighting.withSighting(snapshot.data)),
+                          _buildSpeciesSelectButton(buildContext,snapshot.data.species),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildSitesSelectButton(buildContext,snapshot.data.site),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
@@ -290,29 +291,65 @@ class _SightingEditPageState extends State<SightingEditPage> {
 }
 
   _getUpdateLocationButton(SightingBloc bloc) {
-    return OutlineButton(
-      padding: EdgeInsets.all(15),
-      child: Text("update GPS location",
-          textAlign: TextAlign.center,
-          style: Constants.flatButtonTextStyle
-              .copyWith(color: Constants.mainColor)),
-      onPressed: () {
+    return Container(
+      width:MediaQuery.of(context).size.width,
+      child: Row(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex:1,
+            //crossAxisAlignment: CrossAxisAlignment.start,
+            child: OutlineButton(
+              padding: EdgeInsets.all(5),
+              child: Text("update GPS location",textScaleFactor: 1,
+                  textAlign: TextAlign.center,
+                  style: Constants.flatButtonTextStyle
+                      .copyWith(color: Constants.mainColor)),
+              onPressed: () {
 
-        Future<LocationData> locationData = GPSLocation.getOneTimeLocation();
+                Future<LocationData> locationData = GPSLocation.getOneTimeLocation();
 
-        if(locationData != null){
+                if(locationData != null){
 
-          locationData.then((_locationData){
-            bloc.sightingEventController.add(SightingLocationChangeEvent(longitude:_locationData.longitude, latitude: _locationData.latitude, altitude:_locationData.altitude));
-          });
+                  locationData.then((_locationData){
+                    bloc.sightingEventController.add(SightingLocationChangeEvent(longitude:_locationData.longitude, latitude: _locationData.latitude, altitude:_locationData.altitude));
+                  });
 
-        }
+                }
 
-      }, //callback when button is clicked
-      borderSide: BorderSide(
-        color: Constants.registerBtnBorderColor, //Color of the border
-        style: BorderStyle.solid, //Style of the border
-        width: 0.5, //width of the border
+              }, //callback when button is clicked
+              borderSide: BorderSide(
+                color: Constants.registerBtnBorderColor, //Color of the border
+                style: BorderStyle.solid, //Style of the border
+                width: 0.5, //width of the border
+              ),
+            ),
+          ),
+          Padding(padding: EdgeInsets.only(right: 10),),
+          Expanded(
+            flex:1,
+            //crossAxisAlignment: CrossAxisAlignment.end,
+            child: OutlineButton(
+              padding: EdgeInsets.all(5),
+              child: Text("clear GPS location",textScaleFactor: 1,
+                  textAlign: TextAlign.center,
+                  style: Constants.flatRedButtonTextStyle
+                      .copyWith(color: Colors.red)),
+              onPressed: () {
+
+                bloc.sightingEventController.add(SightingLocationChangeEvent(longitude:0.0, latitude: 0.0, altitude: 0.0));
+
+
+              }, //callback when button is clicked
+              borderSide: BorderSide(
+                color: Colors.red, //Color of the border
+                style: BorderStyle.solid, //Style of the border
+                width: 0.5, //width of the border
+              ),
+            ),
+          ),
+      ]
       ),
     );
   }
@@ -363,7 +400,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
 
-  _buildSpeciesSelectButton(BuildContext buildContext, Sighting sighting){
+  /* _buildSpeciesSelectButton(BuildContext buildContext, Sighting _sighting){
 
     OnTapCallback onTap = () {
       //TODO : Initialize the ListProvider.selected to the current Sighting.species in the stream
@@ -372,60 +409,109 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
     };
 
+    Species species = _sighting.species;
 
-    Species species = sighting.species;
-
-
-
-    species = sighting.species;
 
     return  GestureDetector(
       onTap: onTap,
       child: Padding(
-          padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-          child: FutureBuilder<bool>(
-            future:sighting.loadSpeciesAndSite(),
-            builder:(context,snapshot){
+        padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+        child: FutureBuilder<bool>(
+          future:_sighting.loadSpeciesAndSite(),
+          builder:(context,snapshot){
 
-               if(snapshot.data == null || ! snapshot.hasData){
-
-                 return Container(
-                     child: ListTile(
-                       onTap: onTap,
-                       leading: Icon(Icons.pets),
-                       trailing: Icon(Icons.arrow_forward_ios),
-                       title: Text("Select species",style: Constants.defaultTextStyle,),
-                     ));
-               }
+             if(snapshot.data == null || ! snapshot.hasData){
 
                return Container(
-                   child: Material(
-                     elevation: 0,
-                     borderRadius: BorderRadius.circular(0),
-                     shadowColor: Colors.blueGrey,
-                     child: Padding(
-                         padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                         child: Row(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: <Widget>[
-                               Species.buildLemurPhoto(species,width: 100,height: 100),
-                               Container(width: 10),
-                               Species.buildTextInfo(species),
-                               Container(width: 10),
-                               _buildArrow(),
+                 child: ListTile(
+                   onTap: onTap,
+                   leading: Icon(Icons.pets),
+                   trailing: Icon(Icons.arrow_forward_ios),
+                   title: Text("Select species",style: Constants.defaultTextStyle,),
+                 ));
+             }
 
-                             ])),
+             return Container(
+                 child: Material(
+                   elevation: 0,
+                   borderRadius: BorderRadius.circular(0),
+                   shadowColor: Colors.blueGrey,
+                   child: Padding(
+                       padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                       child: Row(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: <Widget>[
+                             Species.buildLemurPhoto(species,width: 100,height: 100),
+                             Container(width: 10),
+                             Species.buildTextInfo(species),
+                             Container(width: 10),
+                             _buildArrow(),
 
-              ));
-            }))
+                           ])),
+
+            ));
+          }))
       );
+  } */
+
+  _buildSpeciesSelectButton(BuildContext buildContext, Species species){
+
+    OnTapCallback onTap = () {
+      //TODO : Initialize the ListProvider.selected to the current Sighting.species in the stream
+      ListProvider<Species> speciesListProvider = ListProvider();
+      _navigateToSpeciesSelectList(buildContext,speciesListProvider);
+
+    };
+
+    //SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+    //Species species = bloc.sighting.species;
 
 
+    if(species != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          child: Material(
+            elevation: 0,
+            borderRadius: BorderRadius.circular(0),
+            shadowColor: Colors.blueGrey,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Species.buildLemurPhoto(
+                      species, width: 100, height: 100),
+                  Container(width: 10),
+                  Species.buildTextInfo(species),
+                  Container(width: 10),
+                  _buildArrow(),
 
+                ])),
+
+          )
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+        child: Container(
+          child: ListTile(
+            onTap: onTap,
+            leading: Icon(Icons.pets),
+            trailing: Icon(Icons.arrow_forward_ios),
+            title: Text(
+              "Select species", style: Constants.defaultTextStyle,),
+          )
+        )
+      )
+    );
 
 
   }
-
 
   _buildArrow(){
     return Container(
@@ -609,7 +695,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
   _buildFormInput(Sighting sighting) {
 
-      print("TEXT "+sighting.toString());
+      //print("TEXT "+sighting.toString());
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,

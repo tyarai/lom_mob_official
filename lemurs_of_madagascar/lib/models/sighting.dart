@@ -254,18 +254,14 @@ class Sighting {
 
   Future<bool> loadSpeciesAndSite() async  {
 
-    await this._loadSpecies().then((finished){
+    return this._loadSpecies().then((finished){
       if(finished){
         this._loadSite().then((finished){
-          print("LOADED DATA");
           return finished;
-
         });
       }
       return finished;
     });
-
-    return false;
 
   }
 
@@ -318,56 +314,60 @@ class Sighting {
     String formattedDate = DateFormat.yMMMMd("en_US")
         .format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
-    return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
-      //Image.file(File(sighting.photoFileName)),
-      Sighting.getImage(sighting),
-      Container(height: 5),
-      Text(
-        sighting.speciesName,
-        style: Constants.sightingSpeciesNameTextStyle,
-      ),
-      //sighting.species?.getItemCell(ListProvider provider,int index,BuildContext context, OnSelectCallback onSelectCallback);
-      Container(height: 5),
-      Row(
+    if(sighting != null) {
+      return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
+        //Image.file(File(sighting.photoFileName)),
+        Sighting.getImage(sighting),
+        Container(height: 5),
+        Text(
+          sighting.speciesName,
+          style: Constants.sightingSpeciesNameTextStyle,
+        ),
+        //sighting.species?.getItemCell(ListProvider provider,int index,BuildContext context, OnSelectCallback onSelectCallback);
+        Container(height: 5),
+        Row(
           //mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            //Image.asset("assets/images/icons/ico_specy.png",width: 25,height: 25,color: Constants.mainColor,),
-            //Container(width: 5),
-            Expanded(
-              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              //Image.asset("assets/images/icons/ico_specy.png",width: 25,height: 25,color: Constants.mainColor,),
+              //Container(width: 5),
+              Expanded(
+                child: Column(
                   //mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      sighting.speciesCount.toString() + " species observed",
-                      style: Constants.sightingSpeciesCountTextStyle,
-                    )
-                  ]),
-            ),
-            Container(width: 10),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      formattedDate,
-                      style: Constants.sightingSpeciesCountTextStyle,
-                    )
-                  ]),
-            ),
-          ]),
-      Container(height: 5),
-      Text(
-        sighting.placeName,
-        style: Constants.sightingSpeciesCountTextStyle,
-      ),
-      Container(height: 10),
-      Text(
-        sighting.title,
-        style: Constants.sightingTitleTextStyle,
-      )
-    ]);
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        sighting.speciesCount.toString() + " species observed",
+                        style: Constants.sightingSpeciesCountTextStyle,
+                      )
+                    ]),
+              ),
+              Container(width: 10),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        formattedDate,
+                        style: Constants.sightingSpeciesCountTextStyle,
+                      )
+                    ]),
+              ),
+            ]),
+        Container(height: 5),
+        Text(
+          sighting.placeName,
+          style: Constants.sightingSpeciesCountTextStyle,
+        ),
+        Container(height: 10),
+        Text(
+          sighting.title,
+          style: Constants.sightingTitleTextStyle,
+        )
+      ]);
+    }
+
+    return Container();
   }
 
   static void deleteAllSightings() {

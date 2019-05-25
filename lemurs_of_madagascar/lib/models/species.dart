@@ -303,40 +303,52 @@ class Species extends SelectableListItem {
   static Widget loadHeroImage(Species species,
       {double width = Constants.listViewImageWidth,
         double height = Constants.listViewImageWidth}) {
-    return Hero(
-        tag: species.imageFile + species.id.toString(),
-        child: Image.asset(
-          species.imageFile,
-          width: width,
-          height: height,
-        ));
+
+    if(species != null) {
+      return Hero(
+          tag: species.imageFile + species.id.toString(),
+          child: Image.asset(
+            species.imageFile,
+            width: width,
+            height: height,
+          ));
+    }
+    return Container();
   }
 
   static Widget loadHeroTitle(Species species,{TextStyle style = Constants.speciesTitleStyle}) {
-    return Hero(
-        tag: species.title + species.id.toString(),
-        child: Material(
-          color: Colors.transparent,
-          child:Text(species.title,style:style))
+    if(species != null) {
+      return Hero(
+          tag: species.title + species.id.toString(),
+          child: Material(
+              color: Colors.transparent,
+              child: Text(species.title, style: style))
       );
+    }
+    return Container();
   }
 
 
   static Widget buildTextInfo(Species species,{bool showMalagasy = true,CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
-    return Expanded(
-      child: Column(
-          crossAxisAlignment: crossAlignment,
-          children: <Widget>[
-            Species.loadHeroTitle(species),
-            Container(height: 10),
-            showMalagasy ?
-            Material(
-                color: Colors.transparent,
-                child:
-              Text(species.malagasy,
-                style: TextStyle(fontSize: Constants.subTitleFontSize))) : Container(),
-          ]),
-    );
+    if(species != null) {
+      return Expanded(
+        child: Column(
+            crossAxisAlignment: crossAlignment,
+            children: <Widget>[
+              Species.loadHeroTitle(species),
+              Container(height: 10),
+              showMalagasy
+                  ?
+              Material(
+                  color: Colors.transparent,
+                  child:
+                  Text(species.malagasy,
+                      style: TextStyle(fontSize: Constants.subTitleFontSize)))
+                  : Container(),
+            ]),
+      );
+    }
+    return Container();
   }
 
   static Widget buildInfo(String info,{TextStyle style = Constants.defaultTextStyle, CrossAxisAlignment crossAlignment = CrossAxisAlignment.start, MainAxisAlignment mainAlignment = MainAxisAlignment.start}) {
@@ -383,12 +395,9 @@ class Species extends SelectableListItem {
   {
     return GestureDetector(
         onTap: () {
-
           provider.selectedItem = this;
           provider.selectedItemIndex = index;
           onSelectCallback(this);
-
-
         },
         child: Padding(
             padding: EdgeInsets.fromLTRB(5, 5, 5, 5),

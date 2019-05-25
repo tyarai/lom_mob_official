@@ -22,7 +22,8 @@ class Constants {
   static const double iconSize = 40.0;
 
   static const String fontFamily = 'Montserrat';
-  static const TextStyle flatButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 22.0,color: mainColor);
+  static const TextStyle flatButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0,color: mainColor);
+  static const TextStyle flatRedButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0,color: Colors.red);
   static const TextStyle buttonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0);
   static const TextStyle subButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 15.0);
   static const TextStyle appTitle = TextStyle(fontFamily: fontFamily, fontSize: 15.0,color: Colors.green);
@@ -86,6 +87,39 @@ class Constants {
 
 }
 
+class ConstantImage {
 
+    static Widget getRussImage({bool avatar = false,double width = 100.0, double height = 100.0}){
+
+    String imagePath = "assets/images/ram-everglades(resized).jpg";
+
+    return !avatar ?
+    /*Hero(
+      tag : "russimage",
+        child : Image.asset(imagePath,width: width,height: height,),
+
+                )*/
+    Hero(
+        tag: "russimage",
+        child:
+        Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.fill,
+                ))))
+        :
+    CircleAvatar(
+      backgroundColor:Colors.white,
+      radius: 50,
+      //child: Icon(Icons.pets,color: Constants.mainColor,size:50),
+      backgroundImage : AssetImage(imagePath),
+    );
+
+  }
+}
 
 

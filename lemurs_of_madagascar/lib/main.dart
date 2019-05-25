@@ -17,7 +17,7 @@ final routes = {
   //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),//(BuildContext context) => LoginPage(),
   '/'                : (BuildContext context) => SplashScreen(),
   '/sighting_list'   : (BuildContext context) => SightingListPage(title:"My sightings"),
-  '/splash_screen'   : (BuildContext context) => SplashScreen(),
+  //'/splash_screen'   : (BuildContext context) => SplashScreen(),
 
 
 };

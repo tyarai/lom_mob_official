@@ -19,7 +19,7 @@ Type typeOf<T>() => T;
 
 abstract class SelectableListItem {
 
-  Widget getItemCell(ListProvider provider, int index,BuildContext context, OnSelectCallback onSelectCallback,
+  Widget  getItemCell(ListProvider provider, int index,BuildContext context, OnSelectCallback onSelectCallback,
   {
     double borderRadius = Constants.speciesImageBorderRadius,
     double elevation    = 2.5,
@@ -81,8 +81,6 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
   @override
   void initState() {
-
-    //print("#0");
 
     super.initState();
     if(_listProvider.list != null && _listProvider.list.length == 0) {
@@ -165,15 +163,16 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
                   setState(() {
 
+                    print("CLICKED");
+
                     if(typeOf<T>() == typeOf<Species>()) {
 
                       bloc.sightingEventController.add(SightingSpeciesChangeEvent(item));
 
                     }else if(typeOf<T>() == typeOf<Site>()) {
-                      Site site = item as Site;
+                      //Site site = item as Site;
                       //print(site.title);
-                      bloc.sightingEventController.add(
-                          SightingSiteChangeEvent(item));
+                      bloc.sightingEventController.add(SightingSiteChangeEvent(item));
                     }
                   });
 
@@ -201,7 +200,8 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
             if(!snapshot.hasData || snapshot.data.title == null) return
                 Text(this.title, style: Constants.appBarTitleStyle,);
             //TODO The AppBar titles is not yet updated
-            return Text(snapshot.data.title, style: Constants.appBarTitleStyle,);
+            //return Text(snapshot.data.title, style: Constants.appBarTitleStyle,);
+            return Text(this.title, style: Constants.appBarTitleStyle,);
           }
 
       )

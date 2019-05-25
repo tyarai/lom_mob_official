@@ -106,7 +106,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                   children: <Widget>[
                    Row(
                       children:<Widget>[
-                        Container(
+                        /*Container(
                             width: 125,
                             height: 125,
                             decoration: BoxDecoration(
@@ -116,9 +116,14 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                                       "assets/images/ram-everglades(resized).jpg"),
                                   fit: BoxFit.fill,
                                 ))),
+                        */
+                        ConstantImage.getRussImage(),
                         Container(width: 10,),
-                        Expanded(child:Text("Lemur-watching with Russ Mittermeier",
-                          style: Constants.titleTextStyle),
+                        Hero(
+                          tag: "creed",
+                          child: Expanded(child:Text("Lemur-watching with Russ Mittermeier",
+                            style: Constants.titleTextStyle),
+                          ),
                         )
                       ],
                     ),
