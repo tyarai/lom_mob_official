@@ -232,6 +232,8 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       _isLoading = false;
     });
 
+    print("[LOGIN_PAGE::onLoginSuccess()]" + listOfUserAndSession.toString());
+
     User user = listOfUserAndSession[0];
     UserSession userSession = listOfUserAndSession[1];
 

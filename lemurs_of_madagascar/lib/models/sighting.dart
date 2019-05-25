@@ -129,14 +129,13 @@ class Sighting {
 
   void saveToDatabase() async {
 
-
     Future<User> user = User.getCurrentUser();
 
     //Future<int> _uid = UserSession.loadCurrentUserUID();
 
     user.then((user) async {
 
-      if(user != null) {
+      if(user != null && user.uid != 0 && user.uuid != null) {
 
         this.uid = user.uid;
 
@@ -163,7 +162,7 @@ class Sighting {
             .millisecondsSinceEpoch
             .toDouble();
         this.placeNID = this.site.id;
-        this.uid = this.uid == null ? this.uid : this.uid;
+        this.uid = this.uid == null ? user.uid  : this.uid;
 
         Photograph defaultImage =
         await this._species.getPhotographObjectAtIndex(0);
@@ -186,6 +185,9 @@ class Sighting {
         id.then((newID) {
           print("Insert successful! New id : $newID");
         });
+
+      }else{
+        print("[Sighting::saveToDatabase()] no User logged-in!");
       }
 
     });

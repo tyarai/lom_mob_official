@@ -13,7 +13,6 @@ import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/success_text.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
-import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 
 
@@ -82,6 +81,16 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     @override
     Widget build(BuildContext context) {
+
+
+      /*User.getCurrentUser().then((user){
+        if(user != null) {
+          print("[INTRODUCTION::build()] user :" + user.toString());
+        }else{
+          print("[INTRODUCTION::build()] user : NULL");
+        }
+      });*/
+
       if (menuList == null) {
         menuList = List<Menu>();
         _updateUI();
@@ -106,17 +115,6 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                   children: <Widget>[
                    Row(
                       children:<Widget>[
-                        /*Container(
-                            width: 125,
-                            height: 125,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                      "assets/images/ram-everglades(resized).jpg"),
-                                  fit: BoxFit.fill,
-                                ))),
-                        */
                         ConstantImage.getRussImage(),
                         Container(width: 10,),
                         Hero(
@@ -357,8 +355,8 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
       );
     }
 
-  @override
-  void onSocketFailure() {
+    @override
+    void onSocketFailure() {
     setState(() {
       _isLoading = false;
     });

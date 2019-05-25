@@ -85,6 +85,10 @@ class Constants {
   static const Color mainColor = Colors.blueGrey;
   static const Color mainSplashColor = Colors.blueGrey;
 
+
+  // GPS Location
+  static const int gpsPrecision = 12;
+
 }
 
 class ConstantImage {

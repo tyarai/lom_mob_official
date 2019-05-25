@@ -78,25 +78,29 @@ class RestData {
         headers: headers,
       ).then((dynamic resultMap) {
 
-        //print("LOM :(login result): " + resultMap.toString());
+        print("[REST_DATA::login()] " + resultMap.toString());
 
-        if(resultMap[RestData.errorKey] != null) {
+        /*if(resultMap[RestData.errorKey] != null) {
           //print("#2");
           throw new Exception(resultMap["error_msg"]);
-        }
+        }*/
 
         List<dynamic> userAndSession = List();
 
+        //print("[REST_DATA::login()] USER :" + resultMap[userStructureKey].toString());
+        //print("[REST_DATA::login()] SESSION :" + resultMap.toString());
+
+
         userAndSession.add(User.fromJSONMap(resultMap[userStructureKey]));
         userAndSession.add(UserSession.fromJSONMap(resultMap));
-
         return userAndSession;
 
+        //  return List();
         //return new User.fromJSONMap(resultMap[userStructureKey],userSession: resultMap);
 
-      });/* .catchError((LOMException lomException) {
-        throw new lomException;
-      });*/
+      }).catchError((error) {
+          print("[REST_DATA:login()] error:" + error.toString());
+      });
 
   }
 

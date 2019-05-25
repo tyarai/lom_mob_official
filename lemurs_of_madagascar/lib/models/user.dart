@@ -98,43 +98,45 @@ class User {
     LOMSharedPreferences.setString(User.languageKey, this.language);
     LOMSharedPreferences.setString(User.uuidKey, this.uuid);
 
+    print("[User::saveToSharedPreferences()] Successful!" );
+
+
   }
 
   static Future<User> getCurrentUser() async {
     
     try {
 
-      var uid = await LOMSharedPreferences.loadString(User.uidKey);
+      var uid = int.tryParse(await LOMSharedPreferences.loadString(User.uidKey)) ?? 0;
       var name = await LOMSharedPreferences.loadString(User.nameKey);
       var mail = await LOMSharedPreferences.loadString(User.mailKey);
       var theme = await LOMSharedPreferences.loadString(User.themeKey);
       var signature = await LOMSharedPreferences.loadString(User.signatureKey);
       var signatureFormat = await LOMSharedPreferences.loadString(User.signatureFormatKey);
-      var created = await LOMSharedPreferences.loadString(User.createdKey);
-      var access = await LOMSharedPreferences.loadString(User.accessKey);
-      var login = await LOMSharedPreferences.loadString(User.loginKey);
-      var status = await LOMSharedPreferences.loadString(User.statusKey);
+      var created = int.tryParse(await LOMSharedPreferences.loadString(User.createdKey)) ?? 0;
+      var access = int.tryParse(await LOMSharedPreferences.loadString(User.accessKey)) ?? 0;
+      var login = int.tryParse(await LOMSharedPreferences.loadString(User.loginKey)) ?? 0;
+      var status = int.tryParse(await LOMSharedPreferences.loadString(User.statusKey)) ?? 0;
       var timeZone = await LOMSharedPreferences.loadString(User.timezoneKey);
       var language = await LOMSharedPreferences.loadString(User.languageKey);
       var uuid = await LOMSharedPreferences.loadString(User.uuidKey);
-      var password = await LOMSharedPreferences.loadString(User.passKey);
+      //var password = await LOMSharedPreferences.loadString(User.passKey);
 
-      
       return User(
-        uid: int.parse(uid),
+        uid: uid,
         name: name,
         mail: mail,
         theme: theme,
         signature: signature,
         signatureFormat: signatureFormat,
-        created: int.parse(created),
-        access: int.parse(access),
-        login: int.parse(login),
-        status:int.parse(status),
+        created: created,
+        access: access,
+        login: login,
+        status:status,
         timezone: timeZone,
         language: language,
         uuid: uuid,
-        password: password,
+        //password: password,
       );
       
     }catch(e){
@@ -158,7 +160,7 @@ class User {
     LOMSharedPreferences.setString(User.timezoneKey, "");
     LOMSharedPreferences.setString(User.languageKey, "");
     LOMSharedPreferences.setString(User.uuidKey, "");
-    LOMSharedPreferences.setString(User.passKey, "");
+    //LOMSharedPreferences.setString(User.passKey, "");
 
   }
 
@@ -180,6 +182,10 @@ class User {
     return map;
   }
 
+  @override
+  String toString() {
+    return "$uid - $name";
+  }
 
 
 }

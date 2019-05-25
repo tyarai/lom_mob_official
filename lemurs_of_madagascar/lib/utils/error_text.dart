@@ -12,6 +12,8 @@ class ErrorText {
   static String unreachableAddress = "Unable to reach the server!\nPlease check your connection and try again";
 
   static String invalidIntegerNumber = "Invalid number!\n";
+  static String noSpeciesError = "Please select a species!\n";
+  static String noSiteError = "Please Select a site!\n";
   static String emptyString = "No value provided!\n";
 
 }

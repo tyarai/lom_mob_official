@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/location/gps_location.dart';
 import 'dart:core';
@@ -16,6 +17,7 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_alert/flutter_alert.dart';
 
 
 class SightingEditPage extends StatefulWidget {
@@ -121,22 +123,43 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
   }
 
+  bool _validateSighting(BuildContext context){
+
+    SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+    Sighting sightingToSave = bloc.sighting;
+    print("VALIDATE" + sightingToSave.toString());
+
+    if(sightingToSave.species == null){
+
+      showAlert(context: context,title: this.title,body:ErrorText.noSpeciesError,actions: []);
+      return false;
+    }
+    if(sightingToSave.site == null){
+
+      showAlert(context: context,title: this.title,body:ErrorText.noSiteError,actions: []);
+      return false;
+    }
+
+    return true;
+
+  }
+
 
   _submit(BuildContext buildContext) {
 
     final form = formKey.currentState;
 
-    if (form.validate()) {
+    if(_validateSighting(buildContext)) {
 
-      setState(() {
+      if (form.validate()) {
+        setState(() {
+          form.save();
+          SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+          bloc.saveSighting();
+        });
 
-        form.save();
-        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-        bloc.saveSighting();
-
-      });
-
-      Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
 
     }
   }
@@ -273,12 +296,32 @@ class _SightingEditPageState extends State<SightingEditPage> {
                       children:<Widget>[
 
 
-                      Text("Longitude : $long",style: Constants.defaultSubTextStyle,),
-                      Container(height: 5,),
-                      Text("Latitude  : $lat",style: Constants.defaultSubTextStyle,),
-                      Container(height: 5,),
-                      Text("Altitude  : $alt",style: Constants.defaultSubTextStyle,),
-                      Container(height: 5,),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children:
+                          [
+                            Expanded(flex:1,child:Text("Longitude",style: Constants.defaultSubTextStyle.copyWith(fontWeight: FontWeight.w700),)),
+                            Expanded(flex:1,child:Text(long.toStringAsPrecision(Constants.gpsPrecision),style: Constants.defaultSubTextStyle,)),
+                          ]
+                      ),
+                      Padding(padding: EdgeInsets.only(top:5),),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                        [
+                          Expanded(flex:1,child:Text("Latitude",style: Constants.defaultSubTextStyle.copyWith(fontWeight: FontWeight.w700),)),
+                          Expanded(flex:1,child:Text(lat.toStringAsPrecision(Constants.gpsPrecision),style: Constants.defaultSubTextStyle,)),
+                        ]
+                      ),
+                      Padding(padding: EdgeInsets.only(top:5),),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                        [
+                          Expanded(flex:1,child:Text("Altitude",style: Constants.defaultSubTextStyle.copyWith(fontWeight: FontWeight.w700),)),
+                          Expanded(flex:1,child:Text(alt.toStringAsPrecision(Constants.gpsPrecision),style: Constants.defaultSubTextStyle,)),
+                        ]
+                      ),
             ]),
                 )),
 

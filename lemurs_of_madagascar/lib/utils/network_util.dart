@@ -29,7 +29,7 @@ class NetworkUtil {
         .post(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {
 
-       print("respone" + response.body);
+       print("[NETWORK_UTIL::post()]" + response.body);
 
       final String res = response.body;
       final int statusCode = response.statusCode;
@@ -43,10 +43,12 @@ class NetworkUtil {
 
       return decodedData;
 
-    });/*.catchError((Object error){
+    }).catchError((Object error){
 
         //@TODO Handle SocketException when the user does not have to internet.
+      print("[NETWORK_UTIL::post()] error" + error.toString());
+      throw error;
 
-    });*/
+    });
   }
 }
