@@ -153,10 +153,6 @@ class CameraPageState extends State<CameraPage> {
     this._newFileName  = this._newFileName.replaceAll(".", "-");
     this._newFileName  = this._newFileName + "." + ext;
 
-
-
-    //print("NEW FILE NAME $_newFileName");
-
     newFilePath = join(newFilePath, this._newFileName);
 
     if(oldFile != null && oldFile.existsSync()) {
@@ -164,16 +160,11 @@ class CameraPageState extends State<CameraPage> {
       return oldFile.copy(newFilePath).then((_newFile){
 
         print("[CAMERA_PAGE::copyFileToDocuments()] file copied to " + _newFile.path);
-
-      }).then((_){
-
         String oldPath = oldFile.path;
         oldFile.deleteSync();
         print("[CAMERA_PAGE::copyFileToDocuments()] old file deleted " + oldPath);
 
-      }).then((_newFile) {
-
-        return _newFile;
+        return _newFile.path;
 
       });
 
@@ -211,7 +202,6 @@ class CameraPageState extends State<CameraPage> {
 
     this.imageFile.then((file){
 
-      //Future<String> docDirectory =  (getApplicationDocumentsDirectory());
 
       if(file != null) {
 
@@ -220,6 +210,8 @@ class CameraPageState extends State<CameraPage> {
         Future<String> newFileName = copyFileToDocuments(this._currentUID,oldFile: file);
 
         newFileName.then((_newFilePath){
+
+          //print("HERE "+_newFilePath);
 
           if(_newFilePath != null) {
 
@@ -309,10 +301,10 @@ class CameraPageState extends State<CameraPage> {
     return WillPopScope(
       onWillPop: () async {
 
-        SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-        bloc.sightingEventController.add(SightingImageChangeEvent(""));
-        print("CAMERA - reset sighting image");
-        print("CAMERA will Pop ");
+        //SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
+        //bloc.sightingEventController.add(SightingImageChangeEvent(""));
+        //print("[CAMERA_PAGE::onWillPop()] - reset sighting image");
+        //print("[CAMERA_PAGE::onWillPop()]");
         return true;
       }
       ,

@@ -192,12 +192,11 @@ class _SightingListPageState extends State<SightingListPage> {
         if (!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
 
-        //print("...building list.......");
-
         return ListView.builder(
           scrollDirection: Axis.vertical,
           itemCount: snapshot.data.length,
           itemBuilder: (BuildContext context, int index) {
+            print("item count ${snapshot.data.length}");
             return  _SightingListPageState.buildCellItem(context,snapshot.data,index,this.sightingBloc);
           });
       },
@@ -248,7 +247,6 @@ class _SightingListPageState extends State<SightingListPage> {
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              //Sighting.buildSightingPhoto(sighting),
                               Container(height: 10),
                               Sighting.buildCellInfo(sighting),
                             ])),

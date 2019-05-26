@@ -304,45 +304,6 @@ class Sighting {
   }
 
 
-  static getImage(Sighting sighting)   {
-
-
-      if(sighting != null && sighting.photoFileName == null){
-
-        return Container(
-          child: Icon(Icons.camera,
-              size: Constants.cameraPhotoPlaceHolder,
-              //color: Constants.cameraPlaceHolderColor),
-              color: Colors.red),
-        );
-
-      }
-
-      return getApplicationDocumentsDirectory().then((docFolder) {
-
-        String fullPath = join(docFolder.path, sighting.photoFileName);
-
-        File file = File(fullPath);
-
-        print("GET IMAGE FROM " + fullPath);
-
-        if (file.existsSync()) {
-          //print("PHOTO " + file.path);
-
-          return Container(
-              child: Image.file(file)); // Return image from Documents
-
-          }
-      });
-
-      /*} else { // Default image when no image was taken
-
-        return Container(child: Image.asset(
-            sighting.photoFileName)); // Return image from assets
-      }*/
-
-  }
-
   static Widget buildCellInfo(Sighting sighting,
       {bool lookInAssetsFolder = false,
       CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
@@ -350,9 +311,19 @@ class Sighting {
         .format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
     if(sighting != null) {
+
       return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
-        //Image.file(File(sighting.photoFileName)),
-        Sighting.getImage(sighting),
+
+        FutureBuilder<Container>(
+            future: Sighting.getImage(sighting),
+            builder: (context, snapshot) {
+              if(!snapshot.hasData){
+                return CircularProgressIndicator();
+              }
+              return snapshot.data;
+            }
+        ),
+
         Container(height: 5),
         Text(
           sighting.speciesName,
@@ -403,6 +374,50 @@ class Sighting {
     }
 
     return Container();
+  }
+
+  static Future<Container> getImage(Sighting sighting,{bool assetImage=false})  async {
+
+    if (sighting != null && sighting.photoFileName == null && !assetImage) {
+
+      return Container(
+        child: Icon(Icons.camera,
+            size: Constants.cameraPhotoPlaceHolder,
+            color: Constants.cameraPlaceHolderColor),
+            //color: Colors.red),
+      );
+
+    }else if(sighting != null && sighting.photoFileName != null && assetImage){
+
+      return Container(child: Image.asset(
+          sighting.photoFileName)); // Return image from assets
+    }
+
+
+    return getApplicationDocumentsDirectory().then((folder) {
+
+      if(folder != null) {
+
+        String fullPath = join(folder.path, sighting.photoFileName);
+
+        File file = File(fullPath);
+
+        //print("GET IMAGE FROM " + fullPath);
+
+        if (file.existsSync()) {
+          //print("PHOTO " + file.path);
+          return Container(
+              child: Image.file(file)); // Return image from Documents
+
+        }
+
+      }
+
+      return Container();
+
+    });
+
+
   }
 
   static void deleteAllSightings() {

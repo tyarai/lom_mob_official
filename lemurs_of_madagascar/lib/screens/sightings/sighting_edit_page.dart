@@ -682,7 +682,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 }*/
 
-  _buildPhotoSelection(Sighting sighting)  async {
+  _buildPhotoSelection(Sighting sighting)   {
     return GestureDetector(
         onTap: () {
           //SpeciesListPageState.navigateToSpeciesDetails(context, species);
@@ -703,7 +703,7 @@ class _SightingEditPageState extends State<SightingEditPage> {
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                         await _buildPhoto(sighting)
+                         _buildPhoto(sighting)
                       ]
                   ),
 
@@ -726,18 +726,19 @@ class _SightingEditPageState extends State<SightingEditPage> {
         );
       }
 
-      return Sighting.getImage(sighting).then( (container){
-
+      return
         SizedBox(
-            width: 250,
-            height:200,
-            child: Container(
-              child: container,
-            ));
-
-      });
-
-
+          width: 250,
+          height:200,
+          child: FutureBuilder<Container>(
+            future: Sighting.getImage(sighting),
+            builder: (context, snapshot) {
+              if(!snapshot.hasData){
+                return CircularProgressIndicator();
+              }
+              return snapshot.data;
+            }
+          ));
 
     }
 

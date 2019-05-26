@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SightingBloc implements BlocBase {
 
@@ -29,21 +31,33 @@ class SightingBloc implements BlocBase {
 
   Sighting get sighting => this._sighting;
 
-  void _deleteOldPhotoFile(){
+  Future<bool> _deleteOldPhotoFile(){
 
-    if(_sighting.photoFileName != null && _sighting.photoFileName.length > 0){
+    return getApplicationDocumentsDirectory().then((_folder) {
 
-        File file = File(_sighting.photoFileName);
-        if(file.existsSync()) {
+      if (_folder != null) {
+
+        String fullPath = join(_folder.path, _sighting.photoFileName);
+
+        File file = File(fullPath);
+
+        if (file.existsSync()) {
           file.deleteSync();
-          print("Bloc Event Image Changed - deleted old file " +
-              _sighting.photoFileName);
-        }else{
-          print("Bloc Event Image Changed - no file to delete at " +
-              _sighting.photoFileName);
+          print("[SIGHTING_BLOC::_deleteOldPhotoFile()] deleted old file " + fullPath);
+          return true;
+        } else {
+          print(
+              "[SIGHTING_BLOC::_deleteOldPhotoFile()] no file to delete at " + fullPath);
+          return false;
         }
 
+
       }
+
+      return false;
+
+    });
+
   }
 
   @override
@@ -62,9 +76,12 @@ class SightingBloc implements BlocBase {
     }
 
     if (event is SightingImageChangeEvent) {
-      _deleteOldPhotoFile();
-      _sighting.photoFileName = event.newFileName;
-      //print("BLOC PHOTOFILENAME ==> "+ _sighting.photoFileName );
+
+      _deleteOldPhotoFile().then((_){
+        _sighting.photoFileName = event.newFileName;
+        print("[BLOC PHOTOFILENAME ==>] "+ _sighting.photoFileName );
+      });
+
     }
 
     if (event is SightingSiteChangeEvent) {
