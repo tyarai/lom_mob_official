@@ -64,7 +64,7 @@ class SightingBloc implements BlocBase {
     if (event is SightingImageChangeEvent) {
       _deleteOldPhotoFile();
       _sighting.photoFileName = event.newFileName;
-      //print(.*)
+      //print("BLOC PHOTOFILENAME ==> "+ _sighting.photoFileName );
     }
 
     if (event is SightingSiteChangeEvent) {

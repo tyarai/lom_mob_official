@@ -12,11 +12,13 @@ import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 
 
-  Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
+  /*Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
 
    String newFilePath =  (await getApplicationDocumentsDirectory()).path;
 
-    newFilePath = join(newFilePath,"$currentUID-${DateTime.now()}.$ext");
+   String newFileName = "$currentUID-${DateTime.now()}.$ext";
+
+    newFilePath = join(newFilePath, newFileName);
 
     if(oldFile != null && oldFile.existsSync()) {
 
@@ -42,7 +44,9 @@ import 'package:flutter_alert/flutter_alert.dart';
 
     return newFilePath;
 
-}
+} */
+
+
 
 class CameraPage extends StatefulWidget {
   final CameraDescription camera;
@@ -66,6 +70,7 @@ class CameraPageState extends State<CameraPage> {
   String path = "";
   Future<File> imageFile;
   int _currentUID;
+  String _newFileName = "";
 
 
   @override
@@ -109,9 +114,6 @@ class CameraPageState extends State<CameraPage> {
 
     });
 
-
-
-
     /*
 
     Future<int> currentUID = UserSession.loadCurrentUserUID();
@@ -121,7 +123,6 @@ class CameraPageState extends State<CameraPage> {
     });
 
     */
-
 
   }
 
@@ -141,6 +142,46 @@ class CameraPageState extends State<CameraPage> {
     }
   }
   */
+
+  Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
+
+    String newFilePath =  (await getApplicationDocumentsDirectory()).path;
+
+    this._newFileName  = "$currentUID-${DateTime.now()}";
+    this._newFileName  = this._newFileName.replaceAll(":", "-");
+    this._newFileName  = this._newFileName.replaceAll(" ", "-");
+    this._newFileName  = this._newFileName.replaceAll(".", "-");
+    this._newFileName  = this._newFileName + "." + ext;
+
+
+
+    //print("NEW FILE NAME $_newFileName");
+
+    newFilePath = join(newFilePath, this._newFileName);
+
+    if(oldFile != null && oldFile.existsSync()) {
+
+      return oldFile.copy(newFilePath).then((_newFile){
+
+        print("[CAMERA_PAGE::copyFileToDocuments()] file copied to " + _newFile.path);
+
+      }).then((_){
+
+        String oldPath = oldFile.path;
+        oldFile.deleteSync();
+        print("[CAMERA_PAGE::copyFileToDocuments()] old file deleted " + oldPath);
+
+      }).then((_newFile) {
+
+        return _newFile;
+
+      });
+
+    }
+
+    return newFilePath;
+
+  }
 
   @override
   void dispose() {
@@ -190,7 +231,7 @@ class CameraPageState extends State<CameraPage> {
                     BlocProvider(
                         bloc: bloc,
                         //child: DisplayPictureScreen(imagePath: file.path))),
-                        child: DisplayPictureScreen(_newFilePath))),
+                        child: DisplayPictureScreen(_newFilePath,this._newFileName))),
             );
           }
 
@@ -313,9 +354,10 @@ class CameraPageState extends State<CameraPage> {
 
                 //path = join((await getApplicationDocumentsDirectory()).path,"${this._currentUID}-${DateTime.now()}.${Constants.imageType}",);
                 path = await copyFileToDocuments(this._currentUID);
-                print(" CAMERA FILE NAME $path");
+                print("SAVE IMAGE TO $path");
 
                 // Attempt to take a picture and log where it's been saved
+
                 await _controller.takePicture(path);
 
                 final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
@@ -327,7 +369,7 @@ class CameraPageState extends State<CameraPage> {
                     builder: (BuildContext context) =>
                         BlocProvider(
                             bloc: bloc,
-                            child: DisplayPictureScreen(path))),
+                            child: DisplayPictureScreen(path,this._newFileName))),
                 );
 
               } catch (e) {
@@ -428,13 +470,14 @@ class CameraPageState extends State<CameraPage> {
 class DisplayPictureScreen extends StatefulWidget {
 
   final String imagePath;
+  final String _newFileName; // Filename with no path
 
-  DisplayPictureScreen(this.imagePath);
+  DisplayPictureScreen(this.imagePath,this._newFileName);
 
 
   @override
   State<StatefulWidget> createState() {
-    return _DisplayPictureScreenState(this.imagePath);
+    return _DisplayPictureScreenState(this.imagePath,this._newFileName);
   }
 
 
@@ -444,9 +487,10 @@ class DisplayPictureScreen extends StatefulWidget {
 class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
 
   final String imagePath;
+  final String _newFileName;
   bool gotImage = false;
 
-  _DisplayPictureScreenState(this.imagePath);
+  _DisplayPictureScreenState(this.imagePath,this._newFileName);
 
   @override
   Widget build(BuildContext context) {
@@ -514,7 +558,8 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
 
     SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
     //File file = File(this.imagePath);
-    bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
+    //bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
+    bloc.sightingEventController.add(SightingImageChangeEvent(this._newFileName));
     Navigator.of(buildContext).pop();
     Navigator.of(buildContext).pop();
 

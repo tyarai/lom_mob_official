@@ -192,7 +192,7 @@ class _SightingListPageState extends State<SightingListPage> {
         if (!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
 
-        print("...building list.......");
+        //print("...building list.......");
 
         return ListView.builder(
           scrollDirection: Axis.vertical,

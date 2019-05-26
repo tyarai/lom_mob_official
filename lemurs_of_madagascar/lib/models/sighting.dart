@@ -10,7 +10,8 @@ import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:lemurs_of_madagascar/utils/user_session.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class Sighting {
@@ -303,26 +304,43 @@ class Sighting {
   }
 
 
-  static Widget getImage(Sighting sighting) {
-    if (sighting != null && sighting.photoFileName.length != 0) {
-      if (!sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
-        File file = File(sighting.photoFileName);
+  static getImage(Sighting sighting)   {
+
+
+      if(sighting != null && sighting.photoFileName == null){
+
+        return Container(
+          child: Icon(Icons.camera,
+              size: Constants.cameraPhotoPlaceHolder,
+              //color: Constants.cameraPlaceHolderColor),
+              color: Colors.red),
+        );
+
+      }
+
+      return getApplicationDocumentsDirectory().then((docFolder) {
+
+        String fullPath = join(docFolder.path, sighting.photoFileName);
+
+        File file = File(fullPath);
+
+        print("GET IMAGE FROM " + fullPath);
+
         if (file.existsSync()) {
+          //print("PHOTO " + file.path);
+
           return Container(
               child: Image.file(file)); // Return image from Documents
-        }
-      } else {
-        return Container(
-            child: Image.asset(
-                sighting.photoFileName)); // Return image from assets
-      }
-    }
 
-    return Container(
-      child: Icon(Icons.camera,
-          size: Constants.cameraPhotoPlaceHolder,
-          color: Constants.cameraPlaceHolderColor),
-    );
+          }
+      });
+
+      /*} else { // Default image when no image was taken
+
+        return Container(child: Image.asset(
+            sighting.photoFileName)); // Return image from assets
+      }*/
+
   }
 
   static Widget buildCellInfo(Sighting sighting,

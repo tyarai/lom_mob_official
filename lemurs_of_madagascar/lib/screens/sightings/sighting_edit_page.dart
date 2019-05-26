@@ -188,19 +188,15 @@ class _SightingEditPageState extends State<SightingEditPage> {
   }
 
 
-  _buildBody(BuildContext buildContext)  {
+  _buildBody(BuildContext buildContext)   {
 
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-
-    //print("EDIT Sighting "+ this.sighting.toString());
-
-    //Sighting initialSighting = Sighting.withSighting(this.sighting);
 
     return StreamBuilder<Sighting>(
         stream: bloc.outSighting,
         //initialData: initialSighting,
         initialData: this.sighting,
-        builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot)  {
 
           if (snapshot.data != null && snapshot.hasData) {
 
@@ -686,47 +682,39 @@ class _SightingEditPageState extends State<SightingEditPage> {
 
 }*/
 
-  _buildPhotoSelection(Sighting sighting) {
+  _buildPhotoSelection(Sighting sighting)  async {
     return GestureDetector(
         onTap: () {
           //SpeciesListPageState.navigateToSpeciesDetails(context, species);
           _showCameraPage();
         },
         child: Padding(
-            padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-            child: Container(
-              child: Material(
-                  elevation: 0,
-                  borderRadius: BorderRadius.circular(0),
-                  shadowColor: Colors.blueGrey,
-                  color: Colors.transparent,
-                  child: Row(
-                    //crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+          padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+          child: Container(
+            child: Material(
+              elevation: 0,
+              borderRadius: BorderRadius.circular(0),
+              shadowColor: Colors.blueGrey,
+              color: Colors.transparent,
+              child: Row(
+                //crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              _buildPhoto(sighting)
-                            ]
-                        ),
-                        /*Container(width: 20),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Icon(
-                              Icons.camera_alt,
-                              size: 45,
-                              color: Constants.mainColor,
-                            )
-                          ]),*/
-                      ])),
-            )));
+                         await _buildPhoto(sighting)
+                      ]
+                  ),
+
+                ])),
+          )));
   }
 
-  Widget _buildPhoto(Sighting sighting,
+  _buildPhoto(Sighting sighting,
       {double size = Constants.cameraPhotoPlaceHolder,
-        Color color = Constants.mainColor}) {
+        Color color = Constants.mainColor})  {
+
     if (sighting != null) {
       if (sighting.photoFileName == null) {
         return Container(
@@ -738,21 +726,18 @@ class _SightingEditPageState extends State<SightingEditPage> {
         );
       }
 
-      return SizedBox(
-        width: 250,
-        height:200,
-        child: Container(
+      return Sighting.getImage(sighting).then( (container){
 
-            child: Sighting.getImage(sighting),
-              //width: 200,
-              //height:200,
+        SizedBox(
+            width: 250,
+            height:200,
+            child: Container(
+              child: container,
             ));
 
-              /*child: Image.file(
-              File(sighting.photoFileName),
-              //width: 200,
-              //height:200,
-            )),*/
+      });
+
+
 
     }
 
