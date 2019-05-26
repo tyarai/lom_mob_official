@@ -183,6 +183,7 @@ class _SightingListPageState extends State<SightingListPage> {
 
   Widget _buildSightingListView() {
 
+
     return FutureBuilder<List<Sighting>>(
       future: _loadData(this.currentUid),
       initialData: this.sightingList,
@@ -191,15 +192,14 @@ class _SightingListPageState extends State<SightingListPage> {
         if (!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
 
-        //print("Sighting count in DB :"+snapshot.data.length.toString());
+        print("...building list.......");
 
         return ListView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: snapshot.data.length,
-            itemBuilder: (BuildContext context, int index) {
-              //return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
-              return  _SightingListPageState.buildCellItem(context,snapshot.data,index,this.sightingBloc);
-            });
+          scrollDirection: Axis.vertical,
+          itemCount: snapshot.data.length,
+          itemBuilder: (BuildContext context, int index) {
+            return  _SightingListPageState.buildCellItem(context,snapshot.data,index,this.sightingBloc);
+          });
       },
     );
   }

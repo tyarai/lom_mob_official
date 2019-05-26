@@ -233,30 +233,38 @@ class Sighting {
   }
 
   Sighting.fromMap(Map<String, dynamic> map) {
-    this.id = map[Sighting.idKey];
-    this.nid = map[Sighting.nidKey];
-    this.uuid = map[Sighting.uuidKey];
-    this.speciesName = map[Sighting.speciesNameKey];
-    this.speciesNid = map[Sighting.speciesNidKey];
-    this.speciesCount = map[Sighting.speciesCountKey];
-    this.placeName = map[Sighting.placeNameKey];
-    this.longitude = map[Sighting.longKey];
-    this.latitude = map[Sighting.latKey];
-    this.photoFileName = map[Sighting.photoFileNamesKey];
-    this.title = map[Sighting.titleKey];
-    this.created = map[Sighting.createdKey];
-    this.modified = map[Sighting.modifiedKey];
-    this.uid = map[Sighting.uidKey];
-    this.isLocal = map[Sighting.isLocalKey];
-    this.isSynced = map[Sighting.isSyncedKey];
-    this.date = map[Sighting.dateKey];
-    this.deleted = map[Sighting.deletedKey];
-    this.placeNID = map[Sighting.placeNidKey];
-    this.locked = map[Sighting.lockedKey];
-    this.altitude = map[Sighting.altKey];
-    this.hasPhotoChanged = map[Sighting.hasPhotoChangedKey];
 
-    loadSpeciesAndSite();
+    try {
+      this.id = map[Sighting.idKey];
+      this.nid = map[Sighting.nidKey];
+      this.uuid = map[Sighting.uuidKey];
+      this.speciesName = map[Sighting.speciesNameKey];
+      this.speciesNid = map[Sighting.speciesNidKey];
+      this.speciesCount = map[Sighting.speciesCountKey];
+      this.placeName = map[Sighting.placeNameKey];
+      this.longitude = map[Sighting.longKey];
+      this.latitude = map[Sighting.latKey];
+      this.photoFileName = map[Sighting.photoFileNamesKey];
+      this.title = map[Sighting.titleKey];
+      this.created = map[Sighting.createdKey];
+      this.modified = map[Sighting.modifiedKey];
+      this.uid = map[Sighting.uidKey];
+      this.isLocal = map[Sighting.isLocalKey];
+      this.isSynced = map[Sighting.isSyncedKey];
+      this.date = map[Sighting.dateKey];
+      this.deleted = map[Sighting.deletedKey];
+      this.placeNID = map[Sighting.placeNidKey];
+      this.locked = map[Sighting.lockedKey];
+      this.altitude = double.tryParse(map[Sighting.altKey].toString()) ?? 0.0;
+      this.hasPhotoChanged = map[Sighting.hasPhotoChangedKey];
+
+      loadSpeciesAndSite();
+
+    }catch(e){
+      print("[SIGHTING::Sighting.fromMap()] error :"+e.toString());
+      throw(e);
+    }
+
 
   }
 

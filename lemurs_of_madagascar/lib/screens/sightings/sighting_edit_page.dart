@@ -6,6 +6,7 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/screens/sightings/sighting_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
@@ -160,7 +161,27 @@ class _SightingEditPageState extends State<SightingEditPage> {
           bloc.saveSighting(this._editing);
         });
 
+        //Navigator.of(context).pushReplacementNamed("/sighting_list");
         Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed("/sighting_list");
+
+        /*Navigator.of(context).pushReplacement(
+          PageRouteBuilder<Null>(
+              pageBuilder: (BuildContext context, Animation<double> animation,
+                  Animation<double> secondaryAnimation) {
+                return AnimatedBuilder(
+                    animation: animation,
+                    builder: (BuildContext context, Widget child) {
+                      return Opacity(
+                        opacity: animation.value,
+                        child: SightingListPage(title:"My sighting"),
+                      );
+                    });
+              },
+              transitionDuration: Duration(
+                  milliseconds: 300)),
+        );*/
+
       }
 
     }
