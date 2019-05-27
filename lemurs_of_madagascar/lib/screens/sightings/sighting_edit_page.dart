@@ -737,7 +737,8 @@ class _SightingEditPageState extends State<SightingEditPage> {
           width: 250,
           height:200,
           child: FutureBuilder<Container>(
-            future: Sighting.getImage(sighting),
+            //future: Sighting.getImage(sighting),
+            future: Sighting.getImageContainer(sighting),
             builder: (context, snapshot) {
               if(!snapshot.hasData){
                 return CircularProgressIndicator();

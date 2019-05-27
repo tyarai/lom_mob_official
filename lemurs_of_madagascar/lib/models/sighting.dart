@@ -319,16 +319,22 @@ class Sighting {
 
         FutureBuilder<Container>(
             future:
-            Sighting.getImage(
+            /*Sighting.getImage(
                 sighting,
                 width:screenWidth,
                 height:Constants.sightingListImageHeight,
                 fittedImage: true,
-                assetImage: true),
+                assetImage: true),*/
+              Sighting.getImageContainer(
+              sighting,
+              width:screenWidth,
+              height:Constants.sightingListImageHeight,
+              fittedImage: true,
+              assetImage: true),
 
             builder: (context, snapshot) {
               if(!snapshot.hasData){
-                return CircularProgressIndicator();
+                return Center(child:CircularProgressIndicator());
               }
               return snapshot.data;
             }
@@ -344,8 +350,6 @@ class Sighting {
           //mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              //Image.asset("assets/images/icons/ico_specy.png",width: 25,height: 25,color: Constants.mainColor,),
-              //Container(width: 5),
               Expanded(
                 child: Column(
                   //mainAxisAlignment: MainAxisAlignment.center,
@@ -385,8 +389,91 @@ class Sighting {
     return Container();
   }
 
-  /// bool originalImage : if true then return image without FittedBox
-  static Future<Container> getImage(Sighting sighting, {double width = 1280.0 ,double height = Constants.sightingListImageHeight,bool fittedImage = false,BoxFit fit = BoxFit.cover , bool assetImage=false})  async {
+  static Future<Image> getImage(Sighting sighting)  async {
+
+    if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
+
+      Species species = sighting.species;
+
+      if(species == null){
+        await sighting.loadSpeciesAndSite();
+      }
+
+      Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(0);
+
+      return photo.then((photograph){
+
+        if(photograph != null) {
+
+          String assetPath = photograph.photoAssetPath(ext: Constants.imageType);
+          Image image = Image.asset(assetPath);
+
+          return image;
+        }
+
+        return null;
+
+      });
+
+    }
+
+
+    return getApplicationDocumentsDirectory().then((folder) {
+
+      if(folder != null) {
+
+        String fullPath = join(folder.path, sighting.photoFileName);
+
+        File file = File(fullPath);
+
+        if (file.existsSync()) {
+          return Image.file(file,);// Return image from Documents
+        }
+
+      }
+
+      return null;
+
+    });
+
+
+  }
+
+
+  static Future<Container> getImageContainer(Sighting sighting,
+      {double width = 1280.0 ,
+        double height = Constants.sightingListImageHeight,
+        bool fittedImage = false,
+        BoxFit standardFit = BoxFit.cover,
+        BoxFit assetImageFit = BoxFit.fitHeight  ,
+        bool assetImage=false})  async {
+
+    if (sighting != null) {
+
+      Future<Image> image = Sighting.getImage(sighting);
+
+      return image.then( (Image _image) {
+
+        bool assetImage = sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder);
+
+        return Container(
+          height: height,
+          width:width,
+          child: ! fittedImage ?
+            _image
+              :
+          FittedBox(fit: assetImage ? assetImageFit : standardFit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
+        ); // Return image from Documents
+
+      });
+    }
+
+    return Container();
+
+  }
+
+
+    /*static Future<Container> getImage(Sighting sighting, {double width = 1280.0 ,double height = Constants.sightingListImageHeight,bool fittedImage = false,BoxFit fit = BoxFit.cover , bool assetImage=false})  async {
 
     if (sighting != null && sighting.photoFileName == null && !assetImage) {
 
@@ -463,7 +550,7 @@ class Sighting {
     });
 
 
-  }
+  }*/
 
   static void deleteAllSightings() {
     SightingDatabaseHelper.deleteAllSightings();
