@@ -549,8 +549,6 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   _selectImage(BuildContext buildContext){
 
     SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-    //File file = File(this.imagePath);
-    //bloc.sightingEventController.add(SightingImageChangeEvent(this.imagePath));
     bloc.sightingEventController.add(SightingImageChangeEvent(this._newFileName));
     Navigator.of(buildContext).pop();
     Navigator.of(buildContext).pop();

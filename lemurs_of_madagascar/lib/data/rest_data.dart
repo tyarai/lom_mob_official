@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/utils/user_session.dart';
 import 'package:lemurs_of_madagascar/utils/network_util.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
@@ -25,6 +26,7 @@ class RestData {
   static const  NODE_ENDPOINT        = SERVER + "/lom_endpoint/api/v1/services/node.json";
   static const  NODE_UPDATE_ENDPOINT = SERVER + "/lom_endpoint/api/v1/services/node/";
   static const  ISCONNECTED_ENDPOINT = SERVER + "/lom_endpoint/api/v1/services/system/connect.json";
+  static const  SERVER_IMAGE_PATH    = SERVER + "/sites/default/files/";
   static const  ALL_PUBLICATION_ENDPOINT = SERVER + "/all-publication-json";
   static const  MY_SIGHTINGS_ENDPOINT = SERVER + "/api/v1/list/sightings" ;// Misy parameters isLocal
   static const  ALL_MY_SIGHTINGS_ENDPOINT = SERVER + "/api/v1/list/all-my-sightings"; // Tsy misy parameter
@@ -50,11 +52,10 @@ class RestData {
   static const  FAMILY_UPDATE_COUNT = SERVER + "family_update_count";
   static const  PHOTO_UPDATE_COUNT = SERVER + "photo_update_count";
   static const  PLACE_UPDATE_COUNT = SERVER + "place_update_count";
-  static const  SERVER_IMAGE_PATH = SERVER + "/sites/default/files/";
-//************ SETTINGS WEB SERVICE ******************//
+  // ************ SETTINGS WEB SERVICE ******************//
   static const  SETTINGS_EXPORT_ENDPOINT = SERVER + "/lom_endpoint/api/v1/settings/lom_settings/export_settings"; // Misy param user_uid
   static const  SETTINGS_IMPORT_ENDPOINT = SERVER + "/lom_endpoint/api/v1/settings/lom_settings/import_settings" ;// Misy param user_uid, settings_name, settings_value
-// ************* CHANGED NODES SERVICE (Species, Map, Photograph, Family, Places) *******
+  // ************* CHANGED NODES SERVICE (Species, Map, Photograph, Family, Places) *******
   static const  CHANGED_NODES = SERVER +  "/lom_endpoint/api/v1/services/lom_node_services/changed_nodes"; // Misy parama from_date
 
 
@@ -189,6 +190,19 @@ class RestData {
 
     return false;
 
+  }
+
+  Future<bool> syncSighting(Sighting sighting) async {
+
+    if(sighting != null){
+
+      String serverFileURL = FILE_ENDPOINT;
+
+
+
+    }
+
+    return false;
   }
 
 }

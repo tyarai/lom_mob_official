@@ -206,7 +206,7 @@ class _SightingListPageState extends State<SightingListPage> {
                     scrollDirection: Axis.vertical,
                     itemCount: snapshot.data.length,
                     itemBuilder: (BuildContext context, int index) {
-                      print("item count ${snapshot.data.length}");
+                      //print("item count ${snapshot.data.length}");
                       return _SightingListPageState.buildCellItem(
                           context, snapshot.data, index, this.sightingBloc);
                     });

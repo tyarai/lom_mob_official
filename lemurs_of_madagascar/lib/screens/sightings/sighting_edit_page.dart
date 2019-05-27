@@ -375,7 +375,13 @@ class _SightingEditPageState extends State<SightingEditPage> {
                 if(locationData != null){
 
                   locationData.then((_locationData){
-                    bloc.sightingEventController.add(SightingLocationChangeEvent(longitude:_locationData.longitude, latitude: _locationData.latitude, altitude:_locationData.altitude));
+                    if(_locationData != null) {
+                      bloc.sightingEventController.add(
+                          SightingLocationChangeEvent(
+                              longitude: _locationData.longitude,
+                              latitude: _locationData.latitude,
+                              altitude: _locationData.altitude));
+                    }
                   });
 
                 }

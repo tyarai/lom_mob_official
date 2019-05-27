@@ -115,7 +115,8 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                   children: <Widget>[
                    Row(
                       children:<Widget>[
-                        Expanded(flex:1,child:ConstantImage.getRussImage()),
+                        //Expanded(flex:1,child:ConstantImage.getRussImage()),
+                        SizedBox(width:100,height:100,child: ConstantImage.getRussImage()),
                         Container(width: 10,),
                         Expanded(
                           flex:2,

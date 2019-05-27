@@ -140,14 +140,16 @@ class _SplashScreenState extends State<SplashScreen> {
                   flex:1,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children:<Widget>[
                       //CircularProgressIndicator(),
                       //Padding(padding: EdgeInsets.only(top: 20.0),),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children:<Widget>[
-                            Expanded(flex:1,child:ConstantImage.getRussImage()),
+                            SizedBox(width:100,height:100,child: ConstantImage.getRussImage()),
                             Container(width: 10,),
                             Expanded(
                               flex:2,

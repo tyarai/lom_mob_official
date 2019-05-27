@@ -168,6 +168,7 @@ class Sighting {
         Photograph defaultImage = await this._species.getPhotographObjectAtIndex(0);
         this.photoFileName = this.photoFileName != null
             ? this.photoFileName
+            //Constants.defaultImageText; // Set a default image for this sighting
             : defaultImage.photoAssetPath(ext: Constants.imageType);
         print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
 
@@ -317,7 +318,14 @@ class Sighting {
       return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
 
         FutureBuilder<Container>(
-            future: Sighting.getImage(sighting,width:screenWidth,height:Constants.sightingListImageHeight,fittedImage: true),
+            future:
+            Sighting.getImage(
+                sighting,
+                width:screenWidth,
+                height:Constants.sightingListImageHeight,
+                fittedImage: true,
+                assetImage: true),
+
             builder: (context, snapshot) {
               if(!snapshot.hasData){
                 return CircularProgressIndicator();
@@ -378,7 +386,7 @@ class Sighting {
   }
 
   /// bool originalImage : if true then return image without FittedBox
-  static Future<Container> getImage(Sighting sighting, {double width = 1280.0 ,double height = 320.0,bool fittedImage = false,BoxFit fit = BoxFit.cover , bool assetImage=false})  async {
+  static Future<Container> getImage(Sighting sighting, {double width = 1280.0 ,double height = Constants.sightingListImageHeight,bool fittedImage = false,BoxFit fit = BoxFit.cover , bool assetImage=false})  async {
 
     if (sighting != null && sighting.photoFileName == null && !assetImage) {
 
@@ -389,17 +397,38 @@ class Sighting {
             //color: Colors.red),
       );
 
-    }else if(sighting != null && sighting.photoFileName != null && assetImage){
+    }else if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder) && assetImage){
 
-      return Container(
-        height: height,
-        width:width,
-        child: ! fittedImage ?
-        Image.asset(sighting.photoFileName)// Return image from assets
-            :
-        FittedBox(fit:fit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [Image.asset(sighting.photoFileName)])),
-      ); // Return image from Doc,heuments
+      // Default image form species assets when no image was provided
+      //print("Sighting ${sighting.id} getting " + Constants.defaultImageText);
+      //if(sighting._species == null) print("Species null");
 
+      Species species = sighting.species;
+
+      if(species == null){
+        await sighting.loadSpeciesAndSite();
+      }
+
+      Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(0);
+
+      return photo.then((photograph){
+
+        if(photograph != null) {
+
+          String assetPath = photograph.photoAssetPath(ext: Constants.imageType);
+
+          return Container(
+            height: height,
+            width: width,
+            //child: !fittedImage ?
+            child:FittedBox(fit: BoxFit.contain,
+                  child: Column(mainAxisAlignment: MainAxisAlignment.start,
+                      children: [Image.asset(assetPath)]))
+
+          ); // Return image from assets
+        }
+
+      });
 
     }
 
@@ -411,11 +440,11 @@ class Sighting {
         String fullPath = join(folder.path, sighting.photoFileName);
 
         File file = File(fullPath);
-
-        //print("GET IMAGE FROM " + fullPath);
+        //Image image = Image.file(file);
+        //print("$fullPath $image ${image.width} ${image.height}");
 
         if (file.existsSync()) {
-          //print("PHOTO " + file.path);
+
           return Container(
             height: height,
             width:width,
@@ -423,7 +452,7 @@ class Sighting {
              Image.file(file,)
                 :
               FittedBox(fit:fit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [Image.file(file,)])),
-          ); // Return image from Doc,heuments
+          ); // Return image from Documents
 
         }
 

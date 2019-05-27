@@ -28,7 +28,7 @@ TENSOR PROGRAMMING
 
 1- Drag & drop widget
 2- GPS
-
+3- Localize and International
 
 GOOGLE
 
