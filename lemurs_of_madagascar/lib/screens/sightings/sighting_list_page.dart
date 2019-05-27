@@ -189,16 +189,36 @@ class _SightingListPageState extends State<SightingListPage> {
       initialData: this.sightingList,
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
 
-        if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
+        switch(snapshot.connectionState) {
 
-        return ListView.builder(
-          scrollDirection: Axis.vertical,
-          itemCount: snapshot.data.length,
-          itemBuilder: (BuildContext context, int index) {
-            print("item count ${snapshot.data.length}");
-            return  _SightingListPageState.buildCellItem(context,snapshot.data,index,this.sightingBloc);
-          });
+          case  ConnectionState.active : return Center(child: CircularProgressIndicator());
+
+          case ConnectionState.waiting :
+            {
+              return Center(child: CircularProgressIndicator());
+
+            }
+
+          case ConnectionState.done:
+            {
+              if(snapshot.hasData && !snapshot.hasError) {
+                return ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      print("item count ${snapshot.data.length}");
+                      return _SightingListPageState.buildCellItem(
+                          context, snapshot.data, index, this.sightingBloc);
+                    });
+              }
+              break;
+            }
+
+          case ConnectionState.none:{
+            return Container();
+          }
+
+        }
       },
     );
   }
@@ -212,6 +232,51 @@ class _SightingListPageState extends State<SightingListPage> {
     return null;
   }
 
+  static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc)
+  {
+
+    if(list != null && list.length > 0 && (index >= 0 && index < list.length)) {
+
+      Sighting sighting = list[index];
+
+      return ListTile(
+        contentPadding: EdgeInsets.only(left:5.0,right:5.0),
+          onTap: () {
+
+            bloc.sightingEventController.add(SightingChangeEvent(sighting));
+            Navigator.of(context).push(
+                MaterialPageRoute(
+                    fullscreenDialog: true, builder: (buildContext) =>
+                    BlocProvider(
+                      child: SightingEditPage("Edit sighting",sighting,true),
+                      bloc: bloc,
+                    ))
+            );
+
+          },
+          title: Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Container(
+                  child: Material(
+                    elevation: 1.0,
+                    borderRadius: BorderRadius.circular(0),
+                    shadowColor: Colors.blueGrey,
+                    child: Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(height: 10),
+                              Sighting.buildCellInfo(sighting,context),
+                            ])),
+                  ))));
+    }
+
+    return Container();
+
+  }
+
+  /*
   static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc)
   {
 
@@ -255,5 +320,5 @@ class _SightingListPageState extends State<SightingListPage> {
 
     return Container();
 
-  }
+  } */
 }

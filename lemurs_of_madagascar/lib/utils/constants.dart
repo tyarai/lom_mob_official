@@ -74,6 +74,7 @@ class Constants {
   static const TextStyle sightingTitleTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 18);
   static const TextStyle sightingSpeciesNameTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 15,fontWeight: FontWeight.bold);
   static const TextStyle sightingSpeciesCountTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 15,color: Colors.grey,fontWeight: FontWeight.bold);
+  static const double sightingListImageHeight = 320.0;
 
 
   //Splash screen
