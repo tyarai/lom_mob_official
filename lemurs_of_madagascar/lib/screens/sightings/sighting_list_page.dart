@@ -102,7 +102,7 @@ class _SightingListPageState extends State<SightingListPage> implements SyncSigh
               futureList.then((list) {
                 setState(() {
                   sightingList = list;
-                  this.syncPresenter.sync(sightingList[0]);
+                  this.syncPresenter.sync(sightingList[1]);
                 });
               });
             }

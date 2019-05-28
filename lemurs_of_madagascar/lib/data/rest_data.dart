@@ -4,19 +4,19 @@ import "dart:convert";
 import "dart:io";
 import "dart:typed_data";
 import "dart:ui";
+import 'package:intl/intl.dart';
 import "package:lemurs_of_madagascar/models/sighting.dart";
 import "package:lemurs_of_madagascar/utils/constants.dart";
 import "package:lemurs_of_madagascar/utils/user_session.dart";
 import "package:lemurs_of_madagascar/utils/network_util.dart";
 import "package:lemurs_of_madagascar/models/user.dart";
+import 'package:path/path.dart';
 
 class RestData {
 
   static const  errorKey = "error";
   static const  formErrorKey = "form_errors"; // Used to track existing account created twice
   static const  userStructureKey = "user";
-
-
 
   NetworkUtil _networkUtil = NetworkUtil();
 
@@ -182,7 +182,65 @@ class RestData {
 
   }
 
-  Future<bool> syncSighting(Sighting sighting) async {
+  Future<int> syncFile(File file,String fileName) async {
+
+
+    if(file != null && fileName != null){
+
+      List<int>  byteData = file.readAsBytesSync();
+
+      String base6sString = base64Encode(byteData);
+
+      int fileSize = await file.length();
+
+      UserSession currentSession = await UserSession.getCurrentSession();
+
+      String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
+      String token = currentSession.token;
+
+      Map<String,String> body = {
+        "filename": fileName,
+        "file": base6sString,
+        "filepath": Constants.publicFolder + fileName,
+        "filesize": fileSize.toString(),
+      };
+
+      Map<String,String> headers = {
+        "Content-Type": "application/json",//"application/x-www-form-urlencoded",
+        "Accept": "application/json",
+        "Cookie": cookie,
+        "X-CSRF-Token": token
+      };
+
+      return
+        _networkUtil.post(FILE_ENDPOINT,
+          body: json.encode(body),
+          headers: headers,
+        ).then((dynamic resultMap) {
+
+          print("[REST_DATA::syncFile()] " + resultMap.toString());
+
+          if(resultMap[RestData.errorKey] != null) {
+            throw new Exception(resultMap["error_msg"]);
+          }
+
+          String fidKey = "fid";
+          int fid = int.parse(resultMap[fidKey]);
+
+          return fid;
+
+        }).catchError((error) {
+          print("[REST_DATA::syncFile()] error:" + error.toString());
+          throw error;
+        });
+
+    }
+
+    return 0;
+
+  }
+
+  Future<int> syncSighting(Sighting sighting) async {
 
     if(sighting != null){
 
@@ -192,68 +250,73 @@ class RestData {
 
         if(file != null){
 
-          List<int>  byteData = file.readAsBytesSync();
+          String fileName = basename(file.path);
 
-          String base6sString = base64Encode(byteData);
+          syncFile(file, fileName).then((fid) async {
 
-          int fileSize = await file.length();
+            if(fid == 0) return 0;
 
-          String fileName = "test_file_name.jpg";
+            UserSession currentSession = await UserSession.getCurrentSession();
 
-          UserSession currentSession = await UserSession.getCurrentSession();
+            String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
+            String token = currentSession.token;
 
-          String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
-          String token = currentSession.token;
+            Map<String,String> body = {
+              "title": sighting.title,
+              "uuid": sighting.uuid,
+              "uid" : sighting.uid.toString(),
+              "status" : 1.toString(), //active
+              "field_uuid" : sighting.uuid,
+              "body": sighting.title,
+              "field_place_name":sighting.placeName,
+              "field_date": DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())),
+              "field_associated_species": sighting.speciesNid.toString(),
+              "field_lat": sighting.latitude.toString(),
+              "field_long" : sighting.longitude.toString(),
+              "field_altitude" : sighting.altitude.toString(),
+              "field_is_local" : 0.toString(), // NO
+              "field_is_synced": 1.toString(), // YES
+              "field_count" : sighting.speciesCount.toString(),
+              "field_photo" : fid.toString(),
+              "field_place_name_reference":sighting.placeNID.toString(),
 
-          /*Map<String,String> body = {
-            "file[filename]": fileName,
-            "file[file]": base6sString,
-            "file[filepath]": Constants.publicFolder + fileName,
-            "file[filesize]": fileSize.toString(),
-          };*/
+            };
 
+            Map<String,String> headers = {
+              "Content-Type": "application/json",//"application/x-www-form-urlencoded",
+              "Accept": "application/json",
+              "Cookie": cookie,
+              "X-CSRF-Token": token
+            };
 
-          String body = '{"file": {"filepath":"${Constants.publicFolder + fileName}","filesize":"$fileSize","filename":"$fileName","file":"$base6sString"}}';
-          print(body);
+            return
+              _networkUtil.post(NEW_SIGHTING,
+                body: json.encode(body),
+                headers: headers,
+              ).then((dynamic resultMap) {
 
-          Map<String,String> headers = {
-            "Content-Type": "application/json",//"application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "Cookie": cookie,
-            "X-CSRF-Token": token
+                print("[REST_DATA::syncSighting()] " + resultMap.toString());
 
-          };
+                if(resultMap[RestData.errorKey] != null) {
+                  throw new Exception(resultMap["error_msg"]);
+                }
 
-          return
-            _networkUtil.post(FILE_ENDPOINT,
-              body: json.encode(body),
-              headers: headers,
-            ).then((dynamic resultMap) {
-
-              print("[REST_DATA::syncSighting()] " + resultMap.toString());
-
-              if(resultMap[RestData.errorKey] != null) {
-                throw new Exception(resultMap["error_msg"]);
-              }
-
-              List<dynamic> userAndSession = List();
-
-
-              userAndSession.add(User.fromJSONMap(resultMap[userStructureKey]));
-              userAndSession.add(UserSession.fromJSONMap(resultMap));
-              return userAndSession;
-
-
-            }).catchError((error) {
-              print("[REST_DATA::syncSighting()] error:" + error.toString());
-              throw error;
-            });
+                String nidKey = "nid";
+                int nid = resultMap[nidKey];
 
 
+                return nid;
+
+              }).catchError((error) {
+                print("[REST_DATA::syncSighting()] error:" + error.toString());
+                throw error;
+              });
+
+          });
 
         }
 
-        return false;
+        return 0;
 
       }).catchError((error){
           throw error;
@@ -263,7 +326,7 @@ class RestData {
 
     }
 
-    return false;
+    return 0;
   }
 
 }
