@@ -6,7 +6,6 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
-import 'package:lemurs_of_madagascar/screens/sightings/sighting_list_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
@@ -35,7 +34,7 @@ class SightingEditPage extends StatefulWidget {
   }
 }
 
-class _SightingEditPageState extends State<SightingEditPage> {
+class _SightingEditPageState extends State<SightingEditPage> implements SyncSightingContract {
 
   final bool _editing;
   Sighting sighting;
@@ -45,12 +44,16 @@ class _SightingEditPageState extends State<SightingEditPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
-  _SightingEditPageState(this.title, this.sighting,this._editing);
 
+  SyncSightingPresenter syncPresenter;
 
   TextEditingController _titleController = TextEditingController();
   TextEditingController _countController = TextEditingController();
 
+
+  _SightingEditPageState(this.title, this.sighting,this._editing){
+      syncPresenter = SyncSightingPresenter(this);
+  }
 
   @override
   void dispose() {
@@ -155,15 +158,26 @@ class _SightingEditPageState extends State<SightingEditPage> {
     if(_validateSighting(buildContext)) {
 
       if (form.validate()) {
+
         setState(() {
+
           form.save();
           SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-          bloc.saveSighting(this._editing);
+          bloc.saveSighting(this._editing).then((saved){
+
+            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed("/sighting_list");
+
+            if(saved){
+              syncPresenter.sync(bloc.sighting);//Sync sighting to server
+            }
+
+          });
+
         });
 
+        //Navigator.of(context).pop();
         //Navigator.of(context).pushReplacementNamed("/sighting_list");
-        Navigator.of(context).pop();
-        Navigator.of(context).pushReplacementNamed("/sighting_list");
 
         /*Navigator.of(context).pushReplacement(
           PageRouteBuilder<Null>(
@@ -836,6 +850,21 @@ class _SightingEditPageState extends State<SightingEditPage> {
         ],
       );
     }
+
+  @override
+  void onSocketFailure() {
+    ErrorHandler.handleSocketError(context);
+  }
+
+  @override
+  void onSyncFailure(int statusCode) {
+    ErrorHandler.handle(context, statusCode);
+  }
+
+  @override
+  void onSyncSuccess(int nid) {
+    print("[SIGHTING_EDIT_PAGE::onSyncSuccess()] new sighting created on server [nid] : $nid");
+  }
 }
 
 

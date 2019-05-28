@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
+import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
@@ -11,9 +12,37 @@ import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+
+
+abstract class SyncSightingContract {
+  void onSyncSuccess(int nid);
+  void onSyncFailure(int statusCode);
+  void onSocketFailure();
+}
+
+class SyncSightingPresenter {
+
+  SyncSightingContract _syncingView;
+  RestData syncSightingAPI = RestData();
+  SyncSightingPresenter(this._syncingView);
+
+  sync(Sighting sighting) {
+    if(sighting != null) {
+      syncSightingAPI
+          .syncSighting(sighting)
+          .then((nid) => _syncingView.onSyncSuccess(nid))
+          .catchError((error) {
+        if(error is SocketException) _syncingView.onSocketFailure();
+        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+      });
+    }
+  }
+}
+
 
 class Sighting {
   static String idKey = "_id";
@@ -129,11 +158,11 @@ class Sighting {
     this._species = value;
   }
 
-  void saveToDatabase(bool editing) async {
+  Future<bool> saveToDatabase(bool editing) async {
 
     Future<User> user = User.getCurrentUser();
 
-    user.then((user) async {
+    return user.then((user) async {
 
       if(user != null && user.uid != 0 && user.uuid != null) {
 
@@ -171,7 +200,7 @@ class Sighting {
             ? this.photoFileName
             //Constants.defaultImageText; // Set a default image for this sighting
             : defaultImage.photoAssetPath(ext: Constants.imageType);
-        print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+        //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
 
         //this.isLocal    = 1;
         //this.isSynced   = 0;
@@ -192,12 +221,15 @@ class Sighting {
           id = db.insertSighting(sighting: this);
         }
 
-        id.then((newID) {
+        return id.then((newID) {
           print("Successful! New id : $newID");
+          return newID > 0 ? true :  false;
         });
 
       }else{
         print("[Sighting::saveToDatabase()] no User logged-in!");
+        return false;
+
       }
 
     });

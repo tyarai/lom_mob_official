@@ -1,42 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
-import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 
 
-abstract class SyncSightingContract {
-  void onSyncSuccess();
-  void onSyncFailure(int statusCode);
-  void onSocketFailure();
-}
-
-class SyncSightingPresenter {
-
-  SyncSightingContract _syncingView;
-  RestData syncSightingAPI = RestData();
-  SyncSightingPresenter(this._syncingView);
-
-  sync(Sighting sighting) {
-    if(sighting != null) {
-      syncSightingAPI
-          .syncSighting(sighting)
-          .then((synced) => _syncingView.onSyncSuccess())
-          .catchError((error) {
-        //if(error is SocketException) _loginView.onSocketFailure();
-        //if(error is LOMException) {
-        //_loginView.onLoginFailure(error.statusCode);
-        //}
-        _syncingView.onSyncSuccess();
-      });
-    }
-  }
-}
 
 
 class SightingListPage extends StatefulWidget {
@@ -102,7 +77,7 @@ class _SightingListPageState extends State<SightingListPage> implements SyncSigh
               futureList.then((list) {
                 setState(() {
                   sightingList = list;
-                  this.syncPresenter.sync(sightingList[1]);
+                  //this.syncPresenter.sync(sightingList[1]);
                 });
               });
             }
@@ -302,20 +277,22 @@ class _SightingListPageState extends State<SightingListPage> implements SyncSigh
 
   @override
   void onSocketFailure() {
-    // TODO: implement onSocketFailure
-    print("[SIGHTING_LIST_PAGE::onSocketFailure()]");
+    //print("[SIGHTING_LIST_PAGE::onSocketFailure()]");
+    ErrorHandler.handleSocketError(context);
   }
 
   @override
   void onSyncFailure(int statusCode) {
-    // TODO: implement onSyncFailure
-    print("[SIGHTING_LIST_PAGE::onSyncFailure()]");
+    //print("[SIGHTING_LIST_PAGE::onSyncFailure()]");
+    //setState(() {
+    //  _isLoading = false;
+    //});
+    ErrorHandler.handle(context, statusCode);
   }
 
   @override
-  void onSyncSuccess() {
-    // TODO: implement onSyncSuccess
-    print("[SIGHTING_LIST_PAGE::onSyncSuccess()]");
+  void onSyncSuccess(int nid) {
+    print("[SIGHTING_LIST_PAGE::onSyncSuccess()] new sighting created on server [nid] : $nid");
   }
 
 

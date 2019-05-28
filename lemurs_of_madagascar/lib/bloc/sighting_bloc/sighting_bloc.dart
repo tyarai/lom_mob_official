@@ -24,8 +24,10 @@ class SightingBloc implements BlocBase {
   }
 
 
-  void saveSighting(bool editing){
-    _sighting.saveToDatabase(editing);
+  Future<bool> saveSighting(bool editing) async {
+    return _sighting.saveToDatabase(editing).then((saved){
+      return saved;
+    });
 
   }
 
