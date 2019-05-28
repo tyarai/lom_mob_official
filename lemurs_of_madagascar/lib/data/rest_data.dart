@@ -1,11 +1,14 @@
 
-import 'dart:async';
-import 'dart:convert';
-import 'package:lemurs_of_madagascar/models/sighting.dart';
-import 'package:lemurs_of_madagascar/utils/user_session.dart';
-import 'package:lemurs_of_madagascar/utils/network_util.dart';
-import 'package:lemurs_of_madagascar/models/user.dart';
-import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
+import "dart:async";
+import "dart:convert";
+import "dart:io";
+import "dart:typed_data";
+import "dart:ui";
+import "package:lemurs_of_madagascar/models/sighting.dart";
+import "package:lemurs_of_madagascar/utils/constants.dart";
+import "package:lemurs_of_madagascar/utils/user_session.dart";
+import "package:lemurs_of_madagascar/utils/network_util.dart";
+import "package:lemurs_of_madagascar/models/user.dart";
 
 class RestData {
 
@@ -31,9 +34,9 @@ class RestData {
   static const  MY_SIGHTINGS_ENDPOINT = SERVER + "/api/v1/list/sightings" ;// Misy parameters isLocal
   static const  ALL_MY_SIGHTINGS_ENDPOINT = SERVER + "/api/v1/list/all-my-sightings"; // Tsy misy parameter
   static const  MY_SIGHTINGS_MODIFIED_FROM = SERVER + "/api/v1/list/my-sightings-modified-from" ;
-  static const  SERVICE_MY_SIGHTINGS = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/changed_sightings"; //Parameters : 'uid' and 'from_date'
-  static const  COUNT_SIGHTINGS = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/count_sightings"; //Parameters : 'uid' (mandatory) and 'from_date' (optional)
-  static const  RESET_SYNCED = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/reset_synced"; //Parameters : 'uid' (mandatory) and 'synced_value' (optional)
+  static const  SERVICE_MY_SIGHTINGS = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/changed_sightings"; //Parameters : "uid" and "from_date"
+  static const  COUNT_SIGHTINGS = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/count_sightings"; //Parameters : "uid" (mandatory) and "from_date" (optional)
+  static const  RESET_SYNCED = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/reset_synced"; //Parameters : "uid" (mandatory) and "synced_value" (optional)
   static const  NEW_SIGHTING = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/new_sighting";
   static const  NEW_COMMENT = SERVER + "/lom_endpoint/api/v1/services/lom_sighting_services/new_comment";
   static const  NEW_ILLEGALACTIVITY = SERVER + "/lom_endpoint/api/v1/services/lom_illegal_activities_services/new_illegal_activity";
@@ -87,9 +90,6 @@ class RestData {
         }
 
         List<dynamic> userAndSession = List();
-
-        //print("[REST_DATA::login()] USER :" + resultMap[userStructureKey].toString());
-        //print("[REST_DATA::login()] SESSION :" + resultMap.toString());
 
 
         userAndSession.add(User.fromJSONMap(resultMap[userStructureKey]));
@@ -150,16 +150,6 @@ class RestData {
 
       print("logout .....");
 
-      /*
-      String userName    = await LOMSharedPreferences.loadString(User.nameKey);
-      String sessionName = await LOMSharedPreferences.loadString(User.sessionNameKey);
-      String sessionID   = await LOMSharedPreferences.loadString(User.sessionIDKey);
-      String token       = await LOMSharedPreferences.loadString(User.tokenKey);
-      String cookie = sessionName + "=" + sessionID;
-
-      if(userName.length == 0 || sessionName.length == 0 || sessionID.length == 0 || token.length == 0) return false;
-      */
-
       String cookie = session.sessionName + "=" + session.sessionID;
       String token = session.token;
 
@@ -196,7 +186,78 @@ class RestData {
 
     if(sighting != null){
 
-      String serverFileURL = FILE_ENDPOINT;
+      var _file = Sighting.getImageFile(sighting);
+
+      _file.then((file)  async {
+
+        if(file != null){
+
+          List<int>  byteData = file.readAsBytesSync();
+
+          String base6sString = base64Encode(byteData);
+
+          int fileSize = await file.length();
+
+          String fileName = "test_file_name.jpg";
+
+          UserSession currentSession = await UserSession.getCurrentSession();
+
+          String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
+          String token = currentSession.token;
+
+          /*Map<String,String> body = {
+            "file[filename]": fileName,
+            "file[file]": base6sString,
+            "file[filepath]": Constants.publicFolder + fileName,
+            "file[filesize]": fileSize.toString(),
+          };*/
+
+
+          String body = '{"file": {"filepath":"${Constants.publicFolder + fileName}","filesize":"$fileSize","filename":"$fileName","file":"$base6sString"}}';
+          print(body);
+
+          Map<String,String> headers = {
+            "Content-Type": "application/json",//"application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "Cookie": cookie,
+            "X-CSRF-Token": token
+
+          };
+
+          return
+            _networkUtil.post(FILE_ENDPOINT,
+              body: json.encode(body),
+              headers: headers,
+            ).then((dynamic resultMap) {
+
+              print("[REST_DATA::syncSighting()] " + resultMap.toString());
+
+              if(resultMap[RestData.errorKey] != null) {
+                throw new Exception(resultMap["error_msg"]);
+              }
+
+              List<dynamic> userAndSession = List();
+
+
+              userAndSession.add(User.fromJSONMap(resultMap[userStructureKey]));
+              userAndSession.add(UserSession.fromJSONMap(resultMap));
+              return userAndSession;
+
+
+            }).catchError((error) {
+              print("[REST_DATA::syncSighting()] error:" + error.toString());
+              throw error;
+            });
+
+
+
+        }
+
+        return false;
+
+      }).catchError((error){
+          throw error;
+      });
 
 
 

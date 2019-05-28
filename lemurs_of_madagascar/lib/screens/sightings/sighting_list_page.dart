@@ -1,13 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
-import 'package:lemurs_of_madagascar/utils/user_session.dart';
+
+
+abstract class SyncSightingContract {
+  void onSyncSuccess();
+  void onSyncFailure(int statusCode);
+  void onSocketFailure();
+}
+
+class SyncSightingPresenter {
+
+  SyncSightingContract _syncingView;
+  RestData syncSightingAPI = RestData();
+  SyncSightingPresenter(this._syncingView);
+
+  sync(Sighting sighting) {
+    if(sighting != null) {
+      syncSightingAPI
+          .syncSighting(sighting)
+          .then((synced) => _syncingView.onSyncSuccess())
+          .catchError((error) {
+        //if(error is SocketException) _loginView.onSocketFailure();
+        //if(error is LOMException) {
+        //_loginView.onLoginFailure(error.statusCode);
+        //}
+        _syncingView.onSyncSuccess();
+      });
+    }
+  }
+}
 
 
 class SightingListPage extends StatefulWidget {
@@ -23,13 +52,14 @@ class SightingListPage extends StatefulWidget {
 
 }
 
-class _SightingListPageState extends State<SightingListPage> {
+class _SightingListPageState extends State<SightingListPage> implements SyncSightingContract {
 
   String title;
   int currentUid = 0;
   int _bottomNavIndex = 0;
   List<Sighting> sightingList = List<Sighting>();
   SightingBloc sightingBloc = SightingBloc();
+  SyncSightingPresenter syncPresenter;
 
   List<String> _menuName = [
     "New sighting",
@@ -37,6 +67,7 @@ class _SightingListPageState extends State<SightingListPage> {
   ];
 
   //String _title = "";
+
 
 
   @override
@@ -71,6 +102,7 @@ class _SightingListPageState extends State<SightingListPage> {
               futureList.then((list) {
                 setState(() {
                   sightingList = list;
+                  this.syncPresenter.sync(sightingList[0]);
                 });
               });
             }
@@ -88,7 +120,9 @@ class _SightingListPageState extends State<SightingListPage> {
 
   }
 
-  _SightingListPageState(this.title);
+  _SightingListPageState(this.title){
+      syncPresenter = SyncSightingPresenter(this);
+  }
 
   @override
   Widget build(BuildContext buildContext) {
@@ -139,7 +173,6 @@ class _SightingListPageState extends State<SightingListPage> {
         ));
   }
 
-
   void _handleBottomNavTap(int index){
 
 
@@ -160,15 +193,6 @@ class _SightingListPageState extends State<SightingListPage> {
     }
 
   }
-
-  /*Widget _newSightingTab() {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(height: 10),
-
-        ]);
-  }*/
 
   Widget _buildSearch(){
     return IconButton(
@@ -276,7 +300,28 @@ class _SightingListPageState extends State<SightingListPage> {
 
   }
 
-  /*
+  @override
+  void onSocketFailure() {
+    // TODO: implement onSocketFailure
+    print("[SIGHTING_LIST_PAGE::onSocketFailure()]");
+  }
+
+  @override
+  void onSyncFailure(int statusCode) {
+    // TODO: implement onSyncFailure
+    print("[SIGHTING_LIST_PAGE::onSyncFailure()]");
+  }
+
+  @override
+  void onSyncSuccess() {
+    // TODO: implement onSyncSuccess
+    print("[SIGHTING_LIST_PAGE::onSyncSuccess()]");
+  }
+
+
+}
+
+/*
   static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc)
   {
 
@@ -321,4 +366,3 @@ class _SightingListPageState extends State<SightingListPage> {
     return Container();
 
   } */
-}

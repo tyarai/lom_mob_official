@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
@@ -439,6 +440,54 @@ class Sighting {
 
   }
 
+  static Future<File> getImageFile(Sighting sighting)  async {
+
+    if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
+
+      Species species = sighting.species;
+
+      if(species == null){
+        await sighting.loadSpeciesAndSite();
+      }
+
+      Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(0);
+
+      return photo.then((photograph){
+
+        if(photograph != null) {
+
+          String assetPath = photograph.photoAssetPath(ext: Constants.imageType);
+          File file = File(assetPath);
+          return file;
+        }
+
+        return null;
+
+      });
+
+    }
+
+
+    return getApplicationDocumentsDirectory().then((folder) {
+
+      if(folder != null) {
+
+        String fullPath = join(folder.path, sighting.photoFileName);
+
+        File file = File(fullPath);
+
+        if (file.existsSync()) {
+          return file;
+        }
+
+      }
+
+      return null;
+
+    });
+
+
+  }
 
   static Future<Container> getImageContainer(Sighting sighting,
       {double width = 1280.0 ,
@@ -452,7 +501,7 @@ class Sighting {
 
       Future<Image> image = Sighting.getImage(sighting);
 
-      return image.then( (Image _image) {
+      return image.then( (_image) {
 
         bool assetImage = sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder);
 

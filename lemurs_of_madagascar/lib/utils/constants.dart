@@ -58,6 +58,7 @@ class Constants {
   static const int minPasswordLength = 6;
 
   // Documents and folders inside the app document folder
+  static const String publicFolder = "public://";
   static const String appImagesFolder = "/images/";
   static const String appImagesAssetsFolder = "assets/images/";
 
