@@ -240,19 +240,19 @@ class RestData {
 
   }
 
-  Future<int> syncSighting(Sighting sighting) async {
+  Future<int> syncSighting(Sighting sighting,{bool editing=false}) async {
 
     if(sighting != null){
 
       var _file = Sighting.getImageFile(sighting);
 
-      _file.then((file)  async {
+      return _file.then((file)  async {
 
         if(file != null){
 
           String fileName = basename(file.path);
 
-          syncFile(file, fileName).then((fid) async {
+          return syncFile(file, fileName).then((fid) async {
 
             if(fid == 0) return 0;
 
@@ -260,6 +260,10 @@ class RestData {
 
             String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
             String token = currentSession.token;
+
+            String formattedDate = editing ?
+            DateFormat(Constants.apiNodeUpdateDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())) :
+            DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
             Map<String,String> body = {
               "title": sighting.title,
@@ -269,15 +273,15 @@ class RestData {
               "field_uuid" : sighting.uuid,
               "body": sighting.title,
               "field_place_name":sighting.placeName,
-              "field_date": DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())),
+              "field_date": formattedDate,
               "field_associated_species": sighting.speciesNid.toString(),
               "field_lat": sighting.latitude.toString(),
               "field_long" : sighting.longitude.toString(),
               "field_altitude" : sighting.altitude.toString(),
-              "field_is_local" : 0.toString(), // NO
-              "field_is_synced": 1.toString(), // YES
+              "field_is_local" : editing ? sighting.isLocal.toString()  : 0.toString(), // NO
+              "field_is_synced": editing ? sighting.isSynced.toString() : 1.toString(), // YES
               "field_count" : sighting.speciesCount.toString(),
-              "field_photo" : fid.toString(),
+              "field_photo" : fid.toString(), // TODO Optimisation do not upload unchanged photo
               "field_place_name_reference":sighting.placeNID.toString(),
 
             };
@@ -289,28 +293,65 @@ class RestData {
               "X-CSRF-Token": token
             };
 
-            return
-              _networkUtil.post(NEW_SIGHTING,
-                body: json.encode(body),
-                headers: headers,
-              ).then((dynamic resultMap) {
+            if(! editing) {
+              // Create new sighting
+              return
+                _networkUtil.post(NEW_SIGHTING,
+                  body: json.encode(body),
+                  headers: headers,
+                ).then((dynamic resultMap) async {
+                  print("[REST_DATA::syncSighting()] new" + resultMap.toString());
 
-                print("[REST_DATA::syncSighting()] " + resultMap.toString());
+                  if (resultMap[RestData.errorKey] != null) {
+                    throw new Exception(resultMap["error_msg"]);
+                  }
 
-                if(resultMap[RestData.errorKey] != null) {
-                  throw new Exception(resultMap["error_msg"]);
-                }
+                  String nidKey = "nid";
+                  int nid = resultMap[nidKey];
 
-                String nidKey = "nid";
-                int nid = resultMap[nidKey];
+                  return nid;
+
+                }).catchError((error) {
+                  print(
+                      "[REST_DATA::syncSighting()] creating sighting error:" + error.toString());
+                  throw error;
+                });
+
+            }else{
+
+              if(sighting.nid <= 0 ) {
+                print("[sighting.nid == 0]");
+                return 0;
+              }
+
+              print(sighting.toString());
+              String nodeUpdateUrl = NODE_UPDATE_ENDPOINT + sighting.nid.toString();
+              print("[Updating node at $nodeUpdateUrl]");
+              return
+                _networkUtil.put(nodeUpdateUrl,
+                  body: json.encode(body),
+                  headers: headers,
+                ).then((dynamic resultMap) {
+
+                  print("[REST_DATA::syncSighting()] update" + resultMap.toString());
+
+                  if (resultMap[RestData.errorKey] != null) {
+                    throw new Exception(resultMap["error_msg"]);
+                  }
+
+                  String nidKey = "nid";
+                  int nid = resultMap[nidKey];
+                  return nid;
+
+                }).catchError((error) {
+                  print(
+                      "[REST_DATA::syncSighting()] updating sighting error:" + error.toString());
+                  throw error;
+                });
+
+            }
 
 
-                return nid;
-
-              }).catchError((error) {
-                print("[REST_DATA::syncSighting()] error:" + error.toString());
-                throw error;
-              });
 
           });
 

@@ -39,7 +39,7 @@ class SightingDatabaseHelper  {
       Database database = await DatabaseHelper.instance.database;
       var result = await database.update(sightingsTable, sighting.toMap(),
           where: '$idCol = ?', whereArgs: [sighting.id]);
-      //print(".............updating sighting....");
+      print("[SIGHTING_DATABASE_HELPER::updateSighting()] Sighting "+sighting.toString());
       return result;
 
     }catch(e){

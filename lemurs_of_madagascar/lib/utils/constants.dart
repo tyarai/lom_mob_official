@@ -71,6 +71,7 @@ class Constants {
   //Date
   static String dateFormat = "yyyy-MMMM-dd";
   static String apiDateFormat = "yyyy-MM-dd";
+  static String apiNodeUpdateDateFormat = "M/d/y";
 
   //Sighting List
   static const TextStyle sightingTitleTextStyle = TextStyle(fontFamily: fontFamily,fontSize: 18);

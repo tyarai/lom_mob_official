@@ -89,12 +89,14 @@ class SightingBloc implements BlocBase {
     if (event is SightingSiteChangeEvent) {
       _sighting.site = event.site;
       _sighting.placeName = event.site.title;
+      _sighting.placeNID = event.site.id;
       //print(.*)
     }
 
     if (event is SightingSpeciesChangeEvent) {
       _sighting.species = event.species;
       _sighting.speciesName = event.species.title;
+      _sighting.speciesNid = event.species.id;
       //print("new species ${_sighting.species.title}");
     }
 

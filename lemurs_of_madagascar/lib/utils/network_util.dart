@@ -51,4 +51,34 @@ class NetworkUtil {
 
     });
   }
+
+  Future<dynamic> put(String url, {Map headers, body, encoding}) {
+    print("network util putting...$url .. $body ... $encoding");
+    return http
+        .put(url, body: body, headers: headers, encoding: encoding)
+        .then((http.Response response) {
+
+      print("[NETWORK_UTIL::put()]" + response.body);
+
+      final String res = response.body;
+      final int statusCode = response.statusCode;
+      dynamic decodedData = _decoder.convert(res);
+
+      if (statusCode < 200 || statusCode > 400 || json == null) {
+        print("NETWORK STATUS CODE :"+statusCode.toString());
+        //throw new Exception(statusCode);
+        throw new LOMException(statusCode);
+      }
+
+      return decodedData;
+
+    }).catchError((Object error){
+
+      //@TODO Handle SocketException when the user does not have to internet.
+      print("[NETWORK_UTIL::post()] error" + error.toString());
+      throw error;
+
+    });
+  }
+
 }

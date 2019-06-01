@@ -291,7 +291,11 @@ class _SightingListPageState extends State<SightingListPage> implements SyncSigh
   }
 
   @override
-  void onSyncSuccess(int nid) {
+  void onSyncSuccess(Sighting sighting,int nid)  {
+    if(nid > 0 && sighting != null) {
+      sighting.nid = nid;
+      sighting.saveToDatabase(true);//Update this sighting
+    }
     print("[SIGHTING_LIST_PAGE::onSyncSuccess()] new sighting created on server [nid] : $nid");
   }
 

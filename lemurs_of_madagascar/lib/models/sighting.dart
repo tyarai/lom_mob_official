@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
@@ -19,7 +20,7 @@ import 'package:uuid/uuid.dart';
 
 
 abstract class SyncSightingContract {
-  void onSyncSuccess(int nid);
+  void onSyncSuccess(Sighting sighting,int nid);
   void onSyncFailure(int statusCode);
   void onSocketFailure();
 }
@@ -30,15 +31,18 @@ class SyncSightingPresenter {
   RestData syncSightingAPI = RestData();
   SyncSightingPresenter(this._syncingView);
 
-  sync(Sighting sighting) {
+  sync(Sighting sighting,{bool editing=false}) {
     if(sighting != null) {
       syncSightingAPI
-          .syncSighting(sighting)
-          .then((nid) => _syncingView.onSyncSuccess(nid))
+          .syncSighting(sighting,editing: editing)
+          .then((nid) {
+            print("presenter $nid");
+            _syncingView.onSyncSuccess(sighting,nid);
+          })
           .catchError((error) {
-        if(error is SocketException) _syncingView.onSocketFailure();
-        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
-      });
+            if(error is SocketException) _syncingView.onSocketFailure();
+            if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+          });
     }
   }
 }
@@ -164,72 +168,87 @@ class Sighting {
 
     return user.then((user) async {
 
-      if(user != null && user.uid != 0 && user.uuid != null) {
+      try {
+        if (user != null && user.uid != 0 && user.uuid != null) {
+          //print("[BEFORE] $editing ${this.toString()}");
 
-        this.uid = user.uid;
+          this.uid = user.uid;
 
-        var _uuid = Uuid();
-        this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
-        //this.nid  = 0;
-        this.speciesNid = this.species.id;
-        this.placeName = this.site.title;
+          this.nid = this.nid; //Random().nextInt(65000);
 
-        this.date = this.date == null
-            ? DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toDouble()
-            : this.date;
+          var _uuid = Uuid();
+          this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
 
-        this.created = this.created == null
-            ? DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toDouble()
-            : this.created;
+          this.speciesNid =
+          this.species?.id != null ? this.species.id : this.speciesNid;
+          this.speciesName =
+          this.species?.title != null ? this.species.title : this.speciesName;
 
-        this.modified = DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toDouble();
-        this.placeNID = this.site.id;
-        this.uid = this.uid == null ? user.uid  : this.uid;
+          this.placeNID = this.site?.id != null ? this.site.id : this.placeNID;
+          this.placeName =
+          this.site?.title != null ? this.site.title : this.placeName;
 
-        Photograph defaultImage = await this._species.getPhotographObjectAtIndex(0);
-        this.photoFileName = this.photoFileName != null
-            ? this.photoFileName
-            //Constants.defaultImageText; // Set a default image for this sighting
-            : defaultImage.photoAssetPath(ext: Constants.imageType);
-        //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+          this.date = this.date == null
+              ? DateTime
+              .now()
+              .millisecondsSinceEpoch
+              .toDouble()
+              : this.date;
 
-        //this.isLocal    = 1;
-        //this.isSynced   = 0;
-        //this.deleted    = 0;
+          this.created = this.created == null
+              ? DateTime
+              .now()
+              .millisecondsSinceEpoch
+              .toDouble()
+              : this.created;
 
-        //this.locked     = 0;
-        //this.hasPhotoChanged = 0;
-        //this.latitude   = this.latitude == 0 ? 0.0 : this.latitude;
-        //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
+          this.modified = DateTime
+              .now()
+              .millisecondsSinceEpoch
+              .toDouble();
 
-        SightingDatabaseHelper db = SightingDatabaseHelper();
-        Future<int> id;
+          this.uid = this.uid == null ? user.uid : this.uid;
 
-        if(editing) {
-          id = db.updateSighting(sighting: this);
+          Photograph defaultImage = await this._species
+              .getPhotographObjectAtIndex(0);
+          this.photoFileName = this.photoFileName != null
+              ? this.photoFileName
+              : defaultImage.photoAssetPath(ext: Constants.imageType);
+          //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+
+          this.isLocal = 1;
+          this.isSynced = 0;
+          this.deleted = 0;
+
+          this.locked = 0;
+          this.hasPhotoChanged = 0;
+
+          //this.latitude   = this.latitude == 0 ? 0.0 : this.latitude;
+          //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
+          //print("[SIGHTING::saveTodatabase() Before saving to DB] ${this.toString()}");
+
+          SightingDatabaseHelper db = SightingDatabaseHelper();
+          Future<int> id;
+
+          if (editing) {
+            id = db.updateSighting(sighting: this);
+          }
+          else {
+            id = db.insertSighting(sighting: this);
+          }
+
+          return id.then((newID) {
+            return true;
+          });
+
+        } else {
+          print("[Sighting::saveToDatabase()] no User logged-in!");
+          return false;
         }
-        else{
-          id = db.insertSighting(sighting: this);
-        }
 
-        return id.then((newID) {
-          print("Successful! New id : $newID");
-          return newID > 0 ? true :  false;
-        });
-
-      }else{
-        print("[Sighting::saveToDatabase()] no User logged-in!");
-        return false;
-
+      }catch(e) {
+        print("[Sighting::saveToDatabase()] Exception ${e.toString()}");
+        throw e;
       }
 
     });
@@ -352,12 +371,6 @@ class Sighting {
 
         FutureBuilder<Container>(
             future:
-            /*Sighting.getImage(
-                sighting,
-                width:screenWidth,
-                height:Constants.sightingListImageHeight,
-                fittedImage: true,
-                assetImage: true),*/
               Sighting.getImageContainer(
               sighting,
               width:screenWidth,
@@ -639,6 +652,6 @@ class Sighting {
 
   @override
   String toString() {
-    return "[ID]:${this.id} \n [title]:${this.title} \n[species]:${this.speciesName}  \n[photo]:${this.photoFileName} \n[date]:${this.date.toString()} \n[count]:${this.speciesCount} \n[long]:${this.longitude} \n[lat]:${this.latitude} \n[alt]:${this.altitude} \n[placename]:${this.placeName}";
+    return "\n[ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [species]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [placename]:${this.placeName}";
   }
 }

@@ -169,7 +169,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
             Navigator.of(context).pushReplacementNamed("/sighting_list");
 
             if(saved){
-              syncPresenter.sync(bloc.sighting);//Sync sighting to server
+              syncPresenter.sync(bloc.sighting,editing:this._editing);//Sync sighting to server
             }
 
           });
@@ -862,8 +862,48 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   }
 
   @override
-  void onSyncSuccess(int nid) {
-    print("[SIGHTING_EDIT_PAGE::onSyncSuccess()] new sighting created on server [nid] : $nid");
+  void onSyncSuccess(Sighting sighting,int nid) {
+    // Update this sighting nid which was from the server
+    if(nid > 0 && sighting != null) {
+
+      Sighting newSighting = Sighting(
+        id: sighting.id,
+        nid:nid,
+        uuid: sighting.uuid,
+        speciesName: sighting.speciesName,
+        speciesNid: sighting.speciesNid,
+        speciesCount: sighting.speciesCount,
+        placeName: sighting.placeName,
+        latitude: sighting.latitude,
+        longitude: sighting.longitude,
+        altitude: sighting.altitude,
+        photoFileName: sighting.photoFileName,
+        title: sighting.title,
+        created: sighting.created,
+        modified: sighting.modified,
+        uid: sighting.uid,
+        isLocal: sighting.isLocal,
+        isSynced: sighting.isSynced,
+        date: sighting.date,
+        deleted: sighting.deleted,
+        placeNID: sighting.placeNID,
+        locked: sighting.locked,
+        hasPhotoChanged: sighting.hasPhotoChanged
+      );
+
+      newSighting.loadSpeciesAndSite().then((finished){
+        if(finished != null && finished) {
+          //newSighting.saveToDatabase(true).then((saved) {
+          newSighting.saveToDatabase(this._editing).then((saved) {
+            print(
+                "[SIGHTING_EDIT_PAGE::onSyncSuccess()] new sighting : ${newSighting
+                    .toString()}");
+          });
+        }
+      });
+
+    }
+
   }
 }
 
