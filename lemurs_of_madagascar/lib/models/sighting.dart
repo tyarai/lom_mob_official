@@ -1,7 +1,4 @@
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
-
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
@@ -20,7 +17,7 @@ import 'package:uuid/uuid.dart';
 
 
 abstract class SyncSightingContract {
-  void onSyncSuccess(Sighting sighting,int nid);
+  void onSyncSuccess(Sighting sighting,int nid,bool editing);
   void onSyncFailure(int statusCode);
   void onSocketFailure();
 }
@@ -28,16 +25,15 @@ abstract class SyncSightingContract {
 class SyncSightingPresenter {
 
   SyncSightingContract _syncingView;
-  RestData syncSightingAPI = RestData();
+  RestData api = RestData();
   SyncSightingPresenter(this._syncingView);
 
   sync(Sighting sighting,{bool editing=false}) {
     if(sighting != null) {
-      syncSightingAPI
-          .syncSighting(sighting,editing: editing)
+       api.syncSighting(sighting,editing: editing)
           .then((nid) {
             print("presenter $nid");
-            _syncingView.onSyncSuccess(sighting,nid);
+            _syncingView.onSyncSuccess(sighting,nid,editing);
           })
           .catchError((error) {
             if(error is SocketException) _syncingView.onSocketFailure();
@@ -162,7 +158,7 @@ class Sighting {
     this._species = value;
   }
 
-  Future<bool> saveToDatabase(bool editing) async {
+  Future<int> saveToDatabase(bool editing) async {
 
     Future<User> user = User.getCurrentUser();
 
@@ -174,7 +170,7 @@ class Sighting {
 
           this.uid = user.uid;
 
-          this.nid = this.nid; //Random().nextInt(65000);
+          //this.nid = this.nid; //Random().nextInt(65000);
 
           var _uuid = Uuid();
           this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
@@ -223,27 +219,23 @@ class Sighting {
           this.locked = 0;
           this.hasPhotoChanged = 0;
 
-          //this.latitude   = this.latitude == 0 ? 0.0 : this.latitude;
-          //this.longitude  = this.longitude  == 0 ? 0.0 : this.longitude;
-          //print("[SIGHTING::saveTodatabase() Before saving to DB] ${this.toString()}");
-
           SightingDatabaseHelper db = SightingDatabaseHelper();
           Future<int> id;
 
           if (editing) {
-            id = db.updateSighting(sighting: this);
+            id = db.updateSighting(this);
           }
           else {
-            id = db.insertSighting(sighting: this);
+            id = db.insertSighting(this);
           }
 
           return id.then((newID) {
-            return true;
+            return newID;
           });
 
         } else {
           print("[Sighting::saveToDatabase()] no User logged-in!");
-          return false;
+          return 0;
         }
 
       }catch(e) {
@@ -388,7 +380,7 @@ class Sighting {
 
         Container(height: 5),
         Text(
-          sighting.speciesName,
+          sighting.id.toString() + " " + sighting.nid.toString() + " " + sighting.speciesName,
           style: Constants.sightingSpeciesNameTextStyle,
         ),
         Container(height: 5),
@@ -567,91 +559,12 @@ class Sighting {
   }
 
 
-    /*static Future<Container> getImage(Sighting sighting, {double width = 1280.0 ,double height = Constants.sightingListImageHeight,bool fittedImage = false,BoxFit fit = BoxFit.cover , bool assetImage=false})  async {
-
-    if (sighting != null && sighting.photoFileName == null && !assetImage) {
-
-      return Container(
-        child: Icon(Icons.camera,
-            size: Constants.cameraPhotoPlaceHolder,
-            color: Constants.cameraPlaceHolderColor),
-            //color: Colors.red),
-      );
-
-    }else if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder) && assetImage){
-
-      // Default image form species assets when no image was provided
-      //print("Sighting ${sighting.id} getting " + Constants.defaultImageText);
-      //if(sighting._species == null) print("Species null");
-
-      Species species = sighting.species;
-
-      if(species == null){
-        await sighting.loadSpeciesAndSite();
-      }
-
-      Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(0);
-
-      return photo.then((photograph){
-
-        if(photograph != null) {
-
-          String assetPath = photograph.photoAssetPath(ext: Constants.imageType);
-
-          return Container(
-            height: height,
-            width: width,
-            //child: !fittedImage ?
-            child:FittedBox(fit: BoxFit.contain,
-                  child: Column(mainAxisAlignment: MainAxisAlignment.start,
-                      children: [Image.asset(assetPath)]))
-
-          ); // Return image from assets
-        }
-
-      });
-
-    }
-
-
-    return getApplicationDocumentsDirectory().then((folder) {
-
-      if(folder != null) {
-
-        String fullPath = join(folder.path, sighting.photoFileName);
-
-        File file = File(fullPath);
-        //Image image = Image.file(file);
-        //print("$fullPath $image ${image.width} ${image.height}");
-
-        if (file.existsSync()) {
-
-          return Container(
-            height: height,
-            width:width,
-            child: ! fittedImage ?
-             Image.file(file,)
-                :
-              FittedBox(fit:fit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [Image.file(file,)])),
-          ); // Return image from Documents
-
-        }
-
-      }
-
-      return Container();
-
-    });
-
-
-  }*/
-
   static void deleteAllSightings() {
     SightingDatabaseHelper.deleteAllSightings();
   }
 
   @override
   String toString() {
-    return "\n[ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [species]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [placename]:${this.placeName}";
+    return "\n[ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName}";
   }
 }

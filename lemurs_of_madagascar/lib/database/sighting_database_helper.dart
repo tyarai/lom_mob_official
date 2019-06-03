@@ -22,10 +22,12 @@ class SightingDatabaseHelper  {
     return result;
   }
 
-  Future<int> insertSighting({sighting:Sighting}) async {
+  Future<int> insertSighting(Sighting sighting) async {
     try {
       Database database = await DatabaseHelper.instance.database;
       var result = await database.insert(sightingsTable, sighting.toMap());
+      //print("[SIGHTING_DATABASE_HELPER::insertSighting()] Sighting " + sighting.toString());
+      
       return result;
     }catch(e){
       print("[SIGHTING_DATABASE_HELPER::insertSighting()] "+e.toString());
@@ -33,19 +35,23 @@ class SightingDatabaseHelper  {
     }
   }
 
-  Future<int> updateSighting({sighting : Sighting}) async {
+  Future<int> updateSighting(Sighting sighting) async {
     try{
 
-      Database database = await DatabaseHelper.instance.database;
-      var result = await database.update(sightingsTable, sighting.toMap(),
-          where: '$idCol = ?', whereArgs: [sighting.id]);
-      print("[SIGHTING_DATABASE_HELPER::updateSighting()] Sighting "+sighting.toString());
-      return result;
+      if(sighting.id != null &&  sighting.id != 0) {
+
+        Database database = await DatabaseHelper.instance.database;
+        var result = await database.update(sightingsTable, sighting.toMap(),
+            where: '$idCol = ?', whereArgs: [sighting.id]);
+        
+        return result;
+      }
 
     }catch(e){
       print("[SIGHTING_DATABASE_HELPER::updateSighting()] "+e.toString());
-      return null;
+      return 0;
     }
+    return 0;
   }
 
   Future<int> deleteSighting({sighting : Sighting}) async {
@@ -53,6 +59,7 @@ class SightingDatabaseHelper  {
       Database database = await DatabaseHelper.instance.database;
       var result =
       await database.delete(sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
+      
       return result;
     }catch(e){
       print("[SIGHTING_DATABASE_HELPER::deleteSighting()] "+e.toString());
@@ -64,6 +71,7 @@ class SightingDatabaseHelper  {
     Database database = await DatabaseHelper.instance.database;
     var result =
     await database.delete(sightingsTable);
+    
     return result;
   }
 
@@ -72,23 +80,11 @@ class SightingDatabaseHelper  {
     List<Map<String, dynamic>> x =
     await database.rawQuery("SELECT COUNT(*) FROM $sightingsTable ");
     int result = Sqflite.firstIntValue(x);
+    
     return result;
   }
 
-  /*Future<List<Sighting>> getSighingListWithID(int id) async {
-
-    var sightingMapList = await this.getSightingMapListWithID(id);
-    int count = sightingMapList.length;
-
-    List<Sighting> list = new List<Sighting>();
-
-    for(int i=0 ; i < count ; i++){
-      list.add(Sighting.fromMap(sightingMapList[i]));
-    }
-
-    return list;
-  }*/
-
+  
   Future<List<Sighting>> getSightingList(int uid) async {
 
     var sightingMapList = await this.getSightingMapList(uid);

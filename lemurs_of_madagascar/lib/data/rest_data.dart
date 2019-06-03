@@ -184,6 +184,7 @@ class RestData {
 
   Future<int> syncFile(File file,String fileName) async {
 
+    return 2645;
 
     if(file != null && fileName != null){
 
@@ -264,15 +265,17 @@ class RestData {
             String formattedDate = editing ?
             DateFormat(Constants.apiNodeUpdateDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())) :
             DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
+            //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
+
 
             Map<String,String> body = {
-              "title": sighting.title,
-              "uuid": sighting.uuid,
-              "uid" : sighting.uid.toString(),
-              "status" : 1.toString(), //active
-              "field_uuid" : sighting.uuid,
-              "body": sighting.title,
-              "field_place_name":sighting.placeName,
+              //"title": sighting.title,
+              //"uuid": sighting.uuid,
+              //"uid" : sighting.uid.toString(),
+              //"status" : 1.toString(), //active
+              //"field_uuid" : sighting.uuid,
+              //"body": sighting.title,
+              /*"field_place_name":sighting.placeName,
               "field_date": formattedDate,
               "field_associated_species": sighting.speciesNid.toString(),
               "field_lat": sighting.latitude.toString(),
@@ -282,16 +285,21 @@ class RestData {
               "field_is_synced": editing ? sighting.isSynced.toString() : 1.toString(), // YES
               "field_count" : sighting.speciesCount.toString(),
               "field_photo" : fid.toString(), // TODO Optimisation do not upload unchanged photo
-              "field_place_name_reference":sighting.placeNID.toString(),
-
+              "field_place_name_reference":sighting.placeNID.toString(),*/
             };
 
+            String body2 = "title=${sighting.title}";
+
+
+            print("BODY ${body.toString()}");
+
             Map<String,String> headers = {
-              "Content-Type": "application/json",//"application/x-www-form-urlencoded",
+              "Content-Type": "application/x-www-form-urlencoded",//application/json"
               "Accept": "application/json",
               "Cookie": cookie,
               "X-CSRF-Token": token
             };
+
 
             if(! editing) {
               // Create new sighting
@@ -319,17 +327,13 @@ class RestData {
 
             }else{
 
-              if(sighting.nid <= 0 ) {
-                print("[sighting.nid == 0]");
-                return 0;
-              }
-
-              print(sighting.toString());
               String nodeUpdateUrl = NODE_UPDATE_ENDPOINT + sighting.nid.toString();
               print("[Updating node at $nodeUpdateUrl]");
               return
+
                 _networkUtil.put(nodeUpdateUrl,
-                  body: json.encode(body),
+                  //body: json.encode(body),
+                  body: body2,
                   headers: headers,
                 ).then((dynamic resultMap) {
 
@@ -340,7 +344,7 @@ class RestData {
                   }
 
                   String nidKey = "nid";
-                  int nid = resultMap[nidKey];
+                  int nid = int.parse(resultMap[nidKey]);
                   return nid;
 
                 }).catchError((error) {

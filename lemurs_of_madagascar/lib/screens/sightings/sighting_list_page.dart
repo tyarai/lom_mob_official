@@ -27,14 +27,14 @@ class SightingListPage extends StatefulWidget {
 
 }
 
-class _SightingListPageState extends State<SightingListPage> implements SyncSightingContract {
+class _SightingListPageState extends State<SightingListPage>  {
 
   String title;
   int currentUid = 0;
   int _bottomNavIndex = 0;
   List<Sighting> sightingList = List<Sighting>();
   SightingBloc sightingBloc = SightingBloc();
-  SyncSightingPresenter syncPresenter;
+  bool _isEditing = false;
 
   List<String> _menuName = [
     "New sighting",
@@ -95,9 +95,7 @@ class _SightingListPageState extends State<SightingListPage> implements SyncSigh
 
   }
 
-  _SightingListPageState(this.title){
-      syncPresenter = SyncSightingPresenter(this);
-  }
+  _SightingListPageState(this.title);
 
   @override
   Widget build(BuildContext buildContext) {
@@ -275,75 +273,6 @@ class _SightingListPageState extends State<SightingListPage> implements SyncSigh
 
   }
 
-  @override
-  void onSocketFailure() {
-    //print("[SIGHTING_LIST_PAGE::onSocketFailure()]");
-    ErrorHandler.handleSocketError(context);
-  }
-
-  @override
-  void onSyncFailure(int statusCode) {
-    //print("[SIGHTING_LIST_PAGE::onSyncFailure()]");
-    //setState(() {
-    //  _isLoading = false;
-    //});
-    ErrorHandler.handle(context, statusCode);
-  }
-
-  @override
-  void onSyncSuccess(Sighting sighting,int nid)  {
-    if(nid > 0 && sighting != null) {
-      sighting.nid = nid;
-      sighting.saveToDatabase(true);//Update this sighting
-    }
-    print("[SIGHTING_LIST_PAGE::onSyncSuccess()] new sighting created on server [nid] : $nid");
-  }
-
 
 }
 
-/*
-  static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc)
-  {
-
-    if(list != null && list.length > 0 && (index >= 0 && index < list.length)) {
-
-      Sighting sighting = list[index];
-
-      return GestureDetector(
-          onTap: () {
-
-            bloc.sightingEventController.add(SightingChangeEvent(sighting));
-            //print("TAPPED ON "+ sighting.toString());
-
-            Navigator.of(context).push(
-                MaterialPageRoute(
-                    fullscreenDialog: true, builder: (buildContext) =>
-                BlocProvider(
-                  child: SightingEditPage("Edit sighting",sighting,true),
-                  bloc: bloc,
-                ))
-            );
-
-          },
-          child: Padding(
-              padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-              child: Container(
-                  child: Material(
-                    elevation: 1.0,
-                    borderRadius: BorderRadius.circular(0),
-                    shadowColor: Colors.blueGrey,
-                    child: Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(height: 10),
-                              Sighting.buildCellInfo(sighting),
-                            ])),
-                  ))));
-    }
-
-    return Container();
-
-  } */

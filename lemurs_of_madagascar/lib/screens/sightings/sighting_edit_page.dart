@@ -151,6 +151,11 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   }
 
 
+  Future<void> _navigateToPreviousPage() async{
+    Navigator.of(context).pop();
+    Navigator.of(context).pushReplacementNamed("/sighting_list");
+  }
+
   _submit(BuildContext buildContext) {
 
     final form = formKey.currentState;
@@ -159,42 +164,30 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
       if (form.validate()) {
 
-        setState(() {
+        form.save();
+        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+        //Sighting currentSighting = bloc.sighting;
 
-          form.save();
-          SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-          bloc.saveSighting(this._editing).then((saved){
+        this._navigateToPreviousPage();
 
-            Navigator.of(context).pop();
-            Navigator.of(context).pushReplacementNamed("/sighting_list");
+        bloc.sighting.saveToDatabase(this._editing).then((newID){
 
-            if(saved){
-              syncPresenter.sync(bloc.sighting,editing:this._editing);//Sync sighting to server
+          if(newID != 0){
+
+            print("New ID $newID");
+
+            if(this._editing == false) {
+              bloc.sighting.id = newID;
+              print("UPDATED id with $newID");
             }
+            syncPresenter.sync(bloc.sighting,editing:this._editing);
 
-          });
+          }
 
+        }).catchError((error){
+            print("[Sighting_edit_page::_submit()] Exception ${error.toString()}");
+            throw error;
         });
-
-        //Navigator.of(context).pop();
-        //Navigator.of(context).pushReplacementNamed("/sighting_list");
-
-        /*Navigator.of(context).pushReplacement(
-          PageRouteBuilder<Null>(
-              pageBuilder: (BuildContext context, Animation<double> animation,
-                  Animation<double> secondaryAnimation) {
-                return AnimatedBuilder(
-                    animation: animation,
-                    builder: (BuildContext context, Widget child) {
-                      return Opacity(
-                        opacity: animation.value,
-                        child: SightingListPage(title:"My sighting"),
-                      );
-                    });
-              },
-              transitionDuration: Duration(
-                  milliseconds: 300)),
-        );*/
 
       }
 
@@ -213,9 +206,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         builder: (BuildContext context, AsyncSnapshot<Sighting> snapshot)  {
 
           if (snapshot.data != null && snapshot.hasData) {
-
-            //print("----->"+ snapshot.data.toString());
-            //print("----->"+ sighting.toString());
 
             return ListView(
                 children: <Widget>[
@@ -862,49 +852,41 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   }
 
   @override
-  void onSyncSuccess(Sighting sighting,int nid) {
+  void onSyncSuccess(Sighting sighting,int nid,bool editing) {
+
     // Update this sighting nid which was from the server
     if(nid > 0 && sighting != null) {
 
-      Sighting newSighting = Sighting(
-        id: sighting.id,
-        nid:nid,
-        uuid: sighting.uuid,
-        speciesName: sighting.speciesName,
-        speciesNid: sighting.speciesNid,
-        speciesCount: sighting.speciesCount,
-        placeName: sighting.placeName,
-        latitude: sighting.latitude,
-        longitude: sighting.longitude,
-        altitude: sighting.altitude,
-        photoFileName: sighting.photoFileName,
-        title: sighting.title,
-        created: sighting.created,
-        modified: sighting.modified,
-        uid: sighting.uid,
-        isLocal: sighting.isLocal,
-        isSynced: sighting.isSynced,
-        date: sighting.date,
-        deleted: sighting.deleted,
-        placeNID: sighting.placeNID,
-        locked: sighting.locked,
-        hasPhotoChanged: sighting.hasPhotoChanged
-      );
+      if(! editing) {
+        // Only update nid when inserting operation. The return value from updateFunction
+        sighting.nid = nid;
+      }
 
-      newSighting.loadSpeciesAndSite().then((finished){
-        if(finished != null && finished) {
-          //newSighting.saveToDatabase(true).then((saved) {
-          newSighting.saveToDatabase(this._editing).then((saved) {
+        // Always use 'true' as editing because we are going to update the nid
+        sighting.saveToDatabase(true).then((result) {
+
+
+          if(result != 0) {
+
+            if(editing) {
+              print(
+                  "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated sighting : ${sighting
+                      .toString()}");
+            }else{
+              print(
+                  "[SIGHTING_EDIT_PAGE::onSyncSuccess()] created new sighting : ${sighting
+                      .toString()}");
+            }
+
+          }else{
             print(
-                "[SIGHTING_EDIT_PAGE::onSyncSuccess()] new sighting : ${newSighting
-                    .toString()}");
-          });
-        }
-      });
+                "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated/creation not completed");
+          }
 
-    }
-
+        });
+      }
   }
+
 }
 
 
