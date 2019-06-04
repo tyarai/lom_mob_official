@@ -156,43 +156,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
     Navigator.of(context).pushReplacementNamed("/sighting_list");
   }
 
-  _submit(BuildContext buildContext) {
 
-    final form = formKey.currentState;
-
-    if(_validateSighting(buildContext)) {
-
-      if (form.validate()) {
-
-        form.save();
-        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-        //Sighting currentSighting = bloc.sighting;
-
-        this._navigateToPreviousPage();
-
-        bloc.sighting.saveToDatabase(this._editing).then((newID){
-
-          if(newID != 0){
-
-            print("New ID $newID");
-
-            if(this._editing == false) {
-              bloc.sighting.id = newID;
-              print("UPDATED id with $newID");
-            }
-            syncPresenter.sync(bloc.sighting,editing:this._editing);
-
-          }
-
-        }).catchError((error){
-            print("[Sighting_edit_page::_submit()] Exception ${error.toString()}");
-            throw error;
-        });
-
-      }
-
-    }
-  }
 
 
   _buildBody(BuildContext buildContext)   {
@@ -840,7 +804,46 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         ],
       );
     }
+  _submit(BuildContext buildContext) {
 
+
+    final form = formKey.currentState;
+
+    if(_validateSighting(buildContext)) {
+
+      if (form.validate()) {
+
+        form.save();
+        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+        Sighting currentSighting = bloc.sighting;
+
+        //this._navigateToPreviousPage();
+
+        currentSighting.saveToDatabase(this._editing).then((newID){
+
+          this._navigateToPreviousPage();
+
+          if(newID != 0){
+
+            print("New ID $newID");
+
+            if(this._editing == false) {
+              bloc.sighting.id = newID;
+              print("UPDATED id with $newID");
+            }
+            syncPresenter.sync(currentSighting,editing:this._editing);
+
+          }
+
+        }).catchError((error){
+          print("[Sighting_edit_page::_submit()] Exception ${error.toString()}");
+          throw error;
+        });
+
+      }
+
+    }
+  }
   @override
   void onSocketFailure() {
     ErrorHandler.handleSocketError(context);
@@ -857,9 +860,12 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
     // Update this sighting nid which was from the server
     if(nid > 0 && sighting != null) {
 
+
+      sighting.nid = nid;
+
       if(! editing) {
         // Only update nid when inserting operation. The return value from updateFunction
-        sighting.nid = nid;
+        //sighting.nid = nid;
       }
 
         // Always use 'true' as editing because we are going to update the nid
