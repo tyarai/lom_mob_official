@@ -175,11 +175,8 @@ class Sighting {
           var _uuid = Uuid();
           this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
 
-          this.speciesNid =
-          this.species?.id != null ? this.species.id : this.speciesNid;
-          this.speciesName =
-          this.species?.title != null ? this.species.title : this.speciesName;
-
+          this.speciesNid  = this.species?.id != null ? this.species.id : this.speciesNid;
+          this.speciesName = this.species?.title != null ? this.species.title : this.speciesName;
           this.placeNID = this.site?.id != null ? this.site.id : this.placeNID;
           this.placeName =
           this.site?.title != null ? this.site.title : this.placeName;

@@ -184,7 +184,7 @@ class RestData {
 
   Future<int> syncFile(File file,String fileName) async {
 
-    return 2645;
+    //return 2645;
 
     if(file != null && fileName != null){
 
@@ -269,67 +269,42 @@ class RestData {
             DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
             //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
-
-            Map<String,String> body = {
-              "title": sighting.title,
-              "type":"publication",
-              "uuid": sighting.uuid,
-              "uid" : sighting.uid.toString(),
-              "status" : 1.toString(),
-              "field_uuid" : sighting.uuid,
-              "body": sighting.title,
-              "field_place_name":sighting.placeName,
-              "field_date": formattedDate,
-              "field_associated_species": sighting.speciesNid.toString(),
-              "field_lat": sighting.latitude.toString(),
-              "field_long" : sighting.longitude.toString(),
-              "field_altitude" : sighting.altitude.toString(),
-              "field_is_local" : editing ? sighting.isLocal.toString()  : 0.toString(),  //NO
-              "field_is_synced": editing ? sighting.isSynced.toString() : 1.toString(),  //YES
-              "field_count" : sighting.speciesCount.toString(),
-              "field_photo" : fid.toString(),  //TODO Optimisation do not upload unchanged photo
-              "field_place_name_reference":sighting.placeNID.toString(),
-            };
-
-           /*
-           Map<String,String> body2 = {
-              "title": sighting.title,
-              "type": "publication",
-              //"uuid": sighting.uuid ,
-              "uid" : sighting.uid.toString(),
-              "status" : 0.toString(), //active
-              //"field_uuid" : {und:[{value:${sighting.uuid}]},//sighting.uuid,
-              //"body": sighting.title,
-              *//*"field_place_name":sighting.placeName,
-              "field_date": formattedDate,
-              "field_associated_species": sighting.speciesNid.toString(),
-              "field_lat": sighting.latitude.toString(),
-              "field_long" : sighting.longitude.toString(),
-              "field_altitude" : sighting.altitude.toString(),
-              "field_is_local" : editing ? sighting.isLocal.toString()  : 0.toString(), // NO
-              "field_is_synced": editing ? sighting.isSynced.toString() : 1.toString(), // YES
-              "field_count" : sighting.speciesCount.toString(),
-              "field_photo" : fid.toString(), // TODO Optimisation do not upload unchanged photo
-              "field_place_name_reference":sighting.placeNID.toString(),*//*
-            };
-            */
-
-            String body2 = "title=From Server hapalemur edited from iPhone (RESETD change)&body[und][0][value]=From Server hapalemur edited from iPhone....&field_place_name[und][0][value]=Anjozorobe-Angavo Protected Area ***&field_date[und][0][value][date]=12/01/2015&field_count[und][0][value]=2123&field_associated_species[und][nid]=232&field_photo[und][0][fid]=2645";
-
-            Map<String,String> headers = {
-              //"Content-Type": "application/json",
-              "Content-Type": "application/x-www-form-urlencoded",
-              "Accept": "application/json",
-              "Cookie": cookie,
-              "X-CSRF-Token": token
-            };
-
             if(! editing) {
+
+              Map<String,String> postBody = {
+                "title": sighting.title,
+                "type":"publication",
+                "uuid": sighting.uuid,
+                "uid" : sighting.uid.toString(),
+                "status" : 1.toString(),
+                "field_uuid" : sighting.uuid,
+                "body": sighting.title,
+                "field_place_name":sighting.placeName,
+                "field_date": formattedDate,
+                "field_associated_species": sighting.speciesNid.toString(),
+                "field_lat": sighting.latitude.toString(),
+                "field_long" : sighting.longitude.toString(),
+                "field_altitude" : sighting.altitude.toString(),
+                "field_is_local" : editing ? sighting.isLocal.toString()  : 0.toString(),  //NO
+                "field_is_synced": editing ? sighting.isSynced.toString() : 1.toString(),  //YES
+                "field_count" : sighting.speciesCount.toString(),
+                "field_photo" : fid.toString(),  //TODO Optimisation do not upload unchanged photo
+                "field_place_name_reference":sighting.placeNID.toString(),
+              };
+
+              Map<String,String> postHeaders = {
+                "Content-Type": "application/json",
+                //"Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+                "Cookie": cookie,
+                "X-CSRF-Token": token
+              };
+
               // Create new sighting
               return
                 _networkUtil.post(NEW_SIGHTING,
-                  body: json.encode(body),
-                  headers: headers,
+                  body: json.encode(postBody),
+                  headers: postHeaders,
                 ).then((dynamic resultMap) async {
                   print("[REST_DATA::syncSighting()] new" + resultMap.toString());
 
@@ -350,14 +325,23 @@ class RestData {
 
             }else{
 
+              Map<String,String> putHeaders = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+                "Cookie": cookie,
+                "X-CSRF-Token": token
+              };
+
+              //String putBody = "title=${sighting.title}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=12/01/2015&field_count[und][0][value]=2123&field_associated_species[und][nid]=232&field_photo[und][0][fid]=2645";
+              String putBody = "title=${sighting.title}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting.speciesCount}&field_associated_species[und][nid]=${sighting.speciesNid}&field_photo[und][0][fid]=$fid&field_longitude[und][0][value]=${sighting.longitude}&field_latitude[und][0][value]=${sighting.latitude}&field_altitude[und][0][value]=${sighting.altitude}";
+
               String nodeUpdateUrl = NODE_UPDATE_ENDPOINT + sighting.nid.toString();
               print("[Updating node at $nodeUpdateUrl]");
               return
 
                 _networkUtil.put(nodeUpdateUrl,
-                  //body:  json.encode(body),
-                  body: body2,
-                  headers: headers,
+                  body: putBody,
+                  headers: putHeaders,
                   encoding: Encoding.getByName('utf-8'),
                 ).then((dynamic resultMap) {
 

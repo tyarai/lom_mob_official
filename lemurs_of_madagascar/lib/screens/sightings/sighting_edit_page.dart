@@ -884,7 +884,9 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
           }
 
         });
-      }
+
+    }
+
   }
 
 }
