@@ -24,13 +24,6 @@ class SightingBloc implements BlocBase {
   }
 
 
-  /*Future<bool> saveSighting(bool editing) async {
-    return _sighting.saveToDatabase(editing).then((saved){
-      return saved;
-    });
-
-  }*/
-
   Sighting get sighting => this._sighting;
 
   Future<bool> _deleteOldPhotoFile(){

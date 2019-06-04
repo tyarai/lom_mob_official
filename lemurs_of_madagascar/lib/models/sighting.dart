@@ -154,11 +154,7 @@ class Sighting {
 
   Species get species => this._species;
 
-  set species(Species value) {
-    this._species = value;
-  }
-
-  Future<int> saveToDatabase(bool editing) async {
+  Future<Sighting> saveToDatabase(bool editing) async {
 
     Future<User> user = User.getCurrentUser();
 
@@ -226,13 +222,18 @@ class Sighting {
             id = db.insertSighting(this);
           }
 
-          return id.then((newID) {
-            return newID;
+          return id.then((result) {
+            if(result > 0) {
+              return this;
+            }else{
+              return null;
+            }
+
           });
 
         } else {
           print("[Sighting::saveToDatabase()] no User logged-in!");
-          return 0;
+          return null;
         }
 
       }catch(e) {
@@ -241,6 +242,10 @@ class Sighting {
       }
 
     });
+  }
+
+  set species(Species value) {
+    this._species = value;
   }
 
   Map<String, dynamic> toMap() {
@@ -344,7 +349,6 @@ class Sighting {
     }
     return false;
   }
-
 
   static Widget buildCellInfo(Sighting sighting,BuildContext buildContext,
       {bool lookInAssetsFolder = false,
@@ -476,49 +480,54 @@ class Sighting {
 
   static Future<File> getImageFile(Sighting sighting)  async {
 
-    if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
+    try {
 
-      Species species = sighting.species;
+      if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
 
-      if(species == null){
-        await sighting.loadSpeciesAndSite();
+
+          Species species = sighting.species;
+
+          if (species == null) {
+            await sighting.loadSpeciesAndSite();
+          }
+
+          Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(
+              0);
+
+          return photo.then((photograph) {
+            if (photograph != null) {
+              String assetPath = photograph.photoAssetPath(
+                  ext: Constants.imageType);
+              File file = File(assetPath);
+              return file;
+            }
+
+            return null;
+          });
       }
 
-      Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(0);
+      return getApplicationDocumentsDirectory().then((folder) {
 
-      return photo.then((photograph){
+        if(folder != null) {
 
-        if(photograph != null) {
+          String fullPath = join(folder.path, sighting.photoFileName);
 
-          String assetPath = photograph.photoAssetPath(ext: Constants.imageType);
-          File file = File(assetPath);
-          return file;
+          File file = File(fullPath);
+
+          if (file.existsSync()) {
+            return file;
+          }
+
         }
 
         return null;
 
       });
 
+    }catch(e){
+      print("[Sighting::getImageFile()] Exception "+ e.toString());
+      throw e;
     }
-
-
-    return getApplicationDocumentsDirectory().then((folder) {
-
-      if(folder != null) {
-
-        String fullPath = join(folder.path, sighting.photoFileName);
-
-        File file = File(fullPath);
-
-        if (file.existsSync()) {
-          return file;
-        }
-
-      }
-
-      return null;
-
-    });
 
 
   }

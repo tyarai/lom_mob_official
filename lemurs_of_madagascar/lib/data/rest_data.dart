@@ -182,57 +182,64 @@ class RestData {
 
   Future<int> syncFile(File file,String fileName) async {
 
-    //return 2645;
+    //print("TATO1");
 
-    if(file != null && fileName != null){
+    try {
 
-      List<int>  byteData = file.readAsBytesSync();
+      if (file != null && fileName != null) {
+        List<int> byteData = file.readAsBytesSync();
 
-      String base6sString = base64Encode(byteData);
+        String base6sString = base64Encode(byteData);
 
-      int fileSize = await file.length();
+        int fileSize = await file.length();
 
-      UserSession currentSession = await UserSession.getCurrentSession();
+        UserSession currentSession = await UserSession.getCurrentSession();
 
-      String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
-      String token = currentSession.token;
+        String cookie = currentSession.sessionName + "=" +
+            currentSession.sessionID;
+        String token = currentSession.token;
 
-      Map<String,String> body = {
-        "filename": fileName,
-        "file": base6sString,
-        "filepath": Constants.publicFolder + fileName,
-        "filesize": fileSize.toString(),
-      };
+        Map<String, String> body = {
+          "filename": fileName,
+          "file": base6sString,
+          "filepath": Constants.publicFolder + fileName,
+          "filesize": fileSize.toString(),
+        };
 
-      Map<String,String> headers = {
-        "Content-Type": "application/json",//"application/x-www-form-urlencoded",
-        "Accept": "application/json",
-        "Cookie": cookie,
-        "X-CSRF-Token": token
-      };
+        Map<String, String> headers = {
+          "Content-Type": "application/json",
+          //"application/x-www-form-urlencoded",
+          "Accept": "application/json",
+          "Cookie": cookie,
+          "X-CSRF-Token": token
+        };
 
-      return
-        _networkUtil.post(FILE_ENDPOINT,
-          body: json.encode(body),
-          headers: headers,
-        ).then((dynamic resultMap) {
+        //print("FILE BODY " + body.toString());
 
-          print("[REST_DATA::syncFile()] " + resultMap.toString());
+        return
+          _networkUtil.post(FILE_ENDPOINT,
+            body: json.encode(body),
+            headers: headers,
+          ).then((dynamic resultMap) {
+            print("[REST_DATA::syncFile()] " + resultMap.toString());
 
-          if(resultMap[RestData.errorKey] != null) {
-            throw new Exception(resultMap["error_msg"]);
-          }
+            if (resultMap[RestData.errorKey] != null) {
+              throw new Exception(resultMap["error_msg"]);
+            }
 
-          String fidKey = "fid";
-          int fid = int.parse(resultMap[fidKey]);
+            String fidKey = "fid";
+            int fid = int.parse(resultMap[fidKey]);
 
-          return fid;
+            return fid;
+          }).catchError((error) {
+            print("[REST_DATA::syncFile()] error:" + error.toString());
+            throw error;
+          });
+      }
 
-        }).catchError((error) {
-          print("[REST_DATA::syncFile()] error:" + error.toString());
-          throw error;
-        });
-
+    }catch(e){
+      print("{REST_DATA::syncFile()} Exception "+e.toString());
+      throw e;
     }
 
     return 0;
@@ -247,9 +254,12 @@ class RestData {
 
       return _file.then((file)  async {
 
+
         if(file != null){
 
           String fileName = basename(file.path);
+
+          print("image "+ fileName);
 
           return syncFile(file, fileName).then((fid) async {
 

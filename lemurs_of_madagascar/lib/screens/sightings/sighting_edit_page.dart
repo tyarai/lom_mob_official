@@ -821,19 +821,21 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         //this._navigateToPreviousPage();
 
 
-        currentSighting.saveToDatabase(this._editing).then((newID){
+        currentSighting.saveToDatabase(this._editing).then((savedSighting){
 
           this._navigateToPreviousPage();
 
-          if(newID != 0){
+          if (savedSighting != null){
 
-            print("New ID $newID");
+             bloc.sightingEventController.add(SightingChangeEvent(savedSighting));
+             syncPresenter.sync(savedSighting,editing:this._editing);
 
-            if(this._editing == false) {
-              bloc.sighting.id = newID;
-              print("UPDATED id with $newID");
+            /*if(this._editing == false) {
+              bloc.sighting.id = savedSighting.id;
+              print("UPDATED id with ${savedSighting.id}");
             }
             syncPresenter.sync(currentSighting,editing:this._editing);
+            */
 
           }
 
