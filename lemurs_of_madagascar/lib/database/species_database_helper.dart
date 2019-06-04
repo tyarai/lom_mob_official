@@ -15,8 +15,13 @@ class SpeciesDatabaseHelper  {
 
   Future<List<Map<String, dynamic>>> getSpeciesMapListWithID({id: int}) async {
     Database database = await DatabaseHelper.instance.database;
-    var result = await database.rawQuery("SELECT * FROM $speciesTable WHERE $idCol = ?  ORDER BY $titleCol ASC ",[id]);
-    return result;
+    if(id != null && id !=0) {
+      var result = await database.rawQuery(
+          "SELECT * FROM $speciesTable WHERE $idCol = ?  ORDER BY $titleCol ASC ",
+          [id]);
+      return result;
+    }
+    return List();
   }
 
   Future<List<Map<String, dynamic>>> getSpeciesMapList() async {

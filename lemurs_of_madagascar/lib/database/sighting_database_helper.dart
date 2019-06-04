@@ -11,15 +11,25 @@ class SightingDatabaseHelper  {
   final uidCol            = Sighting.uidKey;
 
   Future<Map<String, dynamic>> getSightingMapWithID(int id) async {
-    Database database = await DatabaseHelper.instance.database;
-    var result = await database.rawQuery("SELECT * FROM $sightingsTable WHERE $idCol = ?  ",[id]);
-    return result[0];
+
+    if(id != null && id != 0 ){
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.rawQuery(
+          "SELECT * FROM $sightingsTable WHERE $idCol = ?  ", [id]);
+      return result[0];
+    }
+    return Map();
   }
 
   Future<List<Map<String, dynamic>>> getSightingMapList(int uid) async {
-    Database database = await DatabaseHelper.instance.database;
-    var result = await database.rawQuery("SELECT * FROM $sightingsTable WHERE  $uidCol = ? ORDER BY $modifiedCol DESC ",[uid]);
-    return result;
+    if(uid != null && uid != 0) {
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.rawQuery(
+          "SELECT * FROM $sightingsTable WHERE  $uidCol = ? ORDER BY $modifiedCol DESC ",
+          [uid]);
+      return result;
+    }
+    return List();
   }
 
   Future<int> insertSighting(Sighting sighting) async {

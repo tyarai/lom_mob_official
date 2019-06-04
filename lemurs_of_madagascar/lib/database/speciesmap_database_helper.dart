@@ -13,8 +13,11 @@ class SpeciesMapDatabaseHelper  {
 
   Future<List<Map<String, dynamic>>> getSpeciesMapMapList({id: int}) async {
     Database database = await DatabaseHelper.instance.database;
-    var result = await database.rawQuery("SELECT * FROM $mapsTable WHERE $idCol = ? ",[id]);
-    return result;
+    if(id != null && id != 0){
+      var result = await database.rawQuery("SELECT * FROM $mapsTable WHERE $idCol = ? ",[id]);
+      return result;
+    }
+    return List();
   }
 
   Future<int> insertSpeciesMap({database:Database,map:SpeciesMap}) async {

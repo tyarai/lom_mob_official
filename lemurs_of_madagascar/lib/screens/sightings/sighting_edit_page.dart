@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
@@ -804,8 +805,8 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         ],
       );
     }
-  _submit(BuildContext buildContext) {
 
+  _submit(BuildContext buildContext) async {
 
     final form = formKey.currentState;
 
@@ -818,6 +819,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         Sighting currentSighting = bloc.sighting;
 
         //this._navigateToPreviousPage();
+
 
         currentSighting.saveToDatabase(this._editing).then((newID){
 

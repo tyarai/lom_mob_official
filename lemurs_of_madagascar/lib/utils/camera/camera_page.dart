@@ -11,43 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 
-
-  /*Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
-
-   String newFilePath =  (await getApplicationDocumentsDirectory()).path;
-
-   String newFileName = "$currentUID-${DateTime.now()}.$ext";
-
-    newFilePath = join(newFilePath, newFileName);
-
-    if(oldFile != null && oldFile.existsSync()) {
-
-        Future<File> newFile = oldFile.copy(newFilePath);
-
-        newFile.then((_newFile){
-
-          print("file copied to " + _newFile.path);
-
-        }).then((_){
-
-          String oldPath = oldFile.path;
-          oldFile.deleteSync();
-          print("old file deleted " + oldPath);
-
-        }).then((_newFile) {
-
-          return _newFile;
-
-        });
-
-    }
-
-    return newFilePath;
-
-} */
-
-
-
 class CameraPage extends StatefulWidget {
   final CameraDescription camera;
 
@@ -200,8 +163,7 @@ class CameraPageState extends State<CameraPage> {
 
     _pickImageFromGallery(ImageSource.gallery);
 
-    this.imageFile.then((file){
-
+      this.imageFile.then((file){
 
       if(file != null) {
 
@@ -238,41 +200,7 @@ class CameraPageState extends State<CameraPage> {
 
     });
 
-    /*FutureBuilder<File>(
 
-      future: null,//pickImageFromGallery(ImageSource.gallery),
-      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-
-        if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
-
-
-          print("FILE:"+snapshot.data.path);
-
-          final SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-
-          Navigator.of(context).push(MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (BuildContext context) =>
-                  BlocProvider(
-                      bloc: bloc,
-                      child: DisplayPictureScreen(imagePath: snapshot.data.path))),
-          );
-
-
-
-        } else if (snapshot.error != null) {
-          return const Text(
-            'Error Picking Image',
-            textAlign: TextAlign.center,
-          );
-        } else {
-          return const Text(
-            'No Image Selected',
-            textAlign: TextAlign.center,
-          );
-        }
-      },
-    );*/
   }
 
   _buildAppBar(BuildContext buildContext){

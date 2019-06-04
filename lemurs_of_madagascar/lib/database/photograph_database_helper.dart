@@ -14,9 +14,12 @@ class PhotographDatabaseHelper  {
 
   Future<List<Map<String, dynamic>>> getPhotographMapList({id: int}) async {
     Database database = await DatabaseHelper.instance.database;
-    //print("PHOTO ID: $id");
-    var result = await database.rawQuery("SELECT * FROM $photoTable WHERE $idCol = ? ",[id]);
-    return result;
+    if(id != null && id != 0) {
+      var result = await database.rawQuery(
+          "SELECT * FROM $photoTable WHERE $idCol = ? ", [id]);
+      return result;
+    }
+    return List();
   }
 
   Future<int> insertPhotograph({database:Database,photo:Photograph}) async {

@@ -12,12 +12,17 @@ class SiteDatabaseHelper  {
   String titleCol      = "_title";
 
   Future<List<Map<String, dynamic>>> getSiteMapListWithID(int id) async {
-    Database database = await DatabaseHelper.instance.database;
-    var result = await database.rawQuery("SELECT * FROM $siteTable WHERE $idCol = ? ", [id]);
-    return result;
+    if(id != null && id != 0) {
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.rawQuery(
+          "SELECT * FROM $siteTable WHERE $idCol = ? ", [id]);
+      return result;
+    }
+    return List();
   }
 
   Future<List<Map<String, dynamic>>> getSiteMapList() async {
+
     Database database = await DatabaseHelper.instance.database;
     var result = await database.rawQuery("SELECT * FROM $siteTable ORDER BY $titleCol ASC ");
     return result;

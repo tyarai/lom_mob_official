@@ -207,7 +207,7 @@ class Sighting {
           this.photoFileName = this.photoFileName != null
               ? this.photoFileName
               : defaultImage.photoAssetPath(ext: Constants.imageType);
-          //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+          print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
 
           this.isLocal = 1;
           this.isSynced = 0;
