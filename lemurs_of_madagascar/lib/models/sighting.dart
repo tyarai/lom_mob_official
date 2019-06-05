@@ -369,6 +369,7 @@ class Sighting {
             future:
               Sighting.getImageContainer(
               sighting,
+              buildContext,
               width:screenWidth,
               height:Constants.sightingListImageHeight,
               fittedImage: true,
@@ -540,7 +541,7 @@ class Sighting {
 
   }
 
-  static Future<Container> getImageContainer(Sighting sighting,
+  static Future<Container> getImageContainer(Sighting sighting,BuildContext buildContext,
       {double width = 1280.0 ,
         double height = Constants.sightingListImageHeight,
         bool fittedImage = false,
@@ -554,7 +555,19 @@ class Sighting {
 
       return image.then( (_image) {
 
-        bool assetImage = sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder);
+        var fit = BoxFit.contain;
+
+        ImageStream imageStream = _image.image.resolve(createLocalImageConfiguration(buildContext));
+        imageStream.addListener((imageInfo,_){
+
+          print("$imageInfo.image.width - $imageInfo.image.height");
+
+          if(imageInfo.image.width < imageInfo.image.height){
+            fit = BoxFit.fitHeight;
+          }
+
+        });
+
 
         return Container(
           height: height,
@@ -562,7 +575,8 @@ class Sighting {
           child: ! fittedImage ?
             _image
               :
-          FittedBox(fit: assetImage ? assetImageFit : standardFit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
+          //FittedBox(fit: assetImage ? assetImageFit : standardFit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
+          FittedBox(fit: fit , child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
         ); // Return image from Documents
 
       });

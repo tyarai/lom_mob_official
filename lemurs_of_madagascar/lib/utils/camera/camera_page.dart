@@ -274,7 +274,7 @@ class CameraPageState extends State<CameraPage> {
 
                 //path = join((await getApplicationDocumentsDirectory()).path,"${this._currentUID}-${DateTime.now()}.${Constants.imageType}",);
                 path = await copyFileToDocuments(this._currentUID);
-                print("SAVE IMAGE TO $path");
+                //print("SAVE IMAGE TO $path");
 
                 // Attempt to take a picture and log where it's been saved
 
