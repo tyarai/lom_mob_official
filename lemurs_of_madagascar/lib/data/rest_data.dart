@@ -9,6 +9,7 @@ import "package:lemurs_of_madagascar/utils/user_session.dart";
 import "package:lemurs_of_madagascar/utils/network_util.dart";
 import "package:lemurs_of_madagascar/models/user.dart";
 import 'package:path/path.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class RestData {
 
@@ -186,11 +187,23 @@ class RestData {
 
       if (file != null && fileName != null) {
 
-        List<int> byteData = file.readAsBytesSync();
+        List<int> byteData = List();
+        String base6sString = "";
+        int fileSize = 0;
 
-        String base6sString = base64Encode(byteData);
 
-        int fileSize = await file.length();
+        if(file.path.startsWith(Constants.appImagesAssetsFolder)) {
+          var _byteData = await rootBundle.load(file.path);
+          final buffer = _byteData.buffer;
+          base6sString = base64Encode(buffer.asUint8List());
+          fileSize = buffer.lengthInBytes;
+        }else{
+          byteData = file.readAsBytesSync();
+          base6sString = base64Encode(byteData);
+          fileSize = await file.length();
+        }
+
+
 
         UserSession currentSession = await UserSession.getCurrentSession();
 
