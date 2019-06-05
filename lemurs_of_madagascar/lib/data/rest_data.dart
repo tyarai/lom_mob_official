@@ -182,11 +182,10 @@ class RestData {
 
   Future<int> syncFile(File file,String fileName) async {
 
-    //print("TATO1");
-
     try {
 
       if (file != null && fileName != null) {
+
         List<int> byteData = file.readAsBytesSync();
 
         String base6sString = base64Encode(byteData);
@@ -238,7 +237,7 @@ class RestData {
       }
 
     }catch(e){
-      print("{REST_DATA::syncFile()} Exception "+e.toString());
+      print("[REST_DATA::syncFile()] Exception "+e.toString());
       throw e;
     }
 
@@ -378,6 +377,7 @@ class RestData {
         return 0;
 
       }).catchError((error){
+          print("[Rest_data::syncSighting()] Exception "+ error.toString());
           throw error;
       });
 
