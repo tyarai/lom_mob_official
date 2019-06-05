@@ -499,11 +499,14 @@ class Sighting {
           Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(
               0);
 
+          print("{ATO IZAO 2}");
+
           return photo.then((photograph) {
             if (photograph != null) {
               String assetPath = photograph.photoAssetPath(
                   ext: Constants.imageType);
               File file = File(assetPath);
+              print("{ATO IZAO 3} "+file.path);
               return file;
             }
 
