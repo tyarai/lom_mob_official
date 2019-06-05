@@ -255,8 +255,6 @@ class RestData {
 
           String fileName = basename(file.path);
 
-          //print("image "+ fileName);
-
           return syncFile(file, fileName).then((fid) async {
 
             if(fid == 0) return 0;

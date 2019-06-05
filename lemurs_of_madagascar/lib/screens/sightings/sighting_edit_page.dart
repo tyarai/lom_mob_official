@@ -611,59 +611,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   }
 
-  /*Widget _buildSpeciesDropDown(){
-
-  return FutureBuilder<List<Species>>(
-
-      future: _speciesList,
-
-      builder: (BuildContext context, AsyncSnapshot<List<Species>> snapshot){
-
-          if(snapshot.hasData) {
-
-            return
-
-              DropdownButton<Species>(
-
-                value: _currentSpecies,
-
-                items: snapshot.data.map((Species value) {
-
-                  return DropdownMenuItem(
-
-                      value: value,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width -50,
-                        height: 50,
-                        child:Column(
-                          children:<Widget> [Expanded(
-                            child:Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Species.buildLemurPhoto(value),
-                                  Container(width: 5),
-                                  Species.buildTextInfo(value),
-                                ]),
-                          ),
-                        ]))
-                      );
-
-
-                }).toList(),
-
-                onChanged: (Species value) {
-                  _onSpeciesChanged(value);
-                },
-
-              );
-          }
-
-          return Center(child:Container(child:CircularProgressIndicator()));
-       }
-    );
-
-}*/
-
   _buildPhotoSelection(Sighting sighting)   {
     return GestureDetector(
         onTap: () {
@@ -730,9 +677,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   _buildFormInput(Sighting sighting) {
 
-      //print("TEXT "+sighting.toString());
-
-      return Column(
+     return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -829,9 +774,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
         Sighting currentSighting = bloc.sighting;
 
-        //this._navigateToPreviousPage();
-
-
         currentSighting.saveToDatabase(this._editing).then((savedSighting){
 
           //this._navigateToPreviousPage();
@@ -840,14 +782,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
              bloc.sightingEventController.add(SightingChangeEvent(savedSighting));
              syncPresenter.sync(savedSighting,editing:this._editing);
-
-            /*if(this._editing == false) {
-              bloc.sighting.id = savedSighting.id;
-              print("UPDATED id with ${savedSighting.id}");
-            }
-            syncPresenter.sync(currentSighting,editing:this._editing);
-            */
-
           }
 
         }).catchError((error){
@@ -859,18 +793,30 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
     }
   }
+
   @override
   void onSocketFailure() {
+    setState(() {
+      _isLoading = false;
+    });
     ErrorHandler.handleSocketError(context);
   }
 
   @override
   void onSyncFailure(int statusCode) {
+    setState(() {
+      _isLoading = false;
+    });
     ErrorHandler.handle(context, statusCode);
   }
 
   @override
   void onSyncSuccess(Sighting sighting,int nid,bool editing) {
+
+
+    setState(() {
+      _isLoading = false;
+    });
 
     // Update this sighting nid which was from the server
     if(nid > 0 && sighting != null) {
@@ -889,9 +835,11 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
           if(savedSightingWithNewNID != null) {
 
+
+
             this._navigateToPreviousPage();
 
-            if(editing) {
+            /*if(editing) {
               print(
                   "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated sighting : ${sighting
                       .toString()}");
@@ -899,7 +847,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
               print(
                   "[SIGHTING_EDIT_PAGE::onSyncSuccess()] created new sighting : ${sighting
                       .toString()}");
-            }
+            }*/
 
           }else{
             print(

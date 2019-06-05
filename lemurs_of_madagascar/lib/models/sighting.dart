@@ -483,6 +483,8 @@ class Sighting {
 
   static Future<File> getImageFile(Sighting sighting)  async {
 
+    print("{Sighing::getImageFile()} photo " + sighting.photoFileName);
+
     try {
 
       if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
