@@ -132,6 +132,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
                     Text(
                       introduction != null ? introduction.content : "",
                       style: Constants.defaultTextStyle,
+                      textAlign: TextAlign.justify,
                     )
                   ],
                 )

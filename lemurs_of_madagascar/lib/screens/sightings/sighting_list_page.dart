@@ -69,18 +69,14 @@ class _SightingListPageState extends State<SightingListPage>  {
         this.currentUid = _user.uid;
 
         try {
-          if (currentUid > 0) {
-            //print("current UID " + this.currentUid.toString());
 
-            if (sightingList.length == 0) {
-              Future<List<Sighting>> futureList = _loadData(currentUid);
-              futureList.then((list) {
-                setState(() {
-                  sightingList = list;
-                  //this.syncPresenter.sync(sightingList[1]);
-                });
-              });
-            }
+          if (currentUid > 0) {
+            print("current UID " + this.currentUid.toString());
+
+            //if (sightingList.length == 0) {
+                _loadSighting();
+            //}
+
           } else {
             //TODO : The user is not connected. Redirect to login page
           }
@@ -95,6 +91,17 @@ class _SightingListPageState extends State<SightingListPage>  {
 
   }
 
+  _loadSighting(){
+
+    Future<List<Sighting>> futureList = _loadData(currentUid);
+    futureList.then((list) {
+      setState(() {
+        sightingList = list;
+        //this.syncPresenter.sync(sightingList[1]);
+      });
+    });
+
+  }
   _SightingListPageState(this.title);
 
   @override
@@ -148,7 +155,6 @@ class _SightingListPageState extends State<SightingListPage>  {
 
   void _handleBottomNavTap(int index){
 
-
     Sighting emptySighting = Sighting();
     sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
 
@@ -162,7 +168,6 @@ class _SightingListPageState extends State<SightingListPage>  {
                  bloc: sightingBloc,
                ))
             );
-
     }
 
   }
@@ -195,17 +200,17 @@ class _SightingListPageState extends State<SightingListPage>  {
               return Center(child: CircularProgressIndicator());
 
             }
-
           case ConnectionState.done:
             {
               if(snapshot.hasData && !snapshot.hasError) {
+
                 return ListView.builder(
                     scrollDirection: Axis.vertical,
                     itemCount: snapshot.data.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      //print("item count ${snapshot.data.length}");
-                      return _SightingListPageState.buildCellItem(
-                          context, snapshot.data, index, this.sightingBloc);
+                    itemBuilder: (BuildContext buildContext, int index) {
+                      //print("item count ${snapshot.data.length}
+                      Sighting sighting = snapshot.data[index];
+                      return this.buildCellItem(context,sighting);
                     });
               }
               break;
@@ -229,26 +234,32 @@ class _SightingListPageState extends State<SightingListPage>  {
     return null;
   }
 
-  static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc)
+  //static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc,VoidCallBack onSightingTap)
+  Widget buildCellItem(BuildContext context,Sighting sighting)
   {
 
-    if(list != null && list.length > 0 && (index >= 0 && index < list.length)) {
-
-      Sighting sighting = list[index];
+    if(sighting != null) {
 
       return ListTile(
         contentPadding: EdgeInsets.only(left:5.0,right:5.0),
           onTap: () {
 
-            bloc.sightingEventController.add(SightingChangeEvent(sighting));
-            Navigator.of(context).push(
-                MaterialPageRoute(
-                    fullscreenDialog: true, builder: (buildContext) =>
-                    BlocProvider(
-                      child: SightingEditPage("Edit sighting",sighting,true),
-                      bloc: bloc,
-                    ))
-            );
+               this.sightingBloc.sightingEventController.add(SightingChangeEvent(sighting));
+
+               Navigator.of(context).push(
+                   MaterialPageRoute(
+                       fullscreenDialog: true, builder: (buildContext) =>
+                       BlocProvider(
+                         child: SightingEditPage("Edit sighting",sighting,true),
+                         bloc: this.sightingBloc,
+                       ))
+               );/*.then( (value) {
+                 setState(() {
+                   print("UPDATING STATE AND LIST");
+                   _loadSighting(); // reload list and set state
+                 });
+
+               });*/
 
           },
           title: Padding(
