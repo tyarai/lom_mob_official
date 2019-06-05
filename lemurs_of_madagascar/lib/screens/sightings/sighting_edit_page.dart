@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
-import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
@@ -19,6 +18,7 @@ import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_alert/flutter_alert.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 
 class SightingEditPage extends StatefulWidget {
@@ -40,6 +40,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   final bool _editing;
   Sighting sighting;
   String title;
+  bool _isLoading = false;
   List<String> imageFileNameList = List<String>();
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -79,9 +80,9 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
       backgroundColor: Constants.mainColor,
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
+            IconButton(
             iconSize: Constants.iconSize,
-            icon: Icon(Icons.save,color: Constants.iconColor,),
+            icon:  Icon(Icons.save,color: Constants.iconColor,),
             onPressed: () {
               _submit(buildContext);
             },
@@ -90,7 +91,17 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         elevation: 0,
         title: Text(this.title, style: Constants.appBarTitleStyle),
       ),
-      body: _buildBody(buildContext),
+      body: ModalProgressHUD(
+          child:_buildBody(buildContext),
+          opacity: 0.5,
+          //color: Constants.mainSplashColor,
+          //progressIndicator: CircularProgressIndicator(),
+          //offset: 5.0,
+          //dismissible: false,
+          inAsyncCall: _isLoading
+        )
+
+
     );
   }
 
@@ -809,6 +820,10 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
     if(_validateSighting(buildContext)) {
 
       if (form.validate()) {
+
+        setState(() {
+          _isLoading = true;
+        });
 
         form.save();
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);

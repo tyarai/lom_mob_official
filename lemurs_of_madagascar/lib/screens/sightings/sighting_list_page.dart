@@ -253,15 +253,7 @@ class _SightingListPageState extends State<SightingListPage>  {
                          child: SightingEditPage("Edit sighting",sighting,true),
                          bloc: this.sightingBloc,
                        ))
-               );/*.whenComplete(() {
-
-                 print("UPDATING STATE AND LIST");
-
-                 setState(() {
-                   _loadSighting(); // reload list and set actionstate
-                 });
-
-               });*/
+               );
 
           },
           title: Padding(
