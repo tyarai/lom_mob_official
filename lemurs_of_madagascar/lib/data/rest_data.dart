@@ -19,8 +19,8 @@ class RestData {
 
   NetworkUtil _networkUtil = NetworkUtil();
 
-  //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  static const  SERVER               = "http://192.168.2.242";
+  static const  SERVER               = "https://www.lemursofmadagascar.com/html";
+  //static const  SERVER               = "http://192.168.2.242";
   static const  LOGIN_ENDPOINT       = SERVER + "/lom_endpoint/api/v1/services/user/login.json";
   static const  LOGOUT_ENDPOINT      = SERVER + "/lom_endpoint/api/v1/services/user/logout.json";
   static const  REGISTER_ENDPOINT    = SERVER + "/lom_endpoint/api/v1/services/user/register.json";
@@ -193,11 +193,13 @@ class RestData {
 
 
         if(file.path.startsWith(Constants.appImagesAssetsFolder)) {
+          // ----- SYNCING IMAGE OR FILE IN ASSETS FOLDER
           var _byteData = await rootBundle.load(file.path);
           final buffer = _byteData.buffer;
           base6sString = base64Encode(buffer.asUint8List());
           fileSize = buffer.lengthInBytes;
         }else{
+          // ----- SYNCING IMAGE OR FILE IN DOCUMENTS FOLDER
           byteData = file.readAsBytesSync();
           base6sString = base64Encode(byteData);
           fileSize = await file.length();

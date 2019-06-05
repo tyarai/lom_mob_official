@@ -195,7 +195,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
                             mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Container(height: 10),
-                          _buildPhotoSelection(snapshot.data),
+                          _buildPhotoSelection(snapshot.data,buildContext),
                           Container(height: 10,),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildSpeciesSelectButton(buildContext,snapshot.data.species),
@@ -611,7 +611,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   }
 
-  _buildPhotoSelection(Sighting sighting)   {
+  _buildPhotoSelection(Sighting sighting,BuildContext buildCOntext)   {
     return GestureDetector(
         onTap: () {
           //SpeciesListPageState.navigateToSpeciesDetails(context, species);
@@ -632,7 +632,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                         _buildPhoto(sighting)
+                         _buildPhoto(sighting,buildCOntext)
                       ]
                   ),
 
@@ -640,7 +640,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
           )));
   }
 
-  _buildPhoto(Sighting sighting,
+  _buildPhoto(Sighting sighting,BuildContext buildCOntext,
       {double size = Constants.cameraPhotoPlaceHolder,
         Color color = Constants.mainColor})  {
 
@@ -661,7 +661,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
           height:200,
           child: FutureBuilder<Container>(
             //future: Sighting.getImage(sighting),
-            future: Sighting.getImageContainer(sighting),
+            future: Sighting.getImageContainer(sighting,buildCOntext),
             builder: (context, snapshot) {
               if(!snapshot.hasData){
                 return CircularProgressIndicator();
