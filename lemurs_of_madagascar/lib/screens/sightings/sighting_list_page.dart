@@ -188,7 +188,7 @@ class _SightingListPageState extends State<SightingListPage>  {
 
     return FutureBuilder<List<Sighting>>(
       future: _loadData(this.currentUid),
-      initialData: this.sightingList,
+      //initialData: this.sightingList,
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
 
         switch(snapshot.connectionState) {
@@ -253,10 +253,12 @@ class _SightingListPageState extends State<SightingListPage>  {
                          child: SightingEditPage("Edit sighting",sighting,true),
                          bloc: this.sightingBloc,
                        ))
-               );/*.then( (value) {
+               );/*.whenComplete(() {
+
+                 print("UPDATING STATE AND LIST");
+
                  setState(() {
-                   print("UPDATING STATE AND LIST");
-                   _loadSighting(); // reload list and set state
+                   _loadSighting(); // reload list and set actionstate
                  });
 
                });*/

@@ -151,14 +151,10 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   }
 
-
   Future<void> _navigateToPreviousPage() async{
     Navigator.of(context).pop();
-    Navigator.of(context).pushReplacementNamed("/sighting_list");
+    //Navigator.of(context).pushReplacementNamed("/sighting_list");
   }
-
-
-
 
   _buildBody(BuildContext buildContext)   {
 
@@ -823,7 +819,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
         currentSighting.saveToDatabase(this._editing).then((savedSighting){
 
-          this._navigateToPreviousPage();
+          //this._navigateToPreviousPage();
 
           if (savedSighting != null){
 
@@ -876,9 +872,9 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         // Always use 'true' as editing because we are going to update the nid
         sighting.saveToDatabase(true).then((savedSightingWithNewNID) {
 
-          //print("SIGHTING AFTER SAVE "+ savedSightingWithNewNID.toString());
-
           if(savedSightingWithNewNID != null) {
+
+            this._navigateToPreviousPage();
 
             if(editing) {
               print(
