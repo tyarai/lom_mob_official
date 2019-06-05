@@ -337,7 +337,7 @@ class RestData {
               };
 
               //String putBody = "title=${sighting.title}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=12/01/2015&field_count[und][0][value]=2123&field_associated_species[und][nid]=232&field_photo[und][0][fid]=2645";
-              String putBody = "title=${sighting.title}&field_place_name_reference[und][nid]=${sighting.placeNID}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting.speciesCount}&field_associated_species[und][nid]=${sighting.speciesNid}&field_photo[und][0][fid]=$fid&field_longitude[und][0][value]=${sighting.longitude}&field_latitude[und][0][value]=${sighting.latitude}&field_altitude[und][0][value]=${sighting.altitude}";
+              String putBody = "title=${sighting.title}&field_place_name_reference[und][nid]=${sighting.placeNID}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting.speciesCount}&field_associated_species[und][nid]=${sighting.speciesNid}&field_photo[und][0][fid]=$fid&field_long[und][0][value]=${sighting.longitude}&field_lat[und][0][value]=${sighting.latitude}&field_altitude[und][0][value]=${sighting.altitude}";
 
               String nodeUpdateUrl = NODE_UPDATE_ENDPOINT + sighting.nid.toString();
               print("[Updating node at $nodeUpdateUrl]");
