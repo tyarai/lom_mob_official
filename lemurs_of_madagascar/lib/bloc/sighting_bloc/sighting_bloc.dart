@@ -67,7 +67,7 @@ class SightingBloc implements BlocBase {
 
     if (event is SightingChangeEvent) {
       _sighting = Sighting.withSighting(event.sighting);
-      //print("Bloc sighting change  "+ _sighting.toString());
+      print("Bloc sighting change  "+ _sighting.toString());
     }
 
     if (event is SightingImageChangeEvent) {

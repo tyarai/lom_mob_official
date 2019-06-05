@@ -182,11 +182,10 @@ class RestData {
 
   Future<int> syncFile(File file,String fileName) async {
 
-    //print("TATO1");
-
     try {
 
       if (file != null && fileName != null) {
+
         List<int> byteData = file.readAsBytesSync();
 
         String base6sString = base64Encode(byteData);
@@ -208,13 +207,10 @@ class RestData {
 
         Map<String, String> headers = {
           "Content-Type": "application/json",
-          //"application/x-www-form-urlencoded",
           "Accept": "application/json",
           "Cookie": cookie,
           "X-CSRF-Token": token
         };
-
-        //print("FILE BODY " + body.toString());
 
         return
           _networkUtil.post(FILE_ENDPOINT,
@@ -259,7 +255,7 @@ class RestData {
 
           String fileName = basename(file.path);
 
-          print("image "+ fileName);
+          //print("image "+ fileName);
 
           return syncFile(file, fileName).then((fid) async {
 
@@ -269,8 +265,8 @@ class RestData {
 
             String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
             String token = currentSession.token;
-            print(cookie);
-            print(token);
+            //print(cookie);
+            //print(token);
 
             String formattedDate = editing ?
             DateFormat(Constants.apiNodeUpdateDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())) :
@@ -314,7 +310,7 @@ class RestData {
                   body: json.encode(postBody),
                   headers: postHeaders,
                 ).then((dynamic resultMap) async {
-                  print("[REST_DATA::syncSighting()] new" + resultMap.toString());
+                  print("[REST_DATA::syncSighting()] new nid " + resultMap.toString());
 
                   if (resultMap[RestData.errorKey] != null) {
                     throw new Exception(resultMap["error_msg"]);

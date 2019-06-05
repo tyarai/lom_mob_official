@@ -864,6 +864,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
     // Update this sighting nid which was from the server
     if(nid > 0 && sighting != null) {
 
+      //print("SIGHTING BEFORE SAVE "+ sighting.toString());
 
       sighting.nid = nid;
 
@@ -873,10 +874,11 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
       }
 
         // Always use 'true' as editing because we are going to update the nid
-        sighting.saveToDatabase(true).then((result) {
+        sighting.saveToDatabase(true).then((savedSightingWithNewNID) {
 
+          //print("SIGHTING AFTER SAVE "+ savedSightingWithNewNID.toString());
 
-          if(result != 0) {
+          if(savedSightingWithNewNID != null) {
 
             if(editing) {
               print(
