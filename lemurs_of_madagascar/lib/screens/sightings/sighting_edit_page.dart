@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
-import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
@@ -19,6 +18,7 @@ import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_alert/flutter_alert.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 
 class SightingEditPage extends StatefulWidget {
@@ -40,6 +40,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   final bool _editing;
   Sighting sighting;
   String title;
+  bool _isLoading = false;
   List<String> imageFileNameList = List<String>();
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -79,9 +80,9 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
       backgroundColor: Constants.mainColor,
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
+            IconButton(
             iconSize: Constants.iconSize,
-            icon: Icon(Icons.save,color: Constants.iconColor,),
+            icon:  Icon(Icons.save,color: Constants.iconColor,),
             onPressed: () {
               _submit(buildContext);
             },
@@ -90,7 +91,17 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         elevation: 0,
         title: Text(this.title, style: Constants.appBarTitleStyle),
       ),
-      body: _buildBody(buildContext),
+      body: ModalProgressHUD(
+          child:_buildBody(buildContext),
+          opacity: 0.5,
+          //color: Constants.mainSplashColor,
+          //progressIndicator: CircularProgressIndicator(),
+          //offset: 5.0,
+          //dismissible: false,
+          inAsyncCall: _isLoading
+        )
+
+
     );
   }
 
@@ -151,14 +162,10 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   }
 
-
   Future<void> _navigateToPreviousPage() async{
     Navigator.of(context).pop();
-    Navigator.of(context).pushReplacementNamed("/sighting_list");
+    //Navigator.of(context).pushReplacementNamed("/sighting_list");
   }
-
-
-
 
   _buildBody(BuildContext buildContext)   {
 
@@ -604,59 +611,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   }
 
-  /*Widget _buildSpeciesDropDown(){
-
-  return FutureBuilder<List<Species>>(
-
-      future: _speciesList,
-
-      builder: (BuildContext context, AsyncSnapshot<List<Species>> snapshot){
-
-          if(snapshot.hasData) {
-
-            return
-
-              DropdownButton<Species>(
-
-                value: _currentSpecies,
-
-                items: snapshot.data.map((Species value) {
-
-                  return DropdownMenuItem(
-
-                      value: value,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width -50,
-                        height: 50,
-                        child:Column(
-                          children:<Widget> [Expanded(
-                            child:Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Species.buildLemurPhoto(value),
-                                  Container(width: 5),
-                                  Species.buildTextInfo(value),
-                                ]),
-                          ),
-                        ]))
-                      );
-
-
-                }).toList(),
-
-                onChanged: (Species value) {
-                  _onSpeciesChanged(value);
-                },
-
-              );
-          }
-
-          return Center(child:Container(child:CircularProgressIndicator()));
-       }
-    );
-
-}*/
-
   _buildPhotoSelection(Sighting sighting)   {
     return GestureDetector(
         onTap: () {
@@ -723,9 +677,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   _buildFormInput(Sighting sighting) {
 
-      //print("TEXT "+sighting.toString());
-
-      return Column(
+     return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -814,29 +766,22 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
       if (form.validate()) {
 
+        setState(() {
+          _isLoading = true;
+        });
+
         form.save();
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
         Sighting currentSighting = bloc.sighting;
 
-        //this._navigateToPreviousPage();
-
-
         currentSighting.saveToDatabase(this._editing).then((savedSighting){
 
-          this._navigateToPreviousPage();
+          //this._navigateToPreviousPage();
 
           if (savedSighting != null){
 
              bloc.sightingEventController.add(SightingChangeEvent(savedSighting));
              syncPresenter.sync(savedSighting,editing:this._editing);
-
-            /*if(this._editing == false) {
-              bloc.sighting.id = savedSighting.id;
-              print("UPDATED id with ${savedSighting.id}");
-            }
-            syncPresenter.sync(currentSighting,editing:this._editing);
-            */
-
           }
 
         }).catchError((error){
@@ -848,22 +793,35 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
     }
   }
+
   @override
   void onSocketFailure() {
+    setState(() {
+      _isLoading = false;
+    });
     ErrorHandler.handleSocketError(context);
   }
 
   @override
   void onSyncFailure(int statusCode) {
+    setState(() {
+      _isLoading = false;
+    });
     ErrorHandler.handle(context, statusCode);
   }
 
   @override
   void onSyncSuccess(Sighting sighting,int nid,bool editing) {
 
+
+    setState(() {
+      _isLoading = false;
+    });
+
     // Update this sighting nid which was from the server
     if(nid > 0 && sighting != null) {
 
+      //print("SIGHTING BEFORE SAVE "+ sighting.toString());
 
       sighting.nid = nid;
 
@@ -873,12 +831,15 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
       }
 
         // Always use 'true' as editing because we are going to update the nid
-        sighting.saveToDatabase(true).then((result) {
+        sighting.saveToDatabase(true).then((savedSightingWithNewNID) {
+
+          if(savedSightingWithNewNID != null) {
 
 
-          if(result != 0) {
 
-            if(editing) {
+            this._navigateToPreviousPage();
+
+            /*if(editing) {
               print(
                   "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated sighting : ${sighting
                       .toString()}");
@@ -886,7 +847,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
               print(
                   "[SIGHTING_EDIT_PAGE::onSyncSuccess()] created new sighting : ${sighting
                       .toString()}");
-            }
+            }*/
 
           }else{
             print(

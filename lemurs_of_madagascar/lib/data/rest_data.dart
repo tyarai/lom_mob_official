@@ -207,13 +207,10 @@ class RestData {
 
         Map<String, String> headers = {
           "Content-Type": "application/json",
-          //"application/x-www-form-urlencoded",
           "Accept": "application/json",
           "Cookie": cookie,
           "X-CSRF-Token": token
         };
-
-        //print("FILE BODY " + body.toString());
 
         return
           _networkUtil.post(FILE_ENDPOINT,
@@ -258,8 +255,6 @@ class RestData {
 
           String fileName = basename(file.path);
 
-          print("image "+ fileName);
-
           return syncFile(file, fileName).then((fid) async {
 
             if(fid == 0) return 0;
@@ -268,8 +263,8 @@ class RestData {
 
             String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
             String token = currentSession.token;
-            print(cookie);
-            print(token);
+            //print(cookie);
+            //print(token);
 
             String formattedDate = editing ?
             DateFormat(Constants.apiNodeUpdateDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())) :
@@ -313,7 +308,7 @@ class RestData {
                   body: json.encode(postBody),
                   headers: postHeaders,
                 ).then((dynamic resultMap) async {
-                  print("[REST_DATA::syncSighting()] new" + resultMap.toString());
+                  print("[REST_DATA::syncSighting()] new nid " + resultMap.toString());
 
                   if (resultMap[RestData.errorKey] != null) {
                     throw new Exception(resultMap["error_msg"]);
@@ -340,7 +335,7 @@ class RestData {
               };
 
               //String putBody = "title=${sighting.title}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=12/01/2015&field_count[und][0][value]=2123&field_associated_species[und][nid]=232&field_photo[und][0][fid]=2645";
-              String putBody = "title=${sighting.title}&field_place_name_reference[und][nid]=${sighting.placeNID}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting.speciesCount}&field_associated_species[und][nid]=${sighting.speciesNid}&field_photo[und][0][fid]=$fid&field_longitude[und][0][value]=${sighting.longitude}&field_latitude[und][0][value]=${sighting.latitude}&field_altitude[und][0][value]=${sighting.altitude}";
+              String putBody = "title=${sighting.title}&field_place_name_reference[und][nid]=${sighting.placeNID}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting.speciesCount}&field_associated_species[und][nid]=${sighting.speciesNid}&field_photo[und][0][fid]=$fid&field_long[und][0][value]=${sighting.longitude}&field_lat[und][0][value]=${sighting.latitude}&field_altitude[und][0][value]=${sighting.altitude}";
 
               String nodeUpdateUrl = NODE_UPDATE_ENDPOINT + sighting.nid.toString();
               print("[Updating node at $nodeUpdateUrl]");
