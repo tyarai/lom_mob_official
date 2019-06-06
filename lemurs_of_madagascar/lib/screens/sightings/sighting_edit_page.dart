@@ -166,6 +166,8 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
     //Navigator.of(context).pushReplacementNamed("/sighting_list");
   }
 
+
+
   _buildDelete(BuildContext buildContext){
 
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);

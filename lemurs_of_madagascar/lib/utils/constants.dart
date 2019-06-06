@@ -15,6 +15,7 @@ class Constants {
   static const double labelFontSize = 20.0;
   static const double hintFontSize = 20.0;
   static const double textFontSize = 22.0;
+  static const double commentFontSize = 18.0;
   static const double subTextFontSize = 16.0;
   static const double subTitleFontSize = 16.0;
   static const double speciesImageBorderRadius = 15.0;
@@ -31,12 +32,11 @@ class Constants {
   static const TextStyle titleTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0,color: Colors.black,fontWeight: FontWeight.bold);
   static const TextStyle deleteButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0,color: Colors.white,fontWeight: FontWeight.w600);
 
-
-
   static const Color backGroundColor = Colors.grey;
   static const Color iconColor = Colors.lime;
   static const TextStyle speciesTitleStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.titleFontSize);
   static const TextStyle defaultTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.textFontSize);
+  static const TextStyle defaultCommentTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.commentFontSize);
   static const TextStyle defaultSubTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.subTextFontSize);
 
   // Form Input text

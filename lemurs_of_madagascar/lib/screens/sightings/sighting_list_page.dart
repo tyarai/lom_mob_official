@@ -10,9 +10,6 @@ import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 
-
-
-
 class SightingListPage extends StatefulWidget {
 
   final String title;
@@ -113,7 +110,7 @@ class _SightingListPageState extends State<SightingListPage>  {
               ],
               title: Text(widget.title),
             ),
-            body: _buildSightingListView(),
+            body: _buildSightingListView(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
         );
   }
@@ -180,8 +177,7 @@ class _SightingListPageState extends State<SightingListPage>  {
     );
   }
 
-  Widget _buildSightingListView() {
-
+  Widget _buildSightingListView(BuildContext buildContext) {
 
     return FutureBuilder<List<Sighting>>(
       future: _loadData(this.currentUid),
@@ -207,7 +203,7 @@ class _SightingListPageState extends State<SightingListPage>  {
                     itemBuilder: (BuildContext buildContext, int index) {
                       //print("item count ${snapshot.data.length}
                       Sighting sighting = snapshot.data[index];
-                      return this.buildCellItem(context,sighting);
+                      return this.buildCellItem(context,sighting,sightingBloc);
                     });
               }
               break;
@@ -232,7 +228,7 @@ class _SightingListPageState extends State<SightingListPage>  {
   }
 
   //static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc,VoidCallBack onSightingTap)
-  Widget buildCellItem(BuildContext context,Sighting sighting)
+  Widget buildCellItem(BuildContext context,Sighting sighting,SightingBloc bloc)
   {
 
     if(sighting != null) {
@@ -266,7 +262,7 @@ class _SightingListPageState extends State<SightingListPage>  {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Container(height: 10),
-                              Sighting.buildCellInfo(sighting,context),
+                              Sighting.buildCellInfo(sighting,bloc,context),
                             ])),
                   ))));
     }
