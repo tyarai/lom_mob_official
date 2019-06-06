@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
+import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
@@ -8,6 +10,7 @@ import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
+import 'package:lemurs_of_madagascar/screens/sightings/sighting_comment_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
@@ -18,6 +21,7 @@ import 'package:uuid/uuid.dart';
 
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting,int nid,bool editing);
+  void onDeleteSuccess(Sighting sighting);
   void onSyncFailure(int statusCode);
   void onSocketFailure();
 }
@@ -27,8 +31,8 @@ class SyncSightingPresenter {
   SyncSightingContract _syncingView;
   RestData api = RestData();
   SyncSightingPresenter(this._syncingView);
-
   sync(Sighting sighting,{bool editing=false}) {
+
     if(sighting != null) {
        api.syncSighting(sighting,editing: editing)
           .then((nid) {
@@ -41,6 +45,21 @@ class SyncSightingPresenter {
           });
     }
   }
+
+  delete(Sighting sighting) {
+    if(sighting != null) {
+      api.deleteSighting(sighting)
+         .then((isDeleted) {
+          if(isDeleted){
+            _syncingView.onDeleteSuccess(sighting);
+          }
+      }).catchError((error) {
+        if(error is SocketException) _syncingView.onSocketFailure();
+        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+      });
+    }
+  }
+
 }
 
 
@@ -247,6 +266,26 @@ class Sighting {
     });
   }
 
+  Future<bool> delete() async {
+
+    try{
+
+      SightingDatabaseHelper db = SightingDatabaseHelper();
+      db.deleteSighting(sighting:this).then((deletedRow){
+        print("deleted Row $deletedRow");
+        if(deletedRow > 0){
+          return true;
+        }else {
+          return false;
+        }
+      });
+
+    }catch(e){
+      print("{Sighting::delete()} Exception "+e.toString());
+    }
+    return false;
+  }
+
   set species(Species value) {
     this._species = value;
   }
@@ -319,7 +358,6 @@ class Sighting {
 
   }
 
-
   Future<bool> loadSpeciesAndSite() async  {
 
     return this._loadSpecies().then((finished){
@@ -353,7 +391,33 @@ class Sighting {
     return false;
   }
 
-  static Widget buildCellInfo(Sighting sighting,BuildContext buildContext,
+  static _commentButtonPressed(Sighting sighting,SightingBloc sightingBloc,BuildContext buildContext ){
+
+    Navigator.push(buildContext,MaterialPageRoute(
+      builder: (context) =>
+      BlocProvider(
+        child: SightingCommentPage(sighting),
+        bloc:sightingBloc,
+      )
+    ));
+  }
+
+  static buildAction(Sighting sighting,SightingBloc sightingBloc,BuildContext buildContext){
+    return Row(
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.insert_comment),
+          color: Constants.mainColor,
+          iconSize:30,
+          onPressed: (){
+            _commentButtonPressed(sighting,sightingBloc,buildContext);
+          },
+        ),
+      ],
+    );
+  }
+
+  static Widget buildCellInfo(Sighting sighting,SightingBloc sightingBloc,BuildContext buildContext,
       {bool lookInAssetsFolder = false,
       CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
     String formattedDate = DateFormat.yMMMMd("en_US")
@@ -366,15 +430,14 @@ class Sighting {
       return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
 
         FutureBuilder<Container>(
-            future:
-              Sighting.getImageContainer(
-              sighting,
-              buildContext,
-              width:screenWidth,
-              height:Constants.sightingListImageHeight,
-              fittedImage: true,
-              assetImage: true),
-
+          future:
+            Sighting.getImageContainer(
+            sighting,
+            buildContext,
+            width:screenWidth,
+            height:Constants.sightingListImageHeight,
+            fittedImage: true,
+            assetImage: true),
             builder: (context, snapshot) {
               if(!snapshot.hasData){
                 return Center(child:CircularProgressIndicator());
@@ -382,12 +445,13 @@ class Sighting {
               return snapshot.data;
             }
         ),
-
-        Container(height: 5),
+        Container(height: 10),
         Text(
           sighting.id.toString() + " " + sighting.nid.toString() + " " + sighting.speciesName,
           style: Constants.sightingSpeciesNameTextStyle,
         ),
+        Container(height: 5),
+        Sighting.buildAction(sighting,sightingBloc,buildContext),
         Container(height: 5),
         Row(
           //mainAxisAlignment: MainAxisAlignment.end,
@@ -426,6 +490,7 @@ class Sighting {
           sighting.title,
           style: Constants.sightingTitleTextStyle,
         )
+
       ]);
     }
 
@@ -500,14 +565,11 @@ class Sighting {
           Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(
               0);
 
-          print("{ATO IZAO 2}");
-
           return photo.then((photograph) {
             if (photograph != null) {
               String assetPath = photograph.photoAssetPath(
                   ext: Constants.imageType);
               File file = File(assetPath);
-              print("{ATO IZAO 3} "+file.path);
               return file;
             }
 
@@ -560,14 +622,11 @@ class Sighting {
         ImageStream imageStream = _image.image.resolve(createLocalImageConfiguration(buildContext));
         imageStream.addListener((imageInfo,_){
 
-          print("$imageInfo.image.width - $imageInfo.image.height");
-
           if(imageInfo.image.width < imageInfo.image.height){
             fit = BoxFit.fitHeight;
           }
 
         });
-
 
         return Container(
           height: height,

@@ -72,7 +72,7 @@ class SightingDatabaseHelper  {
       
       return result;
     }catch(e){
-      print("[SIGHTING_DATABASE_HELPER::deleteSighting()] "+e.toString());
+      print("[SIGHTING_DATABASE_HELPER::deleteSighting()] exception :"+e.toString());
       return null;
     }
   }
