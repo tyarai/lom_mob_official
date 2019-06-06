@@ -397,5 +397,44 @@ class RestData {
     return 0;
   }
 
+  Future<bool> deleteSighting(Sighting sighting) async {
+
+    if(sighting != null && sighting.nid != null){
+
+      UserSession currentSession = await UserSession.getCurrentSession();
+      String cookie = currentSession.sessionName + "=" + currentSession.sessionID;
+      String token = currentSession.token;
+
+      Map<String,String> putHeaders = {
+        "Content-Type": "application/json",//"application/x-www-form-urlencoded",
+        "Accept": "application/json",
+        "Cookie": cookie,
+        "X-CSRF-Token": token
+      };
+
+      //String putBody = "field_is_deleted[und][0][value]=1";
+      String nodeUpdateUrl = NODE_UPDATE_ENDPOINT + sighting.nid.toString();
+      print("[Deleting node at $nodeUpdateUrl]");
+      return _networkUtil.delete(nodeUpdateUrl,
+        headers: putHeaders,
+      ).then((dynamic resultMap) {
+
+        print("[REST_DATA::syncSighting()] delete " + resultMap.toString());
+
+        /*if (resultMap[RestData.errorKey] != null) {
+          throw new Exception(resultMap["error_msg"]);
+        }*/
+
+        return resultMap[0]  as bool;
+
+      }).catchError((error) {
+        print(
+            "[REST_DATA::syncSighting()] deleting sighting error:" + error.toString());
+        throw error;
+      });
+    }
+    return false;
+  }
+
 }
 

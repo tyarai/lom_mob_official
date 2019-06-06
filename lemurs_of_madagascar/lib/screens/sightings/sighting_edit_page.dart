@@ -52,7 +52,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   TextEditingController _titleController = TextEditingController();
   TextEditingController _countController = TextEditingController();
 
-
   _SightingEditPageState(this.title, this.sighting,this._editing){
       syncPresenter = SyncSightingPresenter(this);
   }
@@ -167,6 +166,26 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
     //Navigator.of(context).pushReplacementNamed("/sighting_list");
   }
 
+  _buildDelete(BuildContext buildContext){
+    return Container(
+      child: RaisedButton(
+        elevation: 2.5,
+        highlightColor: Colors.red,
+        color: Colors.redAccent,
+        textColor: Colors.white,
+        padding: EdgeInsets.all(10),
+        child: Text("Delete this sighting",style: Constants.deleteButtonTextStyle,),
+        onPressed: (){
+          setState(() {
+            _isLoading = true;
+          });
+          final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+          Sighting sighting = bloc.sighting;
+          syncPresenter.delete(sighting); // Delete the sighting directly on the server then go to onDeleteSuccess() to delete locally
+      }),
+    );
+  }
+
   _buildBody(BuildContext buildContext)   {
 
     final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
@@ -207,6 +226,10 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
                           _buildFormInput(snapshot.data),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildGPSWidget(bloc,snapshot.data),
+                          Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                          Padding(padding: EdgeInsets.only(bottom: 10)),
+                          _buildDelete(buildContext),
+                          Padding(padding: EdgeInsets.only(bottom: 10)),
                         ],
                       )),
                     ),
@@ -834,9 +857,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         sighting.saveToDatabase(true).then((savedSightingWithNewNID) {
 
           if(savedSightingWithNewNID != null) {
-
-
-
             this._navigateToPreviousPage();
 
             /*if(editing) {
@@ -858,6 +878,19 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
     }
 
+  }
+
+  @override
+  void onDeleteSuccess(Sighting sighting) {
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    sighting.delete().then((deletedLocally){
+      this._navigateToPreviousPage();
+
+    });
   }
 
 }

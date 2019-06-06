@@ -81,4 +81,33 @@ class NetworkUtil {
     });
   }
 
+  Future<dynamic> delete(String url, {Map headers}) {
+    print("network util deleting...$url");
+    return http
+        .delete(url, headers: headers)
+        .then((http.Response response) {
+
+      print("[NETWORK_UTIL::delete()]" + response.body);
+
+      final String res = response.body;
+      final int statusCode = response.statusCode;
+      dynamic decodedData = _decoder.convert(res);
+
+      if (statusCode < 200 || statusCode > 400 || json == null) {
+        print("NETWORK STATUS CODE :"+statusCode.toString());
+        //throw new Exception(statusCode);
+        throw new LOMException(statusCode);
+      }
+
+      return decodedData;
+
+    }).catchError((Object error){
+
+      //@TODO Handle SocketException when the user does not have to internet.
+      print("[NETWORK_UTIL::delete()] Exception " + error.toString());
+      throw error;
+
+    });
+  }
+
 }

@@ -18,6 +18,7 @@ import 'package:uuid/uuid.dart';
 
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting,int nid,bool editing);
+  void onDeleteSuccess(Sighting sighting);
   void onSyncFailure(int statusCode);
   void onSocketFailure();
 }
@@ -27,8 +28,8 @@ class SyncSightingPresenter {
   SyncSightingContract _syncingView;
   RestData api = RestData();
   SyncSightingPresenter(this._syncingView);
-
   sync(Sighting sighting,{bool editing=false}) {
+
     if(sighting != null) {
        api.syncSighting(sighting,editing: editing)
           .then((nid) {
@@ -41,6 +42,21 @@ class SyncSightingPresenter {
           });
     }
   }
+
+  delete(Sighting sighting) {
+    if(sighting != null) {
+      api.deleteSighting(sighting)
+         .then((isDeleted) {
+          if(isDeleted){
+            _syncingView.onDeleteSuccess(sighting);
+          }
+      }).catchError((error) {
+        if(error is SocketException) _syncingView.onSocketFailure();
+        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+      });
+    }
+  }
+
 }
 
 
@@ -247,6 +263,26 @@ class Sighting {
     });
   }
 
+  Future<bool> delete() async {
+
+    try{
+
+      SightingDatabaseHelper db = SightingDatabaseHelper();
+      db.deleteSighting(sighting:this).then((deletedRow){
+        print("deleted Row $deletedRow");
+        if(deletedRow > 0){
+          return true;
+        }else {
+          return false;
+        }
+      });
+
+    }catch(e){
+      print("{Sighting::delete()} Exception "+e.toString());
+    }
+    return false;
+  }
+
   set species(Species value) {
     this._species = value;
   }
@@ -318,7 +354,6 @@ class Sighting {
 
 
   }
-
 
   Future<bool> loadSpeciesAndSite() async  {
 
@@ -560,7 +595,7 @@ class Sighting {
         ImageStream imageStream = _image.image.resolve(createLocalImageConfiguration(buildContext));
         imageStream.addListener((imageInfo,_){
 
-          print("$imageInfo.image.width - $imageInfo.image.height");
+          //print("$imageInfo.image.width - $imageInfo.image.height");
 
           if(imageInfo.image.width < imageInfo.image.height){
             fit = BoxFit.fitHeight;
