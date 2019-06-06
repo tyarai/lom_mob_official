@@ -167,8 +167,12 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
   }
 
   _buildDelete(BuildContext buildContext){
+
+    final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+    Sighting sighting = bloc.sighting;
+
     return Container(
-      child: RaisedButton(
+      child: (sighting.nid != null && sighting.nid != 0) ? RaisedButton(
         elevation: 2.5,
         highlightColor: Colors.red,
         color: Colors.redAccent,
@@ -179,10 +183,9 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
           setState(() {
             _isLoading = true;
           });
-          final SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-          Sighting sighting = bloc.sighting;
+
           syncPresenter.delete(sighting); // Delete the sighting directly on the server then go to onDeleteSuccess() to delete locally
-      }),
+      }) : Container(),
     );
   }
 
@@ -798,9 +801,6 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
         Sighting currentSighting = bloc.sighting;
 
         currentSighting.saveToDatabase(this._editing).then((savedSighting){
-
-          //this._navigateToPreviousPage();
-
           if (savedSighting != null){
 
              bloc.sightingEventController.add(SightingChangeEvent(savedSighting));

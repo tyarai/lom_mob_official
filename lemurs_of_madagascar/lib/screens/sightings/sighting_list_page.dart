@@ -9,7 +9,6 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
-import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 
 
 
