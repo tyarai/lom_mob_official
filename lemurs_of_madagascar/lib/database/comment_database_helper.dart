@@ -4,7 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 
-class CommentDatabaseHelper  {
+class CommentDatabaseHelper {
 
   static const String commentTable  = "Comment";
   final idCol             = Comment.idKey;
@@ -37,6 +37,7 @@ class CommentDatabaseHelper  {
 
   Future<int> insertComment(Comment comment) async {
     try {
+      print("insertComment() "+comment.toString());
       Database database = await DatabaseHelper.instance.database;
       var result = await database.insert(commentTable, comment.toMap());
 

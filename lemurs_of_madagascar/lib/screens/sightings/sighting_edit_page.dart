@@ -20,7 +20,6 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-
 class SightingEditPage extends StatefulWidget {
   final String title;
   final bool editing;

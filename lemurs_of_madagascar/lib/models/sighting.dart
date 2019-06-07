@@ -617,7 +617,7 @@ class Sighting {
 
       return image.then( (_image) {
 
-        var fit = BoxFit.contain;
+        var fit = BoxFit.fitWidth;
 
         ImageStream imageStream = _image.image.resolve(createLocalImageConfiguration(buildContext));
         imageStream.addListener((imageInfo,_){

@@ -1,9 +1,61 @@
 
+import 'dart:io';
+
+import 'package:lemurs_of_madagascar/data/rest_data.dart';
+import 'package:lemurs_of_madagascar/database/comment_database_helper.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
+
+abstract class SyncCommentContract {
+  void onSyncSuccess(Comment comment,int nid,bool editing);
+  void onDeleteSuccess(Comment comment);
+  void onSyncFailure(int statusCode);
+  void onSocketFailure();
+}
+
+class SyncCommentPresenter {
+
+  SyncCommentContract _syncingView;
+  RestData api = RestData();
+  SyncCommentPresenter(this._syncingView);
+
+  sync(Comment comment,{bool editing=false}) {
+
+    if(comment != null) {
+
+      api.syncComment(comment,editing: editing)
+          .then((cid) {
+        print("presenter cid: $cid");
+        _syncingView.onSyncSuccess(comment,cid,editing);
+      })
+          .catchError((error) {
+        if(error is SocketException) _syncingView.onSocketFailure();
+        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+      });
+    }
+  }
+
+  /*delete(Comment comment) {
+    if(comment != null) {
+      api.deleteComment(comment)
+          .then((isDeleted) {
+        if(isDeleted){
+          _syncingView.onDeleteSuccess(comment);
+        }
+      }).catchError((error) {
+        if(error is SocketException) _syncingView.onSocketFailure();
+        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+      });
+    }
+  }*/
+
+}
+
 class Comment{
 
-  static String idKey = "_id";
-  static String nidKey = "_cid";
+  static String idKey  = "_id";
+  static String nidKey = "_nid";
   static String pidKey = "_pid";
+  static String cidKey = "_cid";
   static String uidKey = "_uid";
   static String createdKey = "_created";
   static String modifiedKey = "_modified";
@@ -17,9 +69,10 @@ class Comment{
   int id=0;
   int nid=0;
   int pid=0;
+  int cid = 0;
   int uid=0;
-  int created=0;
-  int modified=0;
+  double created=0;
+  double modified=0;
   int status;
   String uuid="";
   String name="";
@@ -28,7 +81,7 @@ class Comment{
   String sightingUUID="";
 
 
-  Comment({this.id,this.nid,this.pid,this.uid,this.created,this.modified,this.status,this.uuid,this.name,this.mail,this.commentBody,this.sightingUUID});
+  Comment({this.id,this.nid,this.cid,this.pid,this.uid,this.created,this.modified,this.status,this.uuid,this.name,this.mail,this.commentBody,this.sightingUUID});
 
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();
@@ -39,6 +92,7 @@ class Comment{
 
     map[Comment.nidKey] = this.nid;
     map[Comment.pidKey] = this.pid;
+    map[Comment.cidKey] = this.cid;
     map[Comment.uidKey] = this.uid;
     map[Comment.createdKey] = this.created;
     map[Comment.modifiedKey] = this.modified;
@@ -55,9 +109,11 @@ class Comment{
   Comment.fromMap(Map<String, dynamic> map) {
 
     try {
+
       this.id = map[Comment.idKey];
       this.nid = map[Comment.nidKey];
       this.pid = map[Comment.pidKey];
+      this.cid = map[Comment.cidKey];
       this.uuid = map[Comment.uuidKey];
       this.uid = map[Comment.uidKey];
       this.created = map[Comment.createdKey];
@@ -67,12 +123,53 @@ class Comment{
       this.mail = map[Comment.mailKey];
       this.commentBody = map[Comment.commentBodyKey];
       this.sightingUUID = map[Comment.sightingUUIDKey];
+
     }catch(e){
       print("[COMMENT::Comment.fromMap()] exception :"+e.toString());
       throw(e);
     }
 
 
+  }
+
+  Future<Comment> saveToDatabase(bool editing) async {
+
+    try{
+
+        CommentDatabaseHelper db = CommentDatabaseHelper();
+        Future<int> cid;
+
+        if (editing) {
+          cid = db.updateComment(this);
+        }
+        else {
+          cid = db.insertComment(this);
+        }
+
+        return cid.then((result) {
+          if(result > 0){
+            if(!editing){
+              this.id = result; // newly created sighting
+            }
+            return this;
+          }else{
+            return null;
+          }
+
+        });
+
+
+    }catch(e) {
+      print("[Sighting::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
+  }
+
+  @override
+  String toString() {
+    return "[CID] $cid [NID] $nid [BODY] $commentBody [UID] $uid";
   }
 
 

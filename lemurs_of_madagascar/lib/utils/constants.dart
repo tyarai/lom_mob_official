@@ -94,6 +94,7 @@ class Constants {
 
   // GPS Location
   static const int gpsPrecision = 12;
+  static const int gpsDecimalPrecision = 5;
 
 }
 
