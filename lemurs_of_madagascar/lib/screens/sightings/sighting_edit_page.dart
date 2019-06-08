@@ -74,32 +74,38 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
   @override
   Widget build(BuildContext buildContext) {
-    return Scaffold(
-      backgroundColor: Constants.mainColor,
-      appBar: AppBar(
-        actions: <Widget>[
-            IconButton(
-            iconSize: Constants.iconSize,
-            icon:  Icon(Icons.save,color: Constants.iconColor,),
-            onPressed: () {
-              _submit(buildContext);
-            },
-          ),
-        ],
-        elevation: 0,
-        title: Text(this.title, style: Constants.appBarTitleStyle),
+    return WillPopScope(
+      onWillPop: () async {
+        if(_isLoading) return false;
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Constants.mainColor,
+        appBar: AppBar(
+          actions: _isLoading ? [] : <Widget>[
+              IconButton(
+              iconSize: Constants.iconSize,
+              icon:  Icon(Icons.save,color: Constants.iconColor,),
+              onPressed: () {
+                _submit(buildContext);
+              },
+            ),
+          ],
+          elevation: 0,
+          title: Text(this.title, style: Constants.appBarTitleStyle),
+        ),
+        body: ModalProgressHUD(
+            child:_buildBody(buildContext),
+            opacity: 0.3,
+            //color: Constants.mainSplashColor,
+            //progressIndicator: CircularProgressIndicator(),
+            //offset: 5.0,
+            //dismissible: false,
+            inAsyncCall: _isLoading
+          )
+
+
       ),
-      body: ModalProgressHUD(
-          child:_buildBody(buildContext),
-          opacity: 0.5,
-          //color: Constants.mainSplashColor,
-          //progressIndicator: CircularProgressIndicator(),
-          //offset: 5.0,
-          //dismissible: false,
-          inAsyncCall: _isLoading
-        )
-
-
     );
   }
 

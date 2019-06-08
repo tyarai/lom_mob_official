@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:uuid/uuid.dart';
 
 class SightingCommentPage extends StatefulWidget{
@@ -28,6 +29,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
   var commentController = TextEditingController();
   SyncCommentPresenter presenter;
   bool _isLoading = false;
+  Comment _currentComment;
 
   _SightingCommentPage(this.sighting){
     presenter = SyncCommentPresenter(this);
@@ -37,6 +39,8 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
   @override
   void initState() {
     super.initState();
+    _currentComment = null;
+    commentController.addListener(_onCommentChanged);
   }
 
 
@@ -71,6 +75,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
   _addComment({int uid,int sightingNid,String textComment,String name,String mail,String sightingUUID }){
 
+
     if(uid != null && sightingNid != 0 && textComment != null && textComment.trim().length != 0){
 
       double created = DateTime.now().millisecondsSinceEpoch.toDouble();
@@ -90,7 +95,31 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
       );
 
       //print(comment.toString());
-      presenter.sync(comment);
+      presenter.sync(comment,editing: false);
+
+    }
+  }
+
+  _updateComment(Comment comment){
+    if(comment != null){
+      presenter.sync(comment,editing:true);
+    }
+  }
+
+  _selectComment(Comment comment){
+    if(comment != null){
+      _currentComment = comment;
+      commentController.text = comment.commentBody;
+    }
+  }
+
+  _onCommentChanged(){
+    if(_currentComment != null){
+      if(commentController.text.length > 0) {
+        _currentComment.commentBody = commentController.text;
+      }else{
+        _currentComment = null;
+      }
 
     }
   }
@@ -110,7 +139,12 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
               if(index < _comments.length){
                 return Column(children: [
                   Padding(padding: EdgeInsets.only(bottom: 10),),
-                  ListTile(title:Text(snapshot.data[index].commentBody,style: Constants.defaultCommentTextStyle,)),
+                  ListTile(
+                    onTap: (){
+                      _selectComment(snapshot.data[index]);
+                    },
+                    title:Text(snapshot.data[index].commentBody,style: Constants.defaultCommentTextStyle,)
+                  ),
                   Padding(padding: EdgeInsets.only(bottom: 10),),
                   Divider(height: Constants.listViewDividerHeight,color: Colors.black87),
                 ]
@@ -143,24 +177,48 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
     String sightingUuid = this.sighting.uuid;
     int sightingUid = this.sighting.uid;
 
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: Column(
-        children:[
-          Expanded(child: _buildCommentList(this.sighting,buildContext)),
-          TextField(
-            controller: commentController,
-            onSubmitted: (String value){
-              _addComment(uid:sightingUid,sightingNid: sightingNid,textComment: value,sightingUUID: sightingUuid);
-              commentController.text = "";
+    return WillPopScope(
 
-            },
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.all(20.0),
-              hintText: "Add comment",
-            ),
+      onWillPop: () async {
+        if(_isLoading) return false;
+        return true;
+      },
+
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: ModalProgressHUD(
+          opacity: 0.3,
+          inAsyncCall:_isLoading,
+          child: Column(
+            children:[
+              Expanded(child: _buildCommentList(this.sighting,buildContext)),
+              TextField(
+                controller: commentController,
+                onSubmitted: (String value){
+
+                  setState(() {
+                    _isLoading = true;
+                  });
+
+                  if(_currentComment == null){
+                    // Create new comment
+                    _addComment(uid:sightingUid,sightingNid: sightingNid,textComment: value,sightingUUID: sightingUuid);
+                  }else{
+                    _updateComment(_currentComment);
+                    _currentComment = null;
+                  }
+
+                  commentController.text = "";
+
+                },
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.all(20.0),
+                  hintText: "Add comment",
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -193,7 +251,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
       // Editing = false : We are directly syncing the comment up to the server and get back
       // a new 'cid' which will be assigned to the comment and then be saved locally
-      comment.saveToDatabase(false).then((savedCommentWithNewCID) {
+      comment.saveToDatabase(editing).then((savedCommentWithNewCID) {
 
         if(savedCommentWithNewCID != null) {
           /*if(editing) {

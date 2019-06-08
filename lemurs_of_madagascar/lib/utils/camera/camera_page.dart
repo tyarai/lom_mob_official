@@ -49,6 +49,8 @@ class CameraPageState extends State<CameraPage> {
       ResolutionPreset.medium,
     );
 
+    
+
     this._currentUID =  0;
 
     // Next, you need to initialize the controller. This returns a Future
@@ -89,22 +91,6 @@ class CameraPageState extends State<CameraPage> {
 
   }
 
-  /* _close({bool delete=false}){
-
-    if(path.length != 0) {
-      File file = File(path);
-      if(file.existsSync()) {
-        if (delete) {
-          file.deleteSync();
-          print("Camera screen - deleted " + path);
-        }
-      }else{
-        print("Camera screen - no file to deleted ");
-      }
-
-    }
-  }
-  */
 
   Future<String> copyFileToDocuments(int currentUID,{File oldFile,String ext = Constants.imageType}) async {
 

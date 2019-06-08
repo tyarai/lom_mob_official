@@ -352,7 +352,9 @@ class RestData {
                           error.toString());
                   throw error;
                 });
+
             } else {
+
               Map<String, String> putHeaders = {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Accept": "application/json",
@@ -458,26 +460,28 @@ class RestData {
           currentSession.sessionID;
       String token = currentSession.token;
 
-      Map<String, String> postBody = {
-        "body": comment.commentBody,
-        "uuid": comment.uuid,
-        "uid": comment.uid.toString(),
-        "sighting_uuid": comment.sightingUUID,
-        "nid": comment.nid.toString(),
-        "status": "1",
-        "subject": "",
-        "synced": "1"
-      };
-
-      Map<String, String> postHeaders = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Cookie": cookie,
-        "X-CSRF-Token": token
-      };
 
 
       if (!editing) {
+
+        Map<String, String> postBody = {
+          "body": comment.commentBody,
+          "uuid": comment.uuid,
+          "uid": comment.uid.toString(),
+          "sighting_uuid": comment.sightingUUID,
+          "nid": comment.nid.toString(),
+          "status": "1",
+          "subject": "",
+          "synced": "1"
+        };
+
+        Map<String, String> postHeaders = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Cookie": cookie,
+          "X-CSRF-Token": token
+        };
+
         // Create new comment
         return
 
@@ -501,17 +505,30 @@ class RestData {
                     error.toString());
             throw error;
           });
+
       } else {
+
+        Map<String, String> postHeaders = {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/json",
+          "Cookie": cookie,
+          "X-CSRF-Token": token
+        };
+
+        String postBody = "body=${comment.commentBody}&uuid=${comment.uuid}&status=${comment.status}&deleted=0";
+
         String commentUpdateUrl = EDIT_COMMENT;
         print("[Updating comment at $commentUpdateUrl]");
 
         return
 
-          _networkUtil.put(commentUpdateUrl,
+          _networkUtil.post(commentUpdateUrl,
             body: postBody,
             headers: postHeaders,
             encoding: Encoding.getByName('utf-8'),
+
           ).then((dynamic resultMap) {
+
             print("[REST_DATA::updateComment()] update" + resultMap.toString());
 
             if (resultMap[RestData.errorKey] != null) {
@@ -519,8 +536,9 @@ class RestData {
             }
 
             String cidKey = "cid";
-            int cid = int.parse(resultMap[cidKey]);
+            int cid = resultMap[cidKey];
             return cid;
+
           }).catchError((error) {
             print(
                 "[REST_DATA::updateComment()] updating comment :" +

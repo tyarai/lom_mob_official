@@ -53,7 +53,6 @@ class _SightingListPageState extends State<SightingListPage>  {
     //Sighting.deleteAllSightings();
     super.initState();
 
-    //Future<int> _currentID = UserSession.loadCurrentUserUID();
     Future<User> user = User.getCurrentUser();
 
     user.then((_user){
