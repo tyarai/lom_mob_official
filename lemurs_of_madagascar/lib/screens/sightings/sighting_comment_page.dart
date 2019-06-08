@@ -6,6 +6,7 @@ import 'package:lemurs_of_madagascar/database/comment_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:uuid/uuid.dart';
@@ -73,7 +74,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
   }
 
-  _addComment({int uid,int sightingNid,String textComment,String name,String mail,String sightingUUID }){
+  _addComment({int uid,int sightingNid,String textComment,String sightingUUID , User user}){
 
 
     if(uid != null && sightingNid != 0 && textComment != null && textComment.trim().length != 0){
@@ -88,8 +89,8 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
           nid:sightingNid,
           created:created,
           modified: created,
-          name:name,
-          mail:mail,
+          name:user.name,
+          mail:user.mail,
           uuid:uuid,
           sightingUUID:sightingUUID,
       );
@@ -124,6 +125,24 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
     }
   }
 
+  _buildAvatar(Comment comment){
+    if(comment != null) {
+      return Column(
+        children: [CircleAvatar(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.yellowAccent,
+            radius: 20,
+            child: Icon(Icons.person, color: Constants.mainColor, size: 35),
+            //backgroundImage : AssetImage("assets/images/ram-everglades(resized).jpg"),
+          ),
+          Padding(padding: EdgeInsets.only(top:5),),
+          Text(comment.name != null ? comment.name : "",style: Constants.defaultSubTextStyle,),
+        ]
+      );
+    }
+    return Container();
+  }
+
   Widget _buildCommentList(Sighting sighting,BuildContext buildContext){
 
     return FutureBuilder<List<Comment>>(
@@ -143,6 +162,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
                     onTap: (){
                       _selectComment(snapshot.data[index]);
                     },
+                    leading: _buildAvatar(snapshot.data[index]),
                     title:Text(snapshot.data[index].commentBody,style: Constants.defaultCommentTextStyle,)
                   ),
                   Padding(padding: EdgeInsets.only(bottom: 10),),
@@ -201,8 +221,14 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
                   });
 
                   if(_currentComment == null){
-                    // Create new comment
-                    _addComment(uid:sightingUid,sightingNid: sightingNid,textComment: value,sightingUUID: sightingUuid);
+
+                    Future<User> user = User.getCurrentUser();
+
+                    user.then((currentUser){
+                      // Create new comment
+                      _addComment(uid:sightingUid,sightingNid: sightingNid,textComment: value,sightingUUID: sightingUuid,user:currentUser);
+                    });
+
                   }else{
                     _updateComment(_currentComment);
                     _currentComment = null;

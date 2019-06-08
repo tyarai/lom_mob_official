@@ -83,13 +83,6 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     Widget build(BuildContext context) {
 
 
-      /*User.getCurrentUser().then((user){
-        if(user != null) {
-          print("[INTRODUCTION::build()] user :" + user.toString());
-        }else{
-          print("[INTRODUCTION::build()] user : NULL");
-        }
-      });*/
 
       if (menuList == null) {
         menuList = List<Menu>();
