@@ -213,6 +213,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
             children:[
               Expanded(child: _buildCommentList(this.sighting,buildContext)),
               TextField(
+                style: Constants.defaultTextStyle,
                 controller: commentController,
                 onSubmitted: (String value){
 
