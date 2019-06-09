@@ -186,6 +186,19 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
     );
   }
 
+  bool _checkCommentOwnership(Comment comment){
+    if(comment != null){
+      Future<User> currentUser = User.getCurrentUser();
+      currentUser.then((_currentUser){
+        if(_currentUser != null){
+          if (comment.uid == _currentUser.uid) return true;
+          else return false;
+        }
+      });
+    }
+    return false;
+  }
+
   _buildCommentContent(Comment comment){
 
     if(comment != null){
@@ -207,7 +220,8 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
                 Expanded(flex:1,child:_buildAvatar(comment)),
                 Padding(padding: EdgeInsets.only(left: 10.0)),
                 Expanded(flex:6,child:Text(comment.commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,)),
-                Expanded(flex:1,child:IconButton(
+
+                Expanded(flex:1,child: _checkCommentOwnership(comment) ? IconButton(
                   icon: Icon(Icons.remove_circle_outline),
                   onPressed: (){
                     setState(() {
@@ -215,7 +229,8 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
                     });
                     _markCommentAsDeleted(comment);
                   },
-                )),
+                  ) : Container()
+                ),
               ]),
           )));
 
@@ -225,13 +240,14 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
   }
 
+  // We use 'status' to hide deleted comment locally and on the server (we do not actually remove comments then)
   _markCommentAsDeleted(Comment comment){
 
     if(comment != null){
 
       double modified = DateTime.now().millisecondsSinceEpoch.toDouble();
       comment.modified = modified;
-      comment.deleted = 1;
+      //comment.deleted = 1;
       comment.status = 0;
       presenter.sync(comment,editing: true);
 

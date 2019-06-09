@@ -20,7 +20,7 @@ class CommentDatabaseHelper {
     if(id != null && id != 0 ){
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
-          "SELECT * FROM $commentTable WHERE $idCol = ?  ", [id]);
+          "SELECT * FROM $commentTable WHERE $idCol = ?  AND $statusCol = ? ", [id,1]);
       return result[0];
     }
     return Map();
@@ -91,7 +91,7 @@ class CommentDatabaseHelper {
   Future<int> getRecordCount(int sightingNid) async {
     Database database = await DatabaseHelper.instance.database;
     List<Map<String, dynamic>> x =
-    await database.rawQuery("SELECT COUNT(*) FROM $commentTable WHERE ${Comment.nidKey} = $sightingNid)");
+    await database.rawQuery("SELECT COUNT(*) FROM $commentTable WHERE ${Comment.statusKey} = '1' AND ${Comment.nidKey} = $sightingNid)");
     int result = Sqflite.firstIntValue(x);
     
     return result;
