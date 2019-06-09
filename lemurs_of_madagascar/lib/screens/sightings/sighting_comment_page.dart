@@ -8,6 +8,7 @@ import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:uuid/uuid.dart';
 
@@ -132,7 +133,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
             backgroundColor: Colors.white,
             foregroundColor: Colors.yellowAccent,
             radius: 20,
-            child: Icon(Icons.person, color: Constants.mainColor, size: 35),
+            child: Icon(Icons.person, color: Constants.mainColor, size: 25),
             //backgroundImage : AssetImage("assets/images/ram-everglades(resized).jpg"),
           ),
           Padding(padding: EdgeInsets.only(top:5),),
@@ -156,19 +157,24 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
             itemCount: snapshot.data.length,
             itemBuilder: (context,index){
               if(index < _comments.length){
-                return Column(children: [
-                  Padding(padding: EdgeInsets.only(bottom: 10),),
-                  ListTile(
-                    onTap: (){
-                      _selectComment(snapshot.data[index]);
-                    },
-                    leading: _buildAvatar(snapshot.data[index]),
-                    title:Text(snapshot.data[index].commentBody,style: Constants.defaultCommentTextStyle,)
-                  ),
-                  Padding(padding: EdgeInsets.only(bottom: 10),),
-                  Divider(height: Constants.listViewDividerHeight,color: Colors.black87),
-                ]
-                );
+                return Column(
+                  children: [
+                    Padding(padding: EdgeInsets.only(bottom: 5),),
+                    /*ListTile(
+                      onTap: (){
+                        _selectComment(snapshot.data[index]);
+                      },
+                      leading: _buildAvatar(snapshot.data[index]),
+                      /*trailing: IconButton(
+                        icon:Icon(Icons.remove_circle,color: Colors.red,),
+                        onPressed: _markCommentAsDeleted(snapshot.data[index]),
+                      ),*/
+                      title:Text(snapshot.data[index].commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,)
+                    ),*/
+                    _buildCommentContent(snapshot.data[index]),
+                    Padding(padding: EdgeInsets.only(bottom: 5),),
+                    Divider(height: Constants.listViewDividerHeight,color: Colors.black87),
+                ]);
               }
             }
           );
@@ -178,8 +184,58 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
         }
       },
     );
+  }
 
+  _buildCommentContent(Comment comment){
 
+    if(comment != null){
+
+      return GestureDetector(
+        onTap: () {
+          _selectComment(comment);
+        },
+
+        child: Container(
+          child: Material(
+            //color: _buildBackGroundColor(provider,index),
+            elevation: 0.0,
+            //borderRadius: BorderRadius.circular(borderRadius),
+            shadowColor: Colors.blueGrey,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(flex:1,child:_buildAvatar(comment)),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Expanded(flex:6,child:Text(comment.commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,)),
+                Expanded(flex:1,child:IconButton(
+                  icon: Icon(Icons.remove_circle_outline),
+                  onPressed: (){
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    _markCommentAsDeleted(comment);
+                  },
+                )),
+              ]),
+          )));
+
+    }
+
+    return Container();
+
+  }
+
+  _markCommentAsDeleted(Comment comment){
+
+    if(comment != null){
+
+      double modified = DateTime.now().millisecondsSinceEpoch.toDouble();
+      comment.modified = modified;
+      comment.deleted = 1;
+      comment.status = 0;
+      presenter.sync(comment,editing: true);
+
+    }
   }
 
   _buildAppBar(){
@@ -209,41 +265,46 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
         body: ModalProgressHUD(
           opacity: 0.3,
           inAsyncCall:_isLoading,
-          child: Column(
-            children:[
-              Expanded(child: _buildCommentList(this.sighting,buildContext)),
-              TextField(
-                style: Constants.defaultTextStyle,
-                controller: commentController,
-                onSubmitted: (String value){
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children:[
+                Expanded(child: _buildCommentList(this.sighting,buildContext)),
+                Container(
+                  child: TextField(
+                  style: Constants.defaultTextStyle,
+                  controller: commentController,
+                  onSubmitted: (String value){
 
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  if(_currentComment == null){
-
-                    Future<User> user = User.getCurrentUser();
-
-                    user.then((currentUser){
-                      // Create new comment
-                      _addComment(uid:sightingUid,sightingNid: sightingNid,textComment: value,sightingUUID: sightingUuid,user:currentUser);
+                    setState(() {
+                      _isLoading = true;
                     });
 
-                  }else{
-                    _updateComment(_currentComment);
-                    _currentComment = null;
-                  }
+                    if(_currentComment == null){
 
-                  commentController.text = "";
+                      Future<User> user = User.getCurrentUser();
 
-                },
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(20.0),
-                  hintText: "Add comment",
+                      user.then((currentUser){
+                        // Create new comment
+                        _addComment(uid:sightingUid,sightingNid: sightingNid,textComment: value,sightingUUID: sightingUuid,user:currentUser);
+                      });
+
+                    }else{
+                      _updateComment(_currentComment);
+                      _currentComment = null;
+                    }
+
+                    commentController.text = "";
+
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(20.0),
+                    hintText: "Add comment",
+                  ),
+                    ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -257,7 +318,10 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
   @override
   void onSocketFailure() {
-    // TODO: implement onSocketFailure
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleSocketError(context);
   }
 
   @override
@@ -276,8 +340,6 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
       comment.cid = cid;
 
-      // Editing = false : We are directly syncing the comment up to the server and get back
-      // a new 'cid' which will be assigned to the comment and then be saved locally
       comment.saveToDatabase(editing).then((savedCommentWithNewCID) {
 
         if(savedCommentWithNewCID != null) {

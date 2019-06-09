@@ -106,29 +106,8 @@ class _SplashScreenState extends State<SplashScreen> {
                     child:Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        /*RaisedButton(
-                          child: Text("TAP"),
-                          onPressed: (){
-                            _navigateToNextPage(context,IntroductionPage(title: Constants.appName,),);
-                          },
-                        ),*/
                         Center(child: Text(Constants.appName,textAlign: TextAlign.center,style: Constants.splashAppTitleStyle, textScaleFactor: 1.10,)),
                         Padding(padding: EdgeInsets.only(bottom:100),),
-                        /*CircleAvatar(
-                          backgroundColor:Colors.white,
-                          radius: 50,
-                          //child: Icon(Icons.pets,color: Constants.mainColor,size:50),
-                          backgroundImage :
-                                      AssetImage(
-                                        "assets/images/ram-everglades(resized).jpg"),
-
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left:10.0,right:10),
-                          child: Center(child: Text(Constants.appCreed, textAlign: TextAlign.center ,style: Constants.splashAppCreedStyle, textScaleFactor: 1,)),
-                        ),*/
-                        //Padding(padding: EdgeInsets.only(top:20),),
-
                       ],
 
                     ),

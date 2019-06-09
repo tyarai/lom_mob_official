@@ -24,6 +24,7 @@ class NetworkUtil {
   }
 
   Future<dynamic> post(String url, {Map headers, body, encoding}) {
+
     print("network util posting....$url .. $body ... $encoding");
     return http
         .post(url, body: body, headers: headers, encoding: encoding)
@@ -46,7 +47,7 @@ class NetworkUtil {
     }).catchError((Object error){
 
         //@TODO Handle SocketException when the user does not have to internet.
-      print("[NETWORK_UTIL::post()] error" + error.toString());
+      print("[NETWORK_UTIL::post()] error " + error.toString());
       throw error;
 
     });

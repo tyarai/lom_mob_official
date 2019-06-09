@@ -515,7 +515,7 @@ class RestData {
           "X-CSRF-Token": token
         };
 
-        String postBody = "body=${comment.commentBody}&uuid=${comment.uuid}&status=${comment.status}&deleted=0";
+        String postBody = "body=${comment.commentBody}&uuid=${comment.uuid}&status=${comment.status}&deleted=${comment.deleted}";
 
         String commentUpdateUrl = EDIT_COMMENT;
         print("[Updating comment at $commentUpdateUrl]");

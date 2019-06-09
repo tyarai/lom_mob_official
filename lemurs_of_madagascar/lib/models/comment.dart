@@ -65,12 +65,14 @@ class Comment{
   static String mailKey = "_mail";
   static String commentBodyKey = "_commentBody";
   static String sightingUUIDKey = "_sighting_uuid";
+  static String deletedKey = "_deleted";
 
   int id=0;
   int nid=0;
   int pid=0;
   int cid = 0;
   int uid=0;
+  int deleted=0;
   double created=0;
   double modified=0;
   int status;
@@ -81,7 +83,7 @@ class Comment{
   String sightingUUID="";
 
 
-  Comment({this.id,this.nid,this.cid,this.pid,this.uid,this.created,this.modified,this.status,this.uuid,this.name,this.mail,this.commentBody,this.sightingUUID});
+  Comment({this.id,this.nid,this.cid,this.pid,this.deleted,this.uid,this.created,this.modified,this.status,this.uuid,this.name,this.mail,this.commentBody,this.sightingUUID});
 
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();
@@ -102,6 +104,7 @@ class Comment{
     map[Comment.mailKey] = this.mail;
     map[Comment.commentBodyKey] = this.commentBody;
     map[Comment.sightingUUIDKey] = this.sightingUUID;
+    map[Comment.deletedKey] = this.deleted;
 
     return map;
   }
@@ -123,6 +126,7 @@ class Comment{
       this.mail = map[Comment.mailKey];
       this.commentBody = map[Comment.commentBodyKey];
       this.sightingUUID = map[Comment.sightingUUIDKey];
+      this.deleted = map[Comment.deletedKey];
 
     }catch(e){
       print("[COMMENT::Comment.fromMap()] exception :"+e.toString());

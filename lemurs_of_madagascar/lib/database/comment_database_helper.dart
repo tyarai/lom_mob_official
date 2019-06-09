@@ -12,6 +12,8 @@ class CommentDatabaseHelper {
   final createdCol        = Comment.createdKey;
   final uidCol            = Comment.uidKey;
   final nidCol            = Comment.nidKey;
+  final statusCol         = Comment.statusKey;
+  final deleteCol         = Comment.deletedKey;
 
   Future<Map<String, dynamic>> getCommentMapWithID(int id) async {
 
@@ -28,8 +30,8 @@ class CommentDatabaseHelper {
     if(sightingNid != null && sightingNid != 0) {
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
-          "SELECT * FROM $commentTable WHERE  $nidCol = ? ORDER BY $createdCol ASC ",
-          [sightingNid]);
+          "SELECT * FROM $commentTable WHERE  $nidCol = ?  AND $statusCol = ? ORDER BY $createdCol ASC ",
+          [sightingNid,1]);
       return result;
     }
     return List();
