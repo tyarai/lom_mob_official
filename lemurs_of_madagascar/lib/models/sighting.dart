@@ -6,9 +6,11 @@ import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/tag_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/models/tag.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_comment_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
@@ -18,50 +20,42 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-
 abstract class SyncSightingContract {
-  void onSyncSuccess(Sighting sighting,int nid,bool editing);
+  void onSyncSuccess(Sighting sighting, int nid, bool editing);
   void onDeleteSuccess(Sighting sighting);
   void onSyncFailure(int statusCode);
   void onSocketFailure();
 }
 
 class SyncSightingPresenter {
-
   SyncSightingContract _syncingView;
   RestData api = RestData();
   SyncSightingPresenter(this._syncingView);
-  sync(Sighting sighting,{bool editing=false}) {
-
-    if(sighting != null) {
-       api.syncSighting(sighting,editing: editing)
-          .then((nid) {
-            print("presenter $nid");
-            _syncingView.onSyncSuccess(sighting,nid,editing);
-          })
-          .catchError((error) {
-            if(error is SocketException) _syncingView.onSocketFailure();
-            if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
-          });
-    }
-  }
-
-  delete(Sighting sighting) {
-    if(sighting != null) {
-      api.deleteSighting(sighting)
-         .then((isDeleted) {
-          if(isDeleted){
-            _syncingView.onDeleteSuccess(sighting);
-          }
+  sync(Sighting sighting, {bool editing = false}) {
+    if (sighting != null) {
+      api.syncSighting(sighting, editing: editing).then((nid) {
+        print("presenter $nid");
+        _syncingView.onSyncSuccess(sighting, nid, editing);
       }).catchError((error) {
-        if(error is SocketException) _syncingView.onSocketFailure();
-        if(error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+        if (error is SocketException) _syncingView.onSocketFailure();
+        if (error is LOMException) _syncingView.onSyncFailure(error.statusCode);
       });
     }
   }
 
+  delete(Sighting sighting) {
+    if (sighting != null) {
+      api.deleteSighting(sighting).then((isDeleted) {
+        if (isDeleted) {
+          _syncingView.onDeleteSuccess(sighting);
+        }
+      }).catchError((error) {
+        if (error is SocketException) _syncingView.onSocketFailure();
+        if (error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+      });
+    }
+  }
 }
-
 
 class Sighting {
   static String idKey = "_id";
@@ -86,9 +80,12 @@ class Sighting {
   static String lockedKey = "_locked";
   static String altKey = "_placeAltitude";
   static String hasPhotoChangedKey = "_hasPhotoChanged";
+  //static String isIllegalKey = "_illegal";
+  static String activityTagTidKey = "_activityTagTid";
 
   Species _species;
   Site _site;
+  Tag _tag;
 
   int id = 0;
   int nid = 0;
@@ -113,6 +110,8 @@ class Sighting {
   int placeNID = 0;
   int locked = -1;
   int hasPhotoChanged = -1;
+  //int illegal = 0;
+  int activityTagTid = 0;
 
   factory Sighting.withSighting(Sighting sighting) {
     return Sighting(
@@ -137,7 +136,9 @@ class Sighting {
         deleted: sighting.deleted,
         placeNID: sighting.placeNID,
         locked: sighting.locked,
-        hasPhotoChanged: sighting.hasPhotoChanged);
+        hasPhotoChanged: sighting.hasPhotoChanged,
+        //illegal:sighting.illegal,
+        activityTagTid: sighting.activityTagTid);
   }
 
   Sighting(
@@ -162,63 +163,54 @@ class Sighting {
       this.deleted,
       this.placeNID,
       this.locked,
-      this.hasPhotoChanged}) {
-
-    loadSpeciesAndSite();
+      this.hasPhotoChanged,
+      //this.illegal,
+      this.activityTagTid}) {
+    loadSpeciesAndSiteAndTag();
   }
 
   Site get site => this._site;
+
+  Tag get tag => this._tag;
+
+  set tag(Tag value) => this._tag = value;
 
   set site(Site value) => this._site = value;
 
   Species get species => this._species;
 
   Future<Sighting> saveToDatabase(bool editing) async {
-
     Future<User> user = User.getCurrentUser();
 
     return user.then((user) async {
-
       try {
         if (user != null && user.uid != 0 && user.uuid != null) {
-          //print("[BEFORE] $editing ${this.toString()}");
-
           this.uid = user.uid;
-
-          //this.nid = this.nid; //Random().nextInt(65000);
-
           var _uuid = Uuid();
           this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
-
-          this.speciesNid  = this.species?.id != null ? this.species.id : this.speciesNid;
-          this.speciesName = this.species?.title != null ? this.species.title : this.speciesName;
+          this.speciesNid =
+              this.species?.id != null ? this.species.id : this.speciesNid;
+          this.speciesName = this.species?.title != null
+              ? this.species.title
+              : this.speciesName;
           this.placeNID = this.site?.id != null ? this.site.id : this.placeNID;
           this.placeName =
-          this.site?.title != null ? this.site.title : this.placeName;
+              this.site?.title != null ? this.site.title : this.placeName;
 
           this.date = this.date == null
-              ? DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toDouble()
+              ? DateTime.now().millisecondsSinceEpoch.toDouble()
               : this.date;
 
           this.created = this.created == null
-              ? DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toDouble()
+              ? DateTime.now().millisecondsSinceEpoch.toDouble()
               : this.created;
 
-          this.modified = DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toDouble();
+          this.modified = DateTime.now().millisecondsSinceEpoch.toDouble();
 
           this.uid = this.uid == null ? user.uid : this.uid;
 
-          Photograph defaultImage = await this._species
-              .getPhotographObjectAtIndex(0);
+          Photograph defaultImage =
+              await this._species.getPhotographObjectAtIndex(0);
           this.photoFileName = this.photoFileName != null
               ? this.photoFileName
               : defaultImage.photoAssetPath(ext: Constants.imageType);
@@ -236,52 +228,44 @@ class Sighting {
 
           if (editing) {
             id = db.updateSighting(this);
-          }
-          else {
+          } else {
             id = db.insertSighting(this);
           }
 
           return id.then((result) {
-            if(result > 0){
-              if(!editing){
+            if (result > 0) {
+              if (!editing) {
                 this.id = result; // newly created sighting
               }
               return this;
-            }else{
+            } else {
               return null;
             }
-
           });
-
         } else {
           print("[Sighting::saveToDatabase()] no User logged-in!");
           return null;
         }
-
-      }catch(e) {
+      } catch (e) {
         print("[Sighting::saveToDatabase()] Exception ${e.toString()}");
         throw e;
       }
-
     });
   }
 
   Future<bool> delete() async {
-
-    try{
-
+    try {
       SightingDatabaseHelper db = SightingDatabaseHelper();
-      db.deleteSighting(sighting:this).then((deletedRow){
-        print("deleted Row $deletedRow");
-        if(deletedRow > 0){
+      db.deleteSighting(sighting: this).then((deletedRow) {
+        //print("deleted Row $deletedRow");
+        if (deletedRow > 0) {
           return true;
-        }else {
+        } else {
           return false;
         }
       });
-
-    }catch(e){
-      print("{Sighting::delete()} Exception "+e.toString());
+    } catch (e) {
+      print("{Sighting::delete()} Exception " + e.toString());
     }
     return false;
   }
@@ -318,12 +302,13 @@ class Sighting {
     map[Sighting.lockedKey] = this.locked;
     map[Sighting.altKey] = this.altitude;
     map[Sighting.hasPhotoChangedKey] = this.hasPhotoChanged;
+    //map[Sighting.isIllegalKey] = this.illegal;
+    map[Sighting.activityTagTidKey] = this.activityTagTid;
 
     return map;
   }
 
   Sighting.fromMap(Map<String, dynamic> map) {
-
     try {
       this.id = map[Sighting.idKey];
       this.nid = map[Sighting.nidKey];
@@ -347,31 +332,42 @@ class Sighting {
       this.locked = map[Sighting.lockedKey];
       this.altitude = double.tryParse(map[Sighting.altKey].toString()) ?? 0.0;
       this.hasPhotoChanged = map[Sighting.hasPhotoChangedKey];
+      //this.illegal = map[Sighting.isIllegalKey];
+      this.activityTagTid = map[Sighting.activityTagTidKey];
 
-      loadSpeciesAndSite();
-
-    }catch(e){
-      print("[SIGHTING::Sighting.fromMap()] error :"+e.toString());
-      throw(e);
+      loadSpeciesAndSiteAndTag();
+    } catch (e) {
+      print("[SIGHTING::Sighting.fromMap()] error :" + e.toString());
+      throw (e);
     }
-
-
   }
 
-  Future<bool> loadSpeciesAndSite() async  {
+  //Future<bool> loadSpeciesAndSiteAndTag() async  {
+  loadSpeciesAndSiteAndTag() async {
+    //this._species = null;
+    //this._site    = null;
+    //this._tag     = null;
 
-    return this._loadSpecies().then((finished){
+    /*return this._loadSpecies().then((finished){
       if(finished){
         this._loadSite().then((finished){
-          return finished;
+          if(finished){
+            return this._loadTag();
+          }
+          //return finished;
         });
       }
       return finished;
-    });
+    });*/
 
+    await this.loadSpecies();
+    await this.loadSite();
+    await this.loadTag();
   }
 
-  Future<bool> _loadSpecies() async {
+  Future<bool> loadSpecies() async {
+    this._species = null;
+
     if (this.speciesNid != 0) {
       SpeciesDatabaseHelper speciesDatabaseHelper = SpeciesDatabaseHelper();
       this._species =
@@ -382,7 +378,22 @@ class Sighting {
     return false;
   }
 
-  Future<bool> _loadSite() async {
+  Future<bool> loadTag() async {
+    //print("[tid] ${this.activityTagTid}");
+    this._tag = null;
+
+    if (this.activityTagTid != 0 && this.activityTagTid != null) {
+      TagDatabaseHelper tagDatabaseHelper = TagDatabaseHelper();
+      this._tag =
+          await tagDatabaseHelper.getActivityTagWithTID(this.activityTagTid);
+      //print('current tag ' + this._tag.toString());
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> loadSite() async {
+    this._site = null;
     if (this.placeNID != 0) {
       SiteDatabaseHelper db = SiteDatabaseHelper();
       this._site = await db.getSiteWithID(this.placeNID);
@@ -391,75 +402,81 @@ class Sighting {
     return false;
   }
 
-  static _commentButtonPressed(Sighting sighting,SightingBloc sightingBloc,BuildContext buildContext ){
-
-    Navigator.push(buildContext,MaterialPageRoute(
-      builder: (context) =>
-      BlocProvider(
-        child: SightingCommentPage(sighting),
-        bloc:sightingBloc,
-      )
-    ));
+  static _commentButtonPressed(
+      Sighting sighting, SightingBloc sightingBloc, BuildContext buildContext) {
+    Navigator.push(
+        buildContext,
+        MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                  child: SightingCommentPage(sighting),
+                  bloc: sightingBloc,
+                )));
   }
 
-  static buildAction(Sighting sighting,SightingBloc sightingBloc,BuildContext buildContext){
+  static buildAction(
+      Sighting sighting, SightingBloc sightingBloc, BuildContext buildContext) {
     return Row(
       children: <Widget>[
         IconButton(
           icon: Icon(Icons.insert_comment),
           color: Constants.mainColor,
-          iconSize:30,
-          onPressed: (){
-            _commentButtonPressed(sighting,sightingBloc,buildContext);
+          iconSize: 30,
+          onPressed: () {
+            _commentButtonPressed(sighting, sightingBloc, buildContext);
           },
         ),
       ],
     );
   }
 
-  static Widget buildCellInfo(Sighting sighting,SightingBloc sightingBloc,BuildContext buildContext,
+  static Widget buildCellInfo(
+      Sighting sighting, SightingBloc sightingBloc, BuildContext buildContext,
       {bool lookInAssetsFolder = false,
       CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
     String formattedDate = DateFormat.yMMMMd("en_US")
         .format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
-    if(sighting != null) {
+    if (sighting != null) {
+      //print("{SIGHTING} $sighting");
+      //sighting.loadTag();
+      //print("{SIGHTING} $sighting");
 
       double screenWidth = MediaQuery.of(buildContext).size.width;
 
       return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
-
         FutureBuilder<Container>(
-          future:
-            Sighting.getImageContainer(
-            sighting,
-            buildContext,
-            width:screenWidth,
-            height:Constants.sightingListImageHeight,
-            fittedImage: true,
-            assetImage: true),
+            future: Sighting.getImageContainer(sighting, buildContext,
+                width: screenWidth,
+                height: Constants.sightingListImageHeight,
+                fittedImage: true,
+                assetImage: true),
             builder: (context, snapshot) {
-              if(!snapshot.hasData){
-                return Center(child:CircularProgressIndicator());
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
               }
               return snapshot.data;
-            }
-        ),
+            }),
         Container(height: 10),
-        Text(
-          sighting.id.toString() + " " + sighting.nid.toString() + " " + sighting.speciesName,
-          style: Constants.sightingSpeciesNameTextStyle,
-        ),
+        sighting.speciesNid != 0
+            ? Text(
+                sighting.id.toString() +
+                    " " +
+                    sighting.nid.toString() +
+                    " " +
+                    sighting.speciesName,
+                style: Constants.sightingSpeciesNameTextStyle,
+              )
+            : Container(),
         Container(height: 5),
-        Sighting.buildAction(sighting,sightingBloc,buildContext),
+        Sighting.buildAction(sighting, sightingBloc, buildContext),
         Container(height: 5),
         Row(
-          //mainAxisAlignment: MainAxisAlignment.end,
+            //mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Expanded(
                 child: Column(
-                  //mainAxisAlignment: MainAxisAlignment.center,
+                    //mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
@@ -489,98 +506,99 @@ class Sighting {
         Text(
           sighting.title,
           style: Constants.sightingTitleTextStyle,
-        )
-
+        ),
+        Container(height: 10),
+        FutureBuilder<bool>(
+          future: sighting.loadTag(),
+          builder: (context, snapshot) {
+            if(! snapshot.hasData) return Container();
+            if (snapshot.data != null && snapshot.hasData) {
+              return sighting.tag != null
+                  ? Text(
+                      sighting.tag.nameEN,
+                      style: Constants.sightingSpeciesNameTextStyle,
+                    )
+                  : Container();
+            }
+          },
+        ),
       ]);
     }
 
     return Container();
   }
 
-  static Future<Image> getImage(Sighting sighting)  async {
-
-    if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
-
+  static Future<Image> getImage(Sighting sighting) async {
+    if (sighting != null &&
+        sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
       Species species = sighting.species;
 
-      if(species == null){
-        await sighting.loadSpeciesAndSite();
+      if (species == null) {
+        await sighting.loadSpeciesAndSiteAndTag();
       }
 
-      Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(0);
+      Future<Photograph> photo =
+          sighting._species.getPhotographObjectAtIndex(0);
 
-      return photo.then((photograph){
-
-        if(photograph != null) {
-
-          String assetPath = photograph.photoAssetPath(ext: Constants.imageType);
+      return photo.then((photograph) {
+        if (photograph != null) {
+          String assetPath =
+              photograph.photoAssetPath(ext: Constants.imageType);
           Image image = Image.asset(assetPath);
 
           return image;
         }
 
         return null;
-
       });
-
     }
 
-
     return getApplicationDocumentsDirectory().then((folder) {
-
-      if(folder != null) {
-
+      if (folder != null) {
         String fullPath = join(folder.path, sighting.photoFileName);
 
         File file = File(fullPath);
 
         if (file.existsSync()) {
-          return Image.file(file,);// Return image from Documents
+          return Image.file(
+            file,
+          ); // Return image from Documents
         }
-
       }
 
       return null;
-
     });
-
-
   }
 
-  static Future<File> getImageFile(Sighting sighting)  async {
-
+  static Future<File> getImageFile(Sighting sighting) async {
     print("{Sighing::getImageFile()} photo " + sighting.photoFileName);
 
     try {
+      if (sighting != null &&
+          sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
+        Species species = sighting.species;
 
-      if(sighting != null  && sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)){
+        if (species == null) {
+          await sighting.loadSpeciesAndSiteAndTag();
+        }
 
+        Future<Photograph> photo =
+            sighting._species.getPhotographObjectAtIndex(0);
 
-          Species species = sighting.species;
-
-          if (species == null) {
-            await sighting.loadSpeciesAndSite();
+        return photo.then((photograph) {
+          if (photograph != null) {
+            String assetPath =
+                photograph.photoAssetPath(ext: Constants.imageType);
+            File file = File(assetPath);
+            return file;
           }
 
-          Future<Photograph> photo = sighting._species.getPhotographObjectAtIndex(
-              0);
-
-          return photo.then((photograph) {
-            if (photograph != null) {
-              String assetPath = photograph.photoAssetPath(
-                  ext: Constants.imageType);
-              File file = File(assetPath);
-              return file;
-            }
-
-            return null;
-          });
+          return null;
+        });
       }
 
       return getApplicationDocumentsDirectory().then((folder) {
-
-        if(folder != null) {
-
+        if (folder != null) {
           String fullPath = join(folder.path, sighting.photoFileName);
 
           File file = File(fullPath);
@@ -588,63 +606,56 @@ class Sighting {
           if (file.existsSync()) {
             return file;
           }
-
         }
 
         return null;
-
       });
-
-    }catch(e){
-      print("[Sighting::getImageFile()] Exception "+ e.toString());
+    } catch (e) {
+      print("[Sighting::getImageFile()] Exception " + e.toString());
       throw e;
     }
-
-
   }
 
-  static Future<Container> getImageContainer(Sighting sighting,BuildContext buildContext,
-      {double width = 1280.0 ,
-        double height = Constants.sightingListImageHeight,
-        bool fittedImage = false,
-        BoxFit standardFit = BoxFit.cover,
-        BoxFit assetImageFit = BoxFit.fitHeight  ,
-        bool assetImage=false})  async {
-
+  static Future<Container> getImageContainer(
+      Sighting sighting, BuildContext buildContext,
+      {double width = 1280.0,
+      double height = Constants.sightingListImageHeight,
+      bool fittedImage = false,
+      BoxFit standardFit = BoxFit.cover,
+      BoxFit assetImageFit = BoxFit.fitHeight,
+      bool assetImage = false}) async {
     if (sighting != null) {
-
       Future<Image> image = Sighting.getImage(sighting);
 
-      return image.then( (_image) {
-
+      return image.then((_image) {
         var fit = BoxFit.fitWidth;
 
-        ImageStream imageStream = _image.image.resolve(createLocalImageConfiguration(buildContext));
-        imageStream.addListener((imageInfo,_){
-
-          if(imageInfo.image.width < imageInfo.image.height){
+        ImageStream imageStream =
+            _image.image.resolve(createLocalImageConfiguration(buildContext));
+        imageStream.addListener((imageInfo, _) {
+          if (imageInfo.image.width < imageInfo.image.height) {
             fit = BoxFit.fitHeight;
           }
-
         });
 
         return Container(
           height: height,
-          width:width,
-          child: ! fittedImage ?
-            _image
+          width: width,
+          child: !fittedImage
+              ? _image
               :
-          //FittedBox(fit: assetImage ? assetImageFit : standardFit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
-          FittedBox(fit: fit , child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
+              //FittedBox(fit: assetImage ? assetImageFit : standardFit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
+              FittedBox(
+                  fit: fit,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [_image])),
         ); // Return image from Documents
-
       });
     }
 
     return Container();
-
   }
-
 
   static void deleteAllSightings() {
     SightingDatabaseHelper.deleteAllSightings();
@@ -652,6 +663,6 @@ class Sighting {
 
   @override
   String toString() {
-    return "\n[ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName}";
+    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName} - {site: ${this._site} species: ${this._species} tag:${this._tag}}";
   }
 }

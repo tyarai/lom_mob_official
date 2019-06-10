@@ -1,8 +1,11 @@
 
-import 'package:lemurs_of_madagascar/database/tag_database_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 
 
-class Tag{
+class Tag extends SelectableListItem{
 
   static String idKey  = "_id";
   static String tidKey = "_tid";
@@ -51,11 +54,80 @@ class Tag{
 
   }
 
+  static Widget buildTextInfo(Tag tag,{CrossAxisAlignment crossAlignment = CrossAxisAlignment.start,TextStyle style = Constants.defaultTextStyle}) {
+    if(tag != null) {
+      return Expanded(
+        child: Column(
+            crossAxisAlignment: crossAlignment,
+            children: <Widget>[
+              Material(
+                  color: Colors.transparent,
+                  child:
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(tag.nameEN,style: style)),
+                  )
+                  ,
+            ]),
+      );
+    }
+    return Container();
+  }
 
   @override
   String toString() {
     return "[ID] $id [TID] $tid [UUID] $uuid [NAME] $nameEN [VOCABULARY] $vocabularyName";
   }
 
+  @override
+  Widget getItemCell(ListProvider provider,int index,BuildContext context, OnSelectCallback onSelectCallback,
+      {
+        double borderRadius = Constants.speciesImageBorderRadius,
+        double elevation    = 2.5,
+        double imageWidth   = Constants.listViewImageWidth,
+        double imageHeight  = Constants.listViewImageHeight,
+        SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular
+      })
+  {
+    return GestureDetector(
+        onTap: () {
+          provider.selectedItem = this;
+          provider.selectedItemIndex = index;
+          onSelectCallback(this);
+        },
+        child: Padding(
+            padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+            child: Container(
+                child: Material(
+                  color: _buildBackGroundColor(provider,index),
+                  elevation: elevation,
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  shadowColor: Colors.blueGrey,
+                  child: Padding(
+                      padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Tag.buildTextInfo(this),
+                            Container(width: 10),
+                            _buildCheckBox(provider,index),
+
+                          ])),
+                ))));
+
+  }
+
+  _buildBackGroundColor(ListProvider provider, int index ){
+    return (provider.selectedItemIndex == index) ?
+    Constants.selectedListItemBackgroundColor : Constants.defaultListItemBackgroundColor;
+  }
+
+  _buildCheckBox(ListProvider provider, int index ){
+    return (provider.selectedItemIndex == index) ?
+    Container(
+      child: Icon(Icons.check,size:35,color: Colors.green,),
+    )
+        : Container();
+  }
 
 }

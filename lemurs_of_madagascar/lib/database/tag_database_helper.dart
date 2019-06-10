@@ -23,6 +23,17 @@ class TagDatabaseHelper {
     return Map();
   }
 
+  Future<Map<String, dynamic>> getTagMapWithTID(int tid) async {
+
+    if(tid != null && tid != 0 ){
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.rawQuery(
+          "SELECT * FROM $tagTable WHERE $tidCol = ? ", [tid]);
+      return result[0];
+    }
+    return Map();
+  }
+
   Future<List<Map<String, dynamic>>> getTagMapList(String vocabularyName) async {
     if(vocabularyName != null && vocabularyName.length != 0) {
       Database database = await DatabaseHelper.instance.database;
@@ -91,6 +102,11 @@ class TagDatabaseHelper {
     }
 
     return List();
+  }
+
+  Future<Tag> getActivityTagWithTID(int tid) async {
+    var map = await this.getTagMapWithTID(tid);
+    return Tag.fromMap(map);
   }
 
 }

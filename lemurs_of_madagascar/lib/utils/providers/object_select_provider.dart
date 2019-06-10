@@ -6,9 +6,11 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/tag_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/models/tag.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 
 typedef OnTapCallback();
@@ -112,6 +114,14 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
       return futureList;
     }
 
+
+    if( typeOf<T>() == typeOf<Tag>()){
+      TagDatabaseHelper tagDBHelper = TagDatabaseHelper();
+      List<Tag> futureList = await tagDBHelper.getTagList("illegal_activity_type");
+
+      return futureList;
+    }
+
     return null;
   }
 
@@ -163,16 +173,18 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
 
                   setState(() {
 
-                    print("CLICKED");
-
                     if(typeOf<T>() == typeOf<Species>()) {
 
                       bloc.sightingEventController.add(SightingSpeciesChangeEvent(item));
 
                     }else if(typeOf<T>() == typeOf<Site>()) {
-                      //Site site = item as Site;
-                      //print(site.title);
+
                       bloc.sightingEventController.add(SightingSiteChangeEvent(item));
+
+                    }else if(typeOf<T>() == typeOf<Tag>()) {
+
+                      bloc.sightingEventController.add(SightingTagChangeEvent(item));
+
                     }
                   });
 

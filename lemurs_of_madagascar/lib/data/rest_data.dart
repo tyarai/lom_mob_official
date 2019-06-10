@@ -310,13 +310,13 @@ class RestData {
                 "field_long": sighting.longitude.toString(),
                 "field_altitude": sighting.altitude.toString(),
                 "field_is_local": editing ? sighting.isLocal.toString() : 0
-                    .toString(),
-                //NO
+                    .toString(),//NO
                 "field_is_synced": editing ? sighting.isSynced.toString() : 1
                     .toString(),
                 //YES
                 "field_count": sighting.speciesCount.toString(),
                 "field_photo": fid.toString(),
+                "field_type" : "{tid : $sighting.activityTagTid.toString()}",
                 //TODO Optimisation do not upload unchanged photo
                 "field_place_name_reference": sighting.placeNID.toString(),
               };
@@ -362,9 +362,9 @@ class RestData {
                 "X-CSRF-Token": token
               };
 
-              //String putBody = "title=${sighting.title}&body[und][0][value]=${sighting.title}&field_place_name[und][0][value]=${sighting.placeName}&field_date[und][0][value][date]=12/01/2015&field_count[und][0][value]=2123&field_associated_species[und][nid]=232&field_photo[und][0][fid]=2645";
               String putBody = "title=${sighting
-                  .title}&field_place_name_reference[und][nid]=${sighting
+                  .title}&field_type[und][tid]=${sighting
+                  .activityTagTid}&field_place_name_reference[und][nid]=${sighting
                   .placeNID}&body[und][0][value]=${sighting
                   .title}&field_place_name[und][0][value]=${sighting
                   .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting

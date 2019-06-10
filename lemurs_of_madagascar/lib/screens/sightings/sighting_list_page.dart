@@ -202,6 +202,7 @@ class _SightingListPageState extends State<SightingListPage>  {
                     itemBuilder: (BuildContext buildContext, int index) {
                       //print("item count ${snapshot.data.length}
                       Sighting sighting = snapshot.data[index];
+                      //print("{SIGHYTING} $sighting");
                       return this.buildCellItem(context,sighting,sightingBloc);
                     });
               }
@@ -223,7 +224,7 @@ class _SightingListPageState extends State<SightingListPage>  {
       List<Sighting> futureList = await sightingDBHelper.getSightingList(uid);
       return futureList;
     }
-    return null;
+    return List();
   }
 
   //static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc,VoidCallBack onSightingTap)
@@ -231,6 +232,8 @@ class _SightingListPageState extends State<SightingListPage>  {
   {
 
     if(sighting != null) {
+
+      //print("{SIGHTING} $sighting");
 
       return ListTile(
         contentPadding: EdgeInsets.only(left:5.0,right:5.0),

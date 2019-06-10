@@ -86,6 +86,16 @@ class SightingBloc implements BlocBase {
       //print(.*)
     }
 
+    if (event is SightingTagChangeEvent) {
+      _sighting.tag = event.tag;
+      if(event.tag != null) {
+        _sighting.activityTagTid = event.tag.tid;
+      }else{
+        _sighting.activityTagTid = null;
+      }
+      print("Sighting tag changed to ${event.tag.toString()}");
+    }
+
     if (event is SightingSpeciesChangeEvent) {
       _sighting.species = event.species;
       _sighting.speciesName = event.species.title;
