@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/database/tag_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/models/tag.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
@@ -37,6 +39,7 @@ class SightingEditPage extends StatefulWidget {
 class _SightingEditPageState extends State<SightingEditPage> implements SyncSightingContract {
 
   final bool _editing;
+  bool _isIllegalActivity = false;
   Sighting sighting;
   String title;
   bool _isLoading = false;
@@ -92,7 +95,7 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
             ),
           ],
           elevation: 0,
-          title: Text(this.title, style: Constants.appBarTitleStyle),
+          title: _isIllegalActivity ? Text("Illegal activity", style: Constants.appBarTitleStyle): Text(this.title, style: Constants.appBarTitleStyle),
         ),
         body: ModalProgressHUD(
             child:_buildBody(buildContext),
@@ -225,6 +228,9 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
                         children: <Widget>[
                           Container(height: 10),
                           _buildPhotoSelection(snapshot.data,buildContext),
+                          Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
+                          Container(height: 10,),
+                          _buildActivityCheckBox(),
                           Container(height: 10,),
                           Divider(height: Constants.listViewDividerHeight,color: Constants.listViewDividerColor),
                           _buildSpeciesSelectButton(buildContext,snapshot.data.species),
@@ -249,6 +255,102 @@ class _SightingEditPageState extends State<SightingEditPage> implements SyncSigh
 
           return Center(child: CircularProgressIndicator());
         });
+  }
+
+   _getActivityTypeItems(){
+
+    TagDatabaseHelper tagDB = TagDatabaseHelper();
+    Future<List<Tag>> tags = tagDB.getTagList("illegal_activity_type");
+
+    tags.then((_tags){
+
+      print("[LIST] "+_tags.toString());
+
+      if(_tags.length != 0){
+
+        return _tags.map((Tag tag){
+
+          return DropdownMenuItem<Tag>(
+            value:tag,
+            child:Container(
+                child:
+                //TODO Adjust this view with long-text (For now I have shortened all phrases to avoid rendering error)
+                Text( tag.nameEN,style: Constants.defaultTextStyle,)
+            ),
+          );
+
+        }).toList();
+
+      }
+      //return List();
+
+    });
+
+  }
+
+  Widget _buildActivityType(){
+
+    var items = _getActivityTypeItems();
+
+    return DropdownButton<Tag>(
+      //value: _currentActivityType,
+      isDense: true,
+      hint:Text("Activity type",style: Constants.defaultTextStyle,),
+      onChanged: (Tag tag) {
+        setState(() {
+          //_currentActivityType = tag;
+          //bloc.doctorEventController.add(DoctorOrderChangeEvent(_currentOrder));
+        });
+      },
+      items: items,
+    );
+  }
+
+
+  Widget _buildActivityCheckBox(){
+
+    return Column(
+      children: [
+        GestureDetector(
+      onTap: () {
+        setState((){
+          _isIllegalActivity = !_isIllegalActivity;
+        });
+      },
+
+      child: Container(
+        child: Material(
+          //color: _buildBackGroundColor(provider,index),
+          elevation: 0.0,
+          //borderRadius: BorderRadius.circular(borderRadius),
+          shadowColor: Colors.blueGrey,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(flex:1,child: Icon(Icons.report_problem,color: Colors.red,)),
+              Padding(padding: EdgeInsets.only(left: 10.0)),
+              Expanded(flex:9,child:Text("Report an illegal activity",style: Constants.defaultTextStyle.copyWith(color: Colors.red),)),
+              Expanded(
+                flex:1,
+                child: Checkbox(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  checkColor: Colors.white,
+                  activeColor: Colors.red,
+                  value: _isIllegalActivity,
+                  onChanged: (bool newValue) {
+                    /*setState(() {
+                      _isIllegalActivity = newValue;
+                      //bloc.doctorEventController.add(DoctorEmergencyChangeEvent(_emergencyChecked));
+                    });*/
+                  },
+                ),
+              )
+            ]),
+        ))),
+        Padding(padding: EdgeInsets.only(top:10),),
+        _buildActivityType(),
+      ]
+    );
   }
 
   Widget _buildDatePicker(SightingBloc bloc, Sighting sighting){
