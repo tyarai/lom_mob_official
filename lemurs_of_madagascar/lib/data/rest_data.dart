@@ -295,7 +295,13 @@ class RestData {
             //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
             if (!editing) {
-              Map<String, String> postBody = {
+
+
+              Map<String,dynamic> typeReference = {
+                "und" : "[tid:${sighting.activityTagTid}]",
+              };
+
+              Map<String, dynamic> postBody = {
                 "title": sighting.title,
                 "type": "publication",
                 "uuid": sighting.uuid,
@@ -315,8 +321,8 @@ class RestData {
                     .toString(),//YES
                 "field_count": sighting.speciesCount.toString(),
                 "field_photo": fid.toString(),
-                "field_type" : "{tid:39}",
-                //"field_type" : '{und:[{tid:${sighting.activityTagTid}}]}',
+                "field_type" : "[ {'und' : ['tid':38] } ]",
+                //"field_type" :  typeReference,
                 //"field_type" : "[{tid : ${sighting.activityTagTid}}]",
                 //TODO Optimisation do not upload unchanged photo
                 "field_place_name_reference": sighting.placeNID.toString(),
@@ -334,6 +340,7 @@ class RestData {
               return
                 _networkUtil.post(NEW_SIGHTING,
                   body: json.encode(postBody),
+                  //body: body,
                   headers: postHeaders,
                 ).then((dynamic resultMap) async {
                   print("[REST_DATA::syncSighting()] new nid " +

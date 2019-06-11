@@ -952,14 +952,13 @@ class _SightingEditPageState extends State<SightingEditPage>
 
     // Update this sighting nid which was from the server
     if (nid > 0 && sighting != null) {
-      //print("SIGHTING BEFORE SAVE "+ sighting.toString());
 
       sighting.nid = nid;
 
-      if (!editing) {
+      /*if (!editing) {
         // Only update nid when inserting operation. The return value from updateFunction
         //sighting.nid = nid;
-      }
+      }*/
 
       // Always use 'true' as editing because we are going to update the nid
       sighting.saveToDatabase(true).then((savedSightingWithNewNID) {
@@ -981,8 +980,30 @@ class _SightingEditPageState extends State<SightingEditPage>
               "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated/creation not completed");
         }
       });
+
+    }else if(nid <=0 || nid == null){
+
+      showAlert(context: context,
+        title: "Sighting",
+        body: "Unexpected error!\nUnable to create new sighting.Please try again",
+      );
+
+      // unable to create the sighting on server then delete the saved sighting on local DB
+      sighting.delete().then((deleted){
+
+        if(deleted){
+          print("[Sighting::onSyncSuccess()] deleted sighting!");
+        }else{
+          print("[Sighting::onSyncSuccess()] Unable to delete sighting!");
+        }
+
+      });
+
     }
+
+
   }
+
 
   @override
   void onDeleteSuccess(Sighting sighting) {
