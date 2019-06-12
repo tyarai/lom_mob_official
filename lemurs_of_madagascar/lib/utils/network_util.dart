@@ -25,7 +25,7 @@ class NetworkUtil {
 
   Future<dynamic> post(String url, {Map headers, body, encoding}) {
 
-    print("network util posting....$url .. $body ... $encoding");
+    print("network util posting....$url ..$headers.. $body ... $encoding");
     return http
         .post(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {
@@ -54,7 +54,7 @@ class NetworkUtil {
   }
 
   Future<dynamic> put(String url, {Map headers, body, encoding}) {
-    print("network util putting...$url .. $body ... $encoding");
+    print("network util putting...$url ..$body.. $headers.. $encoding");
     return http
         .put(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {

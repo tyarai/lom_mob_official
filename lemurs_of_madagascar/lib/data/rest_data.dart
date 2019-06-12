@@ -20,8 +20,8 @@ class RestData {
 
   NetworkUtil _networkUtil = NetworkUtil();
 
-  //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  static const SERVER = "http://192.168.2.242";
+  static const  SERVER               = "https://www.lemursofmadagascar.com/html";
+  //static const SERVER = "http://192.168.2.242";
   static const LOGIN_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/services/user/login.json";
   static const LOGOUT_ENDPOINT = SERVER +
@@ -87,7 +87,6 @@ class RestData {
   // ************* CHANGED NODES SERVICE (Species, Map, Photograph, Family, Places) *******
   static const CHANGED_NODES = SERVER +
       "/lom_endpoint/api/v1/services/lom_node_services/changed_nodes"; // Misy parama from_date
-
 
   Future<List<dynamic>> login(String userName, String passWord) {
     print("login .....");
@@ -297,10 +296,6 @@ class RestData {
             if (!editing) {
 
 
-              Map<String,dynamic> typeReference = {
-                "und" : "[tid:${sighting.activityTagTid}]",
-              };
-
               Map<String, dynamic> postBody = {
                 "title": sighting.title,
                 "type": "publication",
@@ -321,9 +316,7 @@ class RestData {
                     .toString(),//YES
                 "field_count": sighting.speciesCount.toString(),
                 "field_photo": fid.toString(),
-                "field_type" : "[ {'und' : ['tid':38] } ]",
-                //"field_type" :  typeReference,
-                //"field_type" : "[{tid : ${sighting.activityTagTid}}]",
+                "field_type" : sighting.activityTagTid.toString(),
                 //TODO Optimisation do not upload unchanged photo
                 "field_place_name_reference": sighting.placeNID.toString(),
               };
@@ -370,9 +363,10 @@ class RestData {
                 "X-CSRF-Token": token
               };
 
+              var type = (sighting.activityTagTid != null && sighting.activityTagTid != 0) ? sighting.activityTagTid : [null];
+
               String putBody = "title=${sighting
-                  .title}&field_type[und][tid]=${sighting
-                  .activityTagTid}&field_place_name_reference[und][nid]=${sighting
+                  .title}&field_type[und][tid]=$type&field_place_name_reference[und][nid]=${sighting
                   .placeNID}&body[und][0][value]=${sighting
                   .title}&field_place_name[und][0][value]=${sighting
                   .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting
