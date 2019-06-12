@@ -363,10 +363,10 @@ class RestData {
                 "X-CSRF-Token": token
               };
 
-              var type = (sighting.activityTagTid != null && sighting.activityTagTid != 0) ? sighting.activityTagTid : [null];
+              var type = (sighting.activityTagTid != null && sighting.activityTagTid != 0) ? sighting.activityTagTid : "_none";
 
               String putBody = "title=${sighting
-                  .title}&field_type[und][tid]=$type&field_place_name_reference[und][nid]=${sighting
+                  .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=${sighting
                   .placeNID}&body[und][0][value]=${sighting
                   .title}&field_place_name[und][0][value]=${sighting
                   .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting
