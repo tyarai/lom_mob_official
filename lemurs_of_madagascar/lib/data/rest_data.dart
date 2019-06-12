@@ -268,7 +268,9 @@ class RestData {
   }
 
   Future<int> syncSighting(Sighting sighting, {bool editing = false}) async {
+
     if (sighting != null) {
+
       var _file = Sighting.getImageFile(sighting);
 
       return _file.then((file) async {
