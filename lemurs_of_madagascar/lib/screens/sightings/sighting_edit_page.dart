@@ -934,11 +934,16 @@ class _SightingEditPageState extends State<SightingEditPage>
 
     final form = formKey.currentState;
 
+    setState(() {
+      _isLoading = true;
+    });
+
     if (_validateSighting(buildContext)) {
+
       if (form.validate()) {
-        setState(() {
+        /*setState(() {
           _isLoading = true;
-        });
+        });*/
 
         form.save();
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
@@ -1012,6 +1017,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           print(
               "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated/creation not completed");
         }
+
       });
 
     }else if(nid <=0 || nid == null){
@@ -1021,16 +1027,6 @@ class _SightingEditPageState extends State<SightingEditPage>
         body: "Unexpected error!\nUnable to create new sighting.Please try again",
       );
 
-      // unable to create the sighting on server then delete the saved sighting on local DB
-      /*sighting.delete().then((deleted){
-
-        if(deleted){
-          print("[Sighting::onSyncSuccess()] deleted sighting!");
-        }else{
-          print("[Sighting::onSyncSuccess()] Unable to delete sighting!");
-        }
-
-      });*/
 
     }
 

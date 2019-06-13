@@ -33,8 +33,8 @@ class _SightingListPageState extends State<SightingListPage>  {
   bool _isEditing = false;
 
   List<String> _menuName = [
-    "New sighting",
-    "Favorite species",
+    "My sightings",
+    "Illegal activities",
   ];
 
   //String _title = "";
@@ -67,12 +67,13 @@ class _SightingListPageState extends State<SightingListPage>  {
             print("current UID " + this.currentUid.toString());
 
             //if (sightingList.length == 0) {
-                _loadSighting();
+              _loadSighting(false);
             //}
 
           } else {
             //TODO : The user is not connected. Redirect to login page
           }
+
         } catch (e) {
           print(e.toString());
         }
@@ -80,21 +81,19 @@ class _SightingListPageState extends State<SightingListPage>  {
       }
 
     });
-
-
   }
 
-  _loadSighting(){
+  _loadSighting(bool illegalActivity){
 
-    Future<List<Sighting>> futureList = _loadData(currentUid);
+    Future<List<Sighting>> futureList = _loadData(currentUid,illegalActivity: illegalActivity);
     futureList.then((list) {
       setState(() {
         sightingList = list;
-        //this.syncPresenter.sync(sightingList[1]);
       });
     });
 
   }
+
   _SightingListPageState(this.title);
 
   @override
@@ -109,11 +108,43 @@ class _SightingListPageState extends State<SightingListPage>  {
               ],
               title: Text(widget.title),
             ),
-            body: _buildSightingListView(buildContext),
+            body: _showTab(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
+            floatingActionButton: _buildFloatingActionButton(),
         );
   }
 
+  Widget _showTab(BuildContext buildContext) {
+    switch (this._bottomNavIndex) {
+      case 0:
+        return _buildSightingListView(buildContext);
+    //return Container();
+      case 1:
+        return _buildIllegalActivityListView(buildContext);
+
+    }
+    return Container();
+  }
+
+  _buildFloatingActionButton(){
+    return FloatingActionButton(
+      child: Icon(Icons.add,size: 35,),
+      onPressed: (){
+
+        Sighting emptySighting = Sighting();
+        sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
+        Navigator.of(context).push(
+            MaterialPageRoute(
+                fullscreenDialog: true, builder: (buildContext) =>
+                BlocProvider(
+                  child: SightingEditPage(this._menuName[0],emptySighting,false),
+                  bloc: sightingBloc,
+                ))
+        );
+
+      },
+    );
+  }
 
   Theme _buildBottomNavBar() {
     return Theme(
@@ -121,46 +152,65 @@ class _SightingListPageState extends State<SightingListPage>  {
           canvasColor: Constants.mainColor,
           primaryColor: Colors.red,
         ),
-        child: BottomNavigationBar(
-          fixedColor: Colors.greenAccent,
-          type: BottomNavigationBarType.shifting,
-          currentIndex: _bottomNavIndex,
-          onTap: (int index) {
-            setState(() {
-              _bottomNavIndex = index;
-              //_title = _menuName[_bottomNavIndex];
-            });
-            _handleBottomNavTap(_bottomNavIndex);
-          },
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add_box,color: Constants.iconColor,),
-              title: Text(_menuName[0]),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite,color: Constants.iconColor,),
-              title: Text(_menuName[1]),
-            ),
+        child: SizedBox(
+          height: 58,
+          child: BottomNavigationBar(
+            fixedColor: Colors.greenAccent,
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _bottomNavIndex,
+            onTap: (int index) {
+              setState(() {
+                _bottomNavIndex = index;
+                //_title = _menuName[_bottomNavIndex];
+              });
+              _handleBottomNavTap(_bottomNavIndex);
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.add_box,color: Constants.iconColor,),
+                title: Text(_menuName[0]),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.report_problem,color: Constants.iconColor,),
+                title: Text(_menuName[1]),
+              ),
 
-          ],
+
+            ],
+          ),
         ));
   }
 
   void _handleBottomNavTap(int index){
 
-    Sighting emptySighting = Sighting();
-    sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
-
     switch(index) {
+
       case 0:
-        Navigator.of(context).push(
-            MaterialPageRoute(
-            fullscreenDialog: true, builder: (buildContext) =>
-               BlocProvider(
-                 child: SightingEditPage("New sighting",emptySighting,false),
-                 bloc: sightingBloc,
-               ))
-            );
+        {
+          /*Navigator.of(context).push(
+              MaterialPageRoute(
+                  fullscreenDialog: true, builder: (buildContext) =>
+                  BlocProvider(
+                    child: SightingListPage(title: this._menuName[0]),
+                    bloc: sightingBloc,
+                  ))
+          );*/
+          break;
+        }
+
+      case 1:
+        {
+          /*Navigator.of(context).push(
+              MaterialPageRoute(
+                  fullscreenDialog: true, builder: (buildContext) =>
+                  BlocProvider(
+                    child: SightingListPage(title: this._menuName[1]),
+                    bloc: sightingBloc,
+                  ))
+          );*/
+          break;
+        }
+
     }
 
   }
@@ -179,8 +229,9 @@ class _SightingListPageState extends State<SightingListPage>  {
   Widget _buildSightingListView(BuildContext buildContext) {
 
     return FutureBuilder<List<Sighting>>(
-      future: _loadData(this.currentUid),
-      //initialData: this.sightingList,
+
+      future: _loadData(this.currentUid,illegalActivity:false),//Get Sighting list
+
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
 
         switch(snapshot.connectionState) {
@@ -218,10 +269,53 @@ class _SightingListPageState extends State<SightingListPage>  {
     );
   }
 
-  Future<List<Sighting>> _loadData(int uid) async {
+  Widget _buildIllegalActivityListView(BuildContext buildContext) {
+
+    return FutureBuilder<List<Sighting>>(
+
+      future: _loadData(this.currentUid,illegalActivity: true),
+
+      builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
+
+        switch(snapshot.connectionState) {
+
+          case  ConnectionState.active : return Center(child: CircularProgressIndicator());
+
+          case ConnectionState.waiting :
+            {
+              return Center(child: CircularProgressIndicator());
+
+            }
+          case ConnectionState.done:
+            {
+              if(snapshot.hasData && !snapshot.hasError) {
+
+                return ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext buildContext, int index) {
+                      //print("item count ${snapshot.data.length}
+                      Sighting sighting = snapshot.data[index];
+                      //print("{SIGHYTING} $sighting");
+                      return this.buildCellItem(context,sighting,sightingBloc);
+                    });
+              }
+              break;
+            }
+
+          case ConnectionState.none:{
+            return Container();
+          }
+
+        }
+      },
+    );
+  }
+
+  Future<List<Sighting>> _loadData(int uid,{bool illegalActivity=false}) async {
     if(uid != null) {
       SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
-      List<Sighting> futureList = await sightingDBHelper.getSightingList(uid);
+      List<Sighting> futureList = await sightingDBHelper.getSightingList(uid,illegalActivity: illegalActivity);
       return futureList;
     }
     return List();

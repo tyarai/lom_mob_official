@@ -9,6 +9,7 @@ class SightingDatabaseHelper  {
   final idCol             = Sighting.idKey;
   final modifiedCol       = Sighting.modifiedKey;
   final uidCol            = Sighting.uidKey;
+  final typeTagCol        = Sighting.activityTagTidKey;
 
   Future<Map<String, dynamic>> getSightingMapWithID(int id) async {
 
@@ -21,12 +22,22 @@ class SightingDatabaseHelper  {
     return Map();
   }
 
-  Future<List<Map<String, dynamic>>> getSightingMapList(int uid) async {
+  Future<List<Map<String, dynamic>>> getSightingMapList(int uid,{bool illegalActivity=false}) async {
     if(uid != null && uid != 0) {
       Database database = await DatabaseHelper.instance.database;
-      var result = await database.rawQuery(
-          "SELECT * FROM $sightingsTable WHERE  $uidCol = ? ORDER BY $modifiedCol DESC ",
-          [uid]);
+      var result;
+
+      if(!illegalActivity) {
+        result = await database.rawQuery(
+            "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NULL  ORDER BY $modifiedCol DESC ",
+            [uid]);
+      }else{
+        print("TATO");
+        result = await database.rawQuery(
+            "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NOT NULL  ORDER BY $modifiedCol DESC ",
+            [uid]);
+      }
+      print(result);
       return result;
     }
     return List();
@@ -95,9 +106,9 @@ class SightingDatabaseHelper  {
   }
 
   
-  Future<List<Sighting>> getSightingList(int uid) async {
+  Future<List<Sighting>> getSightingList(int uid,{bool illegalActivity=false}) async {
 
-    var sightingMapList = await this.getSightingMapList(uid);
+    var sightingMapList = await this.getSightingMapList(uid,illegalActivity: illegalActivity);
     int count = sightingMapList.length;
 
     List<Sighting> list = new List<Sighting>();
