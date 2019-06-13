@@ -900,7 +900,8 @@ class _SightingEditPageState extends State<SightingEditPage>
     );
   }
 
-  _submit(BuildContext buildContext) async {
+  /*_submit(BuildContext buildContext) async {
+
     final form = formKey.currentState;
 
     if (_validateSighting(buildContext)) {
@@ -924,6 +925,37 @@ class _SightingEditPageState extends State<SightingEditPage>
               "[Sighting_edit_page::_submit()] Exception ${error.toString()}");
           throw error;
         });
+      }
+    }
+  }*/
+
+  _submit(BuildContext buildContext) async {
+
+    final form = formKey.currentState;
+
+    if (_validateSighting(buildContext)) {
+      if (form.validate()) {
+        setState(() {
+          _isLoading = true;
+        });
+
+        form.save();
+        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
+        Sighting currentSighting = bloc.sighting;
+
+        syncPresenter.sync(currentSighting, editing: this._editing);
+
+        /*currentSighting.saveToDatabase(this._editing).then((savedSighting) {
+          if (savedSighting != null) {
+            bloc.sightingEventController
+                .add(SightingChangeEvent(savedSighting));
+            syncPresenter.sync(savedSighting, editing: this._editing);
+          }
+        }).catchError((error) {
+          print(
+              "[Sighting_edit_page::_submit()] Exception ${error.toString()}");
+          throw error;
+        });*/
       }
     }
   }
@@ -955,14 +987,10 @@ class _SightingEditPageState extends State<SightingEditPage>
 
       sighting.nid = nid;
 
-      /*if (!editing) {
-        // Only update nid when inserting operation. The return value from updateFunction
-        //sighting.nid = nid;
-      }*/
+      sighting.saveToDatabase(editing).then((savedSightingWithNewNID) {
 
-      // Always use 'true' as editing because we are going to update the nid
-      sighting.saveToDatabase(true).then((savedSightingWithNewNID) {
         if (savedSightingWithNewNID != null) {
+
           this._navigateToPreviousPage();
 
           /*if(editing) {
@@ -989,7 +1017,7 @@ class _SightingEditPageState extends State<SightingEditPage>
       );
 
       // unable to create the sighting on server then delete the saved sighting on local DB
-      sighting.delete().then((deleted){
+      /*sighting.delete().then((deleted){
 
         if(deleted){
           print("[Sighting::onSyncSuccess()] deleted sighting!");
@@ -997,7 +1025,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           print("[Sighting::onSyncSuccess()] Unable to delete sighting!");
         }
 
-      });
+      });*/
 
     }
 

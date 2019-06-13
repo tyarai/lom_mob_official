@@ -14,7 +14,7 @@ class ErrorHandler{
   static handleSocketError(BuildContext context){
     showAlert(
       context: context,
-      title: ErrorText.credentialTitle,
+      title: ErrorText.serverTitle,
       body: ErrorText.unreachableAddress,
       actions: [],
     );
@@ -25,8 +25,8 @@ class ErrorHandler{
       case 401:{
         showAlert(
           context: context,
-          title: ErrorText.credentialTitle,
-          body: ErrorText.credentialMessageError,
+          title: ErrorText.serverTitle,
+          body: ErrorText.unauthorizedOperation,
           actions: [],
         );
         break;
@@ -34,8 +34,8 @@ class ErrorHandler{
       case 406:{
         showAlert(
           context: context,
-          title: ErrorText.credentialTitle,
-          body: ErrorText.takenNameOrMail,
+          title: ErrorText.serverTitle,
+          body: ErrorText.unauthorizedOperation,//ErrorText.takenNameOrMail,
           actions: [],
         );
         break;

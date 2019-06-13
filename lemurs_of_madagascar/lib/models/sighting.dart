@@ -28,19 +28,29 @@ abstract class SyncSightingContract {
 }
 
 class SyncSightingPresenter {
+
   SyncSightingContract _syncingView;
   RestData api = RestData();
   SyncSightingPresenter(this._syncingView);
+
   sync(Sighting sighting, {bool editing = false}) {
+
     if (sighting != null) {
+
       api.syncSighting(sighting, editing: editing).then((nid) {
-        print("presenter $nid");
+
+        print("SyncSightingPresenter $nid");
         _syncingView.onSyncSuccess(sighting, nid, editing);
+
       }).catchError((error) {
         if (error is SocketException) _syncingView.onSocketFailure();
         if (error is LOMException) _syncingView.onSyncFailure(error.statusCode);
       });
+
+
+
     }
+
   }
 
   delete(Sighting sighting) {
@@ -179,13 +189,57 @@ class Sighting {
 
   Species get species => this._species;
 
+  initProperties(User user,bool editing) async {
+
+    this.uid = user.uid;
+    var _uuid = Uuid();
+    this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
+    this.speciesNid =
+    this.species?.id != null ? this.species.id : this.speciesNid;
+    this.speciesName = this.species?.title != null
+        ? this.species.title
+        : this.speciesName;
+    this.placeNID = this.site?.id != null ? this.site.id : this.placeNID;
+    this.placeName =
+    this.site?.title != null ? this.site.title : this.placeName;
+
+    this.date = this.date == null
+        ? DateTime.now().millisecondsSinceEpoch.toDouble()
+        : this.date;
+
+    this.created = this.created == null
+        ? DateTime.now().millisecondsSinceEpoch.toDouble()
+        : this.created;
+
+    this.modified = DateTime.now().millisecondsSinceEpoch.toDouble();
+
+    this.uid = this.uid == null ? user.uid : this.uid;
+
+    Photograph defaultImage =
+        await this._species.getPhotographObjectAtIndex(0);
+    this.photoFileName = this.photoFileName != null
+        ? this.photoFileName
+        : defaultImage.photoAssetPath(ext: Constants.imageType);
+    //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
+
+    this.isLocal = 1;
+    this.isSynced = 0;
+    this.deleted = 0;
+
+    this.locked = 0;
+    this.hasPhotoChanged = 0;
+
+  }
+
   Future<Sighting> saveToDatabase(bool editing) async {
+
     Future<User> user = User.getCurrentUser();
 
     return user.then((user) async {
       try {
         if (user != null && user.uid != 0 && user.uuid != null) {
-          this.uid = user.uid;
+
+          /*this.uid = user.uid;
           var _uuid = Uuid();
           this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
           this.speciesNid =
@@ -222,6 +276,9 @@ class Sighting {
 
           this.locked = 0;
           this.hasPhotoChanged = 0;
+          */
+
+          initProperties(user,editing);
 
           SightingDatabaseHelper db = SightingDatabaseHelper();
           Future<int> id;
@@ -250,7 +307,9 @@ class Sighting {
         print("[Sighting::saveToDatabase()] Exception ${e.toString()}");
         throw e;
       }
+
     });
+
   }
 
   Future<bool> delete() async {
@@ -571,11 +630,13 @@ class Sighting {
   }
 
   static Future<File> getImageFile(Sighting sighting) async {
-    print("{Sighing::getImageFile()} photo " + sighting.photoFileName);
+    //print("{Sighing::getImageFile()} photo " + sighting.photoFileName);
 
     try {
-      if (sighting != null &&
+
+      if (sighting != null && sighting.photoFileName != null &&
           sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
+
         Species species = sighting.species;
 
         if (species == null) {
@@ -598,7 +659,8 @@ class Sighting {
       }
 
       return getApplicationDocumentsDirectory().then((folder) {
-        if (folder != null) {
+
+        if (folder != null && sighting.photoFileName != null) {
           String fullPath = join(folder.path, sighting.photoFileName);
 
           File file = File(fullPath);
@@ -610,6 +672,7 @@ class Sighting {
 
         return null;
       });
+
     } catch (e) {
       print("[Sighting::getImageFile()] Exception " + e.toString());
       throw e;
