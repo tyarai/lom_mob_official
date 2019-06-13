@@ -8,6 +8,7 @@ import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/tag.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
@@ -942,6 +943,10 @@ class _SightingEditPageState extends State<SightingEditPage>
         form.save();
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
         Sighting currentSighting = bloc.sighting;
+
+        User user =  await User.getCurrentUser();
+
+        await currentSighting.initProperties(user, this._editing);
 
         syncPresenter.sync(currentSighting, editing: this._editing);
 
