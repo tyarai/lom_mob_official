@@ -106,7 +106,7 @@ class _SightingListPageState extends State<SightingListPage>  {
               actions: <Widget>[
                 _buildSearch(),
               ],
-              title: Text(widget.title),
+              title: Text(title),
             ),
             body: _showTab(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
@@ -161,18 +161,18 @@ class _SightingListPageState extends State<SightingListPage>  {
             onTap: (int index) {
               setState(() {
                 _bottomNavIndex = index;
-                //_title = _menuName[_bottomNavIndex];
+                title = _menuName[_bottomNavIndex];
               });
-              _handleBottomNavTap(_bottomNavIndex);
+              //_handleBottomNavTap(_bottomNavIndex);
             },
             items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.add_box,color: Constants.iconColor,),
-                title: Text(_menuName[0]),
+                icon:  Icon(Icons.remove_red_eye,color: Constants.iconColor,),
+                title: Text(_menuName[0],style:Constants.defaultTextStyle.copyWith(color:Colors.white,fontSize: 15)),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.report_problem,color: Constants.iconColor,),
-                title: Text(_menuName[1]),
+                title: Text(_menuName[1],style:Constants.defaultTextStyle.copyWith(color:Colors.white,fontSize: 15)),
               ),
 
 

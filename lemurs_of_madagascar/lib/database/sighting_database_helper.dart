@@ -32,7 +32,7 @@ class SightingDatabaseHelper  {
             "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NULL  ORDER BY $modifiedCol DESC ",
             [uid]);
       }else{
-        print("TATO");
+        //print("TATO");
         result = await database.rawQuery(
             "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NOT NULL  ORDER BY $modifiedCol DESC ",
             [uid]);

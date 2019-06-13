@@ -51,6 +51,8 @@ class _SightingEditPageState extends State<SightingEditPage>
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
 
+  List<String> menu = const ["Sighting","Illegal activities"];
+  
   SyncSightingPresenter syncPresenter;
 
   TextEditingController _titleController = TextEditingController();
@@ -152,9 +154,18 @@ class _SightingEditPageState extends State<SightingEditPage>
   bool _validateSighting(BuildContext context) {
     SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
     Sighting sightingToSave = bloc.sighting;
-    print("VALIDATE" + sightingToSave.toString());
+    //print("VALIDATE" + sightingToSave.toString());
 
-    if (sightingToSave.species == null) {
+    if (sightingToSave.tag == null && this._isIllegalActivity) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noActivityTypeError,
+          actions: []);
+      return false;
+    }
+
+    if (sightingToSave.species == null && sightingToSave.tag == null) {
       showAlert(
           context: context,
           title: this.title,
@@ -162,7 +173,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           actions: []);
       return false;
     }
-    if (sightingToSave.site == null) {
+    if (sightingToSave.site == null && sightingToSave.tag == null) {
       showAlert(
           context: context,
           title: this.title,
@@ -170,6 +181,23 @@ class _SightingEditPageState extends State<SightingEditPage>
           actions: []);
       return false;
     }
+    if (sightingToSave.speciesCount == 0 && sightingToSave.tag == null) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noSpeciesCount,
+          actions: []);
+      return false;
+    }
+    if (sightingToSave.title.length == 0 && sightingToSave.tag == null) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noTitle,
+          actions: []);
+      return false;
+    }
+
 
     return true;
   }
@@ -371,9 +399,15 @@ class _SightingEditPageState extends State<SightingEditPage>
       GestureDetector(
           onTap: () {
             setState(() {
+
               _isIllegalActivity = !_isIllegalActivity;
+
+
               if (!_isIllegalActivity) {
+                title = menu[0];
                 bloc.sightingEventController.add(SightingTagChangeEvent(null));
+              }else{
+                title = menu[1];
               }
             });
           },
@@ -901,49 +935,19 @@ class _SightingEditPageState extends State<SightingEditPage>
     );
   }
 
-  /*_submit(BuildContext buildContext) async {
 
-    final form = formKey.currentState;
-
-    if (_validateSighting(buildContext)) {
-      if (form.validate()) {
-        setState(() {
-          _isLoading = true;
-        });
-
-        form.save();
-        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-        Sighting currentSighting = bloc.sighting;
-
-        currentSighting.saveToDatabase(this._editing).then((savedSighting) {
-          if (savedSighting != null) {
-            bloc.sightingEventController
-                .add(SightingChangeEvent(savedSighting));
-            syncPresenter.sync(savedSighting, editing: this._editing);
-          }
-        }).catchError((error) {
-          print(
-              "[Sighting_edit_page::_submit()] Exception ${error.toString()}");
-          throw error;
-        });
-      }
-    }
-  }*/
 
   _submit(BuildContext buildContext) async {
 
     final form = formKey.currentState;
 
-    setState(() {
-      _isLoading = true;
-    });
 
     if (_validateSighting(buildContext)) {
 
       if (form.validate()) {
-        /*setState(() {
+        setState(() {
           _isLoading = true;
-        });*/
+        });
 
         form.save();
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
@@ -968,6 +972,9 @@ class _SightingEditPageState extends State<SightingEditPage>
         });*/
       }
     }
+
+
+
   }
 
   @override
@@ -984,6 +991,14 @@ class _SightingEditPageState extends State<SightingEditPage>
       _isLoading = false;
     });
     ErrorHandler.handle(context, statusCode);
+  }
+
+  @override
+  void onException(Exception e) {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleException(context, e);
   }
 
   @override

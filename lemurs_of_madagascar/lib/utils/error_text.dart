@@ -15,7 +15,10 @@ class ErrorText {
 
   static String invalidIntegerNumber = "Invalid number!\n";
   static String noSpeciesError = "Please select a species!\n";
+  static String noActivityTypeError = "Select a type of illegal activity!\n";
   static String noSiteError = "Please Select a site!\n";
+  static String noSpeciesCount = "Please provide the number observed!\n";
+  static String noTitle = "Please provide a title to your sighting!\n";
   static String emptyString = "No value provided!\n";
 
 }
