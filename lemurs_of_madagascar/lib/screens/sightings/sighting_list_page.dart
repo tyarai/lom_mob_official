@@ -9,11 +9,14 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 
 class SightingListPage extends StatefulWidget {
 
   final String title;
 
+
+  // By default show sighting list
   SightingListPage({this.title});
 
   @override
@@ -32,14 +35,13 @@ class _SightingListPageState extends State<SightingListPage>  {
   SightingBloc sightingBloc = SightingBloc();
   bool _isEditing = false;
 
+
+  _SightingListPageState(this.title);
+
   List<String> _menuName = [
     "My sightings",
     "Illegal activities",
   ];
-
-  //String _title = "";
-
-
 
   @override
   void dispose() {
@@ -94,10 +96,10 @@ class _SightingListPageState extends State<SightingListPage>  {
 
   }
 
-  _SightingListPageState(this.title);
+
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext buildContext)  {
 
       return
         Scaffold(
@@ -108,22 +110,33 @@ class _SightingListPageState extends State<SightingListPage>  {
               ],
               title: Text(title),
             ),
-            body: _showTab(buildContext),
+            body:  _showTab(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
             floatingActionButton: _buildFloatingActionButton(),
         );
   }
 
-  Widget _showTab(BuildContext buildContext) {
-    switch (this._bottomNavIndex) {
-      case 0:
-        return _buildSightingListView(buildContext);
-    //return Container();
-      case 1:
-        return _buildIllegalActivityListView(buildContext);
+   Widget _showTab(BuildContext buildContext)  {
 
-    }
-    return Container();
+    return FutureBuilder<String>(
+
+      future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
+      builder: (context,snapshot){
+
+        if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
+          this._bottomNavIndex = int.parse(snapshot.data);
+          switch (this._bottomNavIndex) {
+            case 0:
+              return _buildSightingListView(buildContext);
+            case 1:
+              return _buildIllegalActivityListView(buildContext);
+          }
+        }
+        return Container();
+      }
+
+    );
+
   }
 
   _buildFloatingActionButton(){
@@ -163,7 +176,7 @@ class _SightingListPageState extends State<SightingListPage>  {
                 _bottomNavIndex = index;
                 title = _menuName[_bottomNavIndex];
               });
-              //_handleBottomNavTap(_bottomNavIndex);
+              _handleBottomNavTap(_bottomNavIndex);
             },
             items: [
               BottomNavigationBarItem(
@@ -183,7 +196,9 @@ class _SightingListPageState extends State<SightingListPage>  {
 
   void _handleBottomNavTap(int index){
 
-    switch(index) {
+    LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,index.toString());
+
+    /*switch(index) {
 
       case 0:
         {
@@ -211,7 +226,7 @@ class _SightingListPageState extends State<SightingListPage>  {
           break;
         }
 
-    }
+    }*/
 
   }
 
@@ -321,7 +336,6 @@ class _SightingListPageState extends State<SightingListPage>  {
     return List();
   }
 
-  //static Widget buildCellItem(BuildContext context,List<Sighting> list,int index,SightingBloc bloc,VoidCallBack onSightingTap)
   Widget buildCellItem(BuildContext context,Sighting sighting,SightingBloc bloc)
   {
 

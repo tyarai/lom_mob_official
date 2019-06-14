@@ -17,6 +17,7 @@ import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -152,9 +153,9 @@ class _SightingEditPageState extends State<SightingEditPage>
   }
 
   bool _validateSighting(BuildContext context) {
+
     SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
     Sighting sightingToSave = bloc.sighting;
-    //print("VALIDATE" + sightingToSave.toString());
 
     if (sightingToSave.tag == null && this._isIllegalActivity) {
       showAlert(
@@ -181,7 +182,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           actions: []);
       return false;
     }
-    if (sightingToSave.speciesCount == 0 && sightingToSave.tag == null) {
+    if (sightingToSave.speciesCount == 0 && sightingToSave.tag == null && !this._isIllegalActivity) {
       showAlert(
           context: context,
           title: this.title,
@@ -402,11 +403,12 @@ class _SightingEditPageState extends State<SightingEditPage>
 
               _isIllegalActivity = !_isIllegalActivity;
 
-
               if (!_isIllegalActivity) {
                 title = menu[0];
+                LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"0");
                 bloc.sightingEventController.add(SightingTagChangeEvent(null));
               }else{
+                LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"1");
                 title = menu[1];
               }
             });
@@ -906,7 +908,7 @@ class _SightingEditPageState extends State<SightingEditPage>
                         //_onNumberChanged(val)
                       },
                   validator: (String arg) {
-                    if (arg == null || arg.length == 0 || int.parse(arg) <= 0) {
+                    if ((arg == null || arg.length == 0 || int.parse(arg) <= 0) &&  (!this._isIllegalActivity) ){
                       return ErrorText.invalidIntegerNumber;
                     }
                   },
@@ -925,9 +927,7 @@ class _SightingEditPageState extends State<SightingEditPage>
                               Constants.speciesImageBorderRadius))),
                 ),
               ),
-              Divider(
-                  height: Constants.listViewDividerHeight,
-                  color: Constants.listViewDividerColor),
+
             ],
           ),
         )),
@@ -940,7 +940,6 @@ class _SightingEditPageState extends State<SightingEditPage>
   _submit(BuildContext buildContext) async {
 
     final form = formKey.currentState;
-
 
     if (_validateSighting(buildContext)) {
 
@@ -999,6 +998,7 @@ class _SightingEditPageState extends State<SightingEditPage>
       _isLoading = false;
     });
     ErrorHandler.handleException(context, e);
+
   }
 
   @override

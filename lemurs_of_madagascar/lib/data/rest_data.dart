@@ -21,8 +21,8 @@ class RestData {
 
   NetworkUtil _networkUtil = NetworkUtil();
 
-  static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  //static const SERVER = "http://192.168.2.242";
+  //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
+  static const SERVER = "http://192.168.2.242";
   static const LOGIN_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/services/user/login.json";
   static const LOGOUT_ENDPOINT = SERVER +

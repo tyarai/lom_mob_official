@@ -5,8 +5,8 @@ import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 
 class LOMSharedPreferences{
 
-
-  static String recentSpeciesSearchKey = "recentSpeciesSearchKey";
+  static String recentSpeciesSearchKey   = "recentSpeciesSearchKey";
+  static String lastSightingMenuIndexKey = "lastSightingMenuIndexKey";
 
   static void addToRecentSpeciesSearch(Species species) async {
     if(species != null){

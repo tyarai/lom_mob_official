@@ -47,8 +47,6 @@ class SyncSightingPresenter {
         if (error is LOMException) _syncingView.onSyncFailure(error.statusCode);
       });
 
-
-
     }
 
   }
