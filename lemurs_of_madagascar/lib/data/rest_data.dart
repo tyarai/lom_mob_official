@@ -272,173 +272,217 @@ class RestData {
 
       Future<User> _user =  User.getCurrentUser();
 
+      print("HERE#1" +sighting.toString());
+
       return _user.then((user){
 
-        sighting.initProperties(user, editing);
-        print("[HERE] "+sighting.photoFileName);
+        if(user != null) {
 
-        var _file = Sighting.getImageFile(sighting);
+          //sighting.initProperties(user, editing);
+          //print("[HERE] " + sighting.photoFileName);
 
-        return _file.then((file) async {
+          var _file = Sighting.getImageFile(sighting);
 
-          if (file != null) {
+          var longitude = sighting.longitude != null ? sighting
+              .longitude.toStringAsPrecision(Constants
+              .gpsDecimalPrecision) : 0.0;
 
-            print("HERE");
+          var latitude = sighting.latitude != null ?  sighting
+              .latitude.toStringAsPrecision(Constants
+              .gpsDecimalPrecision) : 0.0;
 
-            String fileName = basename(file.path);
-
-            return syncFile(file, fileName).then((fid) async {
-              if (fid == 0) return 0;
-
-              UserSession currentSession = await UserSession.getCurrentSession();
-
-              String cookie = currentSession.sessionName + "=" +
-                  currentSession.sessionID;
-              String token = currentSession.token;
-
-              String formattedDate = editing ?
-              DateFormat(Constants.apiNodeUpdateDateFormat).format(
-                  DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt())) :
-              DateFormat(Constants.apiDateFormat).format(
-                  DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
-              //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
-
-              if (!editing) {
+          var altitude = sighting.altitude != null ? sighting
+              .altitude.toStringAsPrecision(
+              Constants.gpsDecimalPrecision) : 0.0;
 
 
-                Map<String, dynamic> postBody = {
-                  "title": sighting.title,
-                  "type": "publication",
-                  "uuid": sighting.uuid,
-                  "uid": sighting.uid.toString(),
-                  "status": 1.toString(),
-                  "field_uuid": sighting.uuid,
-                  "body": sighting.title,
-                  "field_place_name": sighting.placeName,
-                  "field_date": formattedDate,
-                  "field_associated_species": sighting.speciesNid.toString(),
-                  "field_lat": sighting.latitude.toString(),
-                  "field_long": sighting.longitude.toString(),
-                  "field_altitude": sighting.altitude.toString(),
-                  "field_is_local": editing ? sighting.isLocal.toString() : 0
-                      .toString(),//NO
-                  "field_is_synced": editing ? sighting.isSynced.toString() : 1
-                      .toString(),//YES
-                  "field_count": sighting.speciesCount.toString(),
-                  "field_photo": fid.toString(),
-                  "field_type" : sighting.activityTagTid.toString(),
-                  //TODO Optimisation do not upload unchanged photo
-                  "field_place_name_reference": sighting.placeNID.toString(),
-                };
 
-                Map<String, String> postHeaders = {
-                  "Content-Type": "application/json",
-                  "Accept": "application/json",
-                  "Cookie": cookie,
-                  "X-CSRF-Token": token
-                };
+          return _file.then((file) async {
+            if (file != null) {
+              //print("HERE");
 
-                // Create new sighting
-                return
-                  _networkUtil.post(NEW_SIGHTING,
-                    body: json.encode(postBody),
-                    //body: body,
-                    headers: postHeaders,
-                  ).then((dynamic resultMap) async {
+              String fileName = basename(file.path);
 
-                    print("[REST_DATA::syncSighting()] new nid " +
-                        resultMap.toString());
+              return syncFile(file, fileName).then((fid) async {
+                if (fid == 0) return 0;
 
-                    if (resultMap[RestData.errorKey] != null) {
-                      throw new Exception(resultMap["error_msg"]);
-                    }
+                UserSession currentSession = await UserSession
+                    .getCurrentSession();
 
-                    String nidKey = "nid";
-                    int nid = resultMap[nidKey];
+                String cookie = currentSession.sessionName + "=" +
+                    currentSession.sessionID;
+                String token = currentSession.token;
 
-                    return nid;
+                String formattedDate = editing
+                    ?
+                DateFormat(Constants.apiNodeUpdateDateFormat).format(
+                    DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()))
+                    :
+                DateFormat(Constants.apiDateFormat).format(
+                    DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
+                //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
-                  }).catchError((error) {
+                if (!editing) {
 
-                    print(
-                        "[REST_DATA::syncSighting()] creating sighting error:" +
-                            error.toString());
-                    throw error;
+                  var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : null.toString();
+                  var siteNID    = sighting.placeNID != null ? sighting.placeNID.toString() : null.toString();
 
-                  });
 
-              } else {
+                  var type = (sighting.activityTagTid != null &&
+                      sighting.activityTagTid != 0)
+                      ? sighting.activityTagTid
+                      : 0.toString();//"_none";
 
-                Map<String, String> putHeaders = {
-                  "Content-Type": "application/x-www-form-urlencoded",
-                  "Accept": "application/json",
-                  "Cookie": cookie,
-                  "X-CSRF-Token": token
-                };
 
-                var type = (sighting.activityTagTid != null && sighting.activityTagTid != 0) ? sighting.activityTagTid : "_none";
+                  Map<String, dynamic> postBody = {
+                    "title": sighting.title,
+                    "type": "publication",
+                    "uuid": sighting.uuid,
+                    "uid": sighting.uid.toString(),
+                    "status": 1.toString(),
+                    "field_uuid": sighting.uuid,
+                    "body": sighting.title,
+                    "field_place_name": sighting.placeName,
+                    "field_date": formattedDate,
+                    "field_associated_species": speciesNID,//sighting.speciesNid.toString(),
+                    "field_lat": latitude,// sighting.latitude.toString(),
+                    "field_long": longitude,// sighting.longitude.toString(),
+                    "field_altitude": altitude,// sighting.altitude.toString(),
+                    "field_is_local": editing ? sighting.isLocal.toString() : 0
+                        .toString(), //NO
+                    "field_is_synced": editing
+                        ? sighting.isSynced.toString()
+                        : 1
+                        .toString(), //YES
+                    "field_count": sighting.speciesCount.toString(),
+                    "field_photo": fid.toString(),
+                    "field_type": type,//sighting.activityTagTid.toString(),
+                    //TODO Optimisation do not upload unchanged photo
+                    "field_place_name_reference": siteNID,//sighting.placeNID.toString(),
+                  };
 
-                String putBody = "title=${sighting
-                    .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=${sighting
-                    .placeNID}&body[und][0][value]=${sighting
-                    .title}&field_place_name[und][0][value]=${sighting
-                    .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting
-                    .speciesCount}&field_associated_species[und][nid]=${sighting
-                    .speciesNid}&field_photo[und][0][fid]=$fid&field_long[und][0][value]=${sighting
-                    .longitude.toStringAsPrecision(Constants.gpsDecimalPrecision)}&field_lat[und][0][value]=${sighting
-                    .latitude.toStringAsPrecision(Constants.gpsDecimalPrecision)}&field_altitude[und][0][value]=${sighting
-                    .altitude.toStringAsPrecision(Constants.gpsDecimalPrecision)}";
+                  Map<String, String> postHeaders = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Cookie": cookie,
+                    "X-CSRF-Token": token
+                  };
 
-                String nodeUpdateUrl = NODE_UPDATE_ENDPOINT +
-                    sighting.nid.toString();
-                print("[Updating node at $nodeUpdateUrl]");
-                return
+                  // Create new sighting
+                  return
+                    _networkUtil.post(NEW_SIGHTING,
+                      body: json.encode(postBody),
+                      //body: body,
+                      headers: postHeaders,
+                    ).then((dynamic resultMap) async {
+                      print("[REST_DATA::syncSighting()] new nid " +
+                          resultMap.toString());
 
-                  _networkUtil.put(nodeUpdateUrl,
-                    body: putBody,
-                    headers: putHeaders,
-                    encoding: Encoding.getByName('utf-8'),
-                  ).then((dynamic resultMap) {
-                    print("[REST_DATA::syncSighting()] update" +
-                        resultMap.toString());
+                      if (resultMap[RestData.errorKey] != null) {
+                        throw new Exception(resultMap["error_msg"]);
+                      }
 
-                    if (resultMap[RestData.errorKey] != null) {
-                      throw new Exception(resultMap["error_msg"]);
-                    }
+                      String nidKey = "nid";
+                      int nid = resultMap[nidKey];
 
-                    String nidKey = "nid";
-                    int nid = int.parse(resultMap[nidKey]);
-                    return nid;
+                      return nid;
+                    }).catchError((error) {
+                      print(
+                          "[REST_DATA::syncSighting()] creating sighting error:" +
+                              error.toString());
+                      throw error;
+                    });
 
-                  }).catchError((error) {
-                    print(
-                        "[REST_DATA::syncSighting()] updating sighting error:" +
-                            error.toString());
-                    throw error;
-                  });
-              }
-            });
-          }
+                } else {
 
-          return 0;
+                  var type = (sighting.activityTagTid != null &&
+                      sighting.activityTagTid != 0)
+                      ? sighting.activityTagTid
+                      : "_none";
 
-        }).catchError((error) {
-          print("[Rest_data::syncSighting()] Exception " + error.toString());
-          throw error;
-        });
+                  var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : "_none";
+                  var siteNID    = sighting.placeNID != null ? sighting.placeNID.toString() : "_none";
+
+
+                  Map<String, String> putHeaders = {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Accept": "application/json",
+                    "Cookie": cookie,
+                    "X-CSRF-Token": token
+                  };
+
+                  /*
+
+                  var type = (sighting.activityTagTid != null &&
+                      sighting.activityTagTid != 0)
+                      ? sighting.activityTagTid
+                      : "_none";
+
+                  var longitude = sighting.longitude != null ? sighting
+                      .longitude.toStringAsPrecision(Constants
+                      .gpsDecimalPrecision) : 0.0;
+
+                  var latitude = sighting.latitude != null ?  sighting
+                      .latitude.toStringAsPrecision(Constants
+                      .gpsDecimalPrecision) : 0.0;
+
+                  var altitude = sighting.altitude != null ? sighting
+                      .altitude.toStringAsPrecision(
+                      Constants.gpsDecimalPrecision) : 0.0;*/
+
+                  String putBody = "title=${sighting
+                      .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=$siteNID&body[und][0][value]=${sighting
+                      .title}&field_place_name[und][0][value]=${sighting
+                      .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting
+                      .speciesCount}&field_associated_species[und][nid]=$speciesNID&field_photo[und][0][fid]=$fid&field_long[und][0][value]=$longitude&field_lat[und][0][value]=$latitude&field_altitude[und][0][value]=$altitude";
+
+                  String nodeUpdateUrl = NODE_UPDATE_ENDPOINT +
+                      sighting.nid.toString();
+                  print("[Updating node at $nodeUpdateUrl]");
+                  return
+
+                    _networkUtil.put(nodeUpdateUrl,
+                      body: putBody,
+                      headers: putHeaders,
+                      encoding: Encoding.getByName('utf-8'),
+                    ).then((dynamic resultMap) {
+                      print("[REST_DATA::syncSighting()] update" +
+                          resultMap.toString());
+
+                      if (resultMap[RestData.errorKey] != null) {
+                        throw new Exception(resultMap["error_msg"]);
+                      }
+
+                      String nidKey = "nid";
+                      int nid = int.parse(resultMap[nidKey]);
+                      return nid;
+                    }).catchError((error) {
+                      print(
+                          "[REST_DATA::syncSighting()] updating sighting error:" +
+                              error.toString());
+                      throw error;
+                    });
+                }
+              });
+            }
+
+            return 0;
+          }).catchError((error) {
+            print("[Rest_data::syncSighting()] Exception " + error.toString());
+            throw error;
+          });
+
+        }else{
+          print("[REST_DATA::syncSighting()] Current user null");
+        }
 
       });
-
-
 
       // Default image
       /*if(sighting.photoFileName == null || sighting.photoFileName.length == 0){
         Photograph defaultImage = await sighting.species.getPhotographObjectAtIndex(0);
         sighting.photoFileName = defaultImage.photoAssetPath(ext: Constants.imageType);
       }*/
-
-
-
 
     }
 

@@ -20,6 +20,16 @@ class ErrorHandler{
     );
   }
 
+  static handleException(BuildContext context,Exception e){
+    showAlert(
+      context: context,
+      title: ErrorText.serverTitle,
+      body: e.toString(),
+      actions: [],
+    );
+  }
+
+
   static handle(BuildContext context,int code){
     switch(code){
       case 401:{

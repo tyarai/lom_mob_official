@@ -8,6 +8,7 @@ import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/tag.dart';
+import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
@@ -16,6 +17,7 @@ import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -50,6 +52,8 @@ class _SightingEditPageState extends State<SightingEditPage>
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
 
+  List<String> menu = const ["Sighting","Illegal activities"];
+  
   SyncSightingPresenter syncPresenter;
 
   TextEditingController _titleController = TextEditingController();
@@ -149,11 +153,20 @@ class _SightingEditPageState extends State<SightingEditPage>
   }
 
   bool _validateSighting(BuildContext context) {
+
     SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
     Sighting sightingToSave = bloc.sighting;
-    print("VALIDATE" + sightingToSave.toString());
 
-    if (sightingToSave.species == null) {
+    if (sightingToSave.tag == null && this._isIllegalActivity) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noActivityTypeError,
+          actions: []);
+      return false;
+    }
+
+    if (sightingToSave.species == null && sightingToSave.tag == null) {
       showAlert(
           context: context,
           title: this.title,
@@ -161,7 +174,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           actions: []);
       return false;
     }
-    if (sightingToSave.site == null) {
+    if (sightingToSave.site == null && sightingToSave.tag == null) {
       showAlert(
           context: context,
           title: this.title,
@@ -169,6 +182,31 @@ class _SightingEditPageState extends State<SightingEditPage>
           actions: []);
       return false;
     }
+    if (sightingToSave.speciesCount == 0 && sightingToSave.tag == null && !this._isIllegalActivity) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noSpeciesCount,
+          actions: []);
+      return false;
+    }
+    if (sightingToSave.title?.length == 0 || sightingToSave.title == null) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noTitle,
+          actions: []);
+      return false;
+    }
+    if (sightingToSave.speciesNid == null && sightingToSave.photoFileName == null  && this._isIllegalActivity) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noImage,
+          actions: []);
+      return false;
+    }
+
 
     return true;
   }
@@ -217,7 +255,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           if (snapshot.data != null && snapshot.hasData) {
             return ListView(children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(5),
+                padding: const EdgeInsets.all(10),
                 child: Material(
                   color: Colors.white,
                   elevation: 5.0,
@@ -370,9 +408,16 @@ class _SightingEditPageState extends State<SightingEditPage>
       GestureDetector(
           onTap: () {
             setState(() {
+
               _isIllegalActivity = !_isIllegalActivity;
+
               if (!_isIllegalActivity) {
+                title = menu[0];
+                LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"0");
                 bloc.sightingEventController.add(SightingTagChangeEvent(null));
+              }else{
+                LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"1");
+                title = menu[1];
               }
             });
           },
@@ -841,9 +886,9 @@ class _SightingEditPageState extends State<SightingEditPage>
                       },
 
                   validator: (String arg) {
-                    if (arg == null || arg.length == 0) {
+                    /*if (arg == null || arg.length == 0) {
                       return ErrorText.emptyString;
-                    }
+                    }*/
                   },
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.done,
@@ -871,9 +916,9 @@ class _SightingEditPageState extends State<SightingEditPage>
                         //_onNumberChanged(val)
                       },
                   validator: (String arg) {
-                    if (arg == null || arg.length == 0 || int.parse(arg) <= 0) {
+                    /*if ((arg == null || arg.length == 0 || int.parse(arg) <= 0) &&  (!this._isIllegalActivity) ){
                       return ErrorText.invalidIntegerNumber;
-                    }
+                    }*/
                   },
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
@@ -890,9 +935,7 @@ class _SightingEditPageState extends State<SightingEditPage>
                               Constants.speciesImageBorderRadius))),
                 ),
               ),
-              Divider(
-                  height: Constants.listViewDividerHeight,
-                  color: Constants.listViewDividerColor),
+
             ],
           ),
         )),
@@ -900,40 +943,12 @@ class _SightingEditPageState extends State<SightingEditPage>
     );
   }
 
-  /*_submit(BuildContext buildContext) async {
-
-    final form = formKey.currentState;
-
-    if (_validateSighting(buildContext)) {
-      if (form.validate()) {
-        setState(() {
-          _isLoading = true;
-        });
-
-        form.save();
-        SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
-        Sighting currentSighting = bloc.sighting;
-
-        currentSighting.saveToDatabase(this._editing).then((savedSighting) {
-          if (savedSighting != null) {
-            bloc.sightingEventController
-                .add(SightingChangeEvent(savedSighting));
-            syncPresenter.sync(savedSighting, editing: this._editing);
-          }
-        }).catchError((error) {
-          print(
-              "[Sighting_edit_page::_submit()] Exception ${error.toString()}");
-          throw error;
-        });
-      }
-    }
-  }*/
-
   _submit(BuildContext buildContext) async {
 
     final form = formKey.currentState;
 
     if (_validateSighting(buildContext)) {
+
       if (form.validate()) {
         setState(() {
           _isLoading = true;
@@ -942,6 +957,10 @@ class _SightingEditPageState extends State<SightingEditPage>
         form.save();
         SightingBloc bloc = BlocProvider.of<SightingBloc>(buildContext);
         Sighting currentSighting = bloc.sighting;
+
+        User user =  await User.getCurrentUser();
+
+        await currentSighting.initProperties(user, this._editing);
 
         syncPresenter.sync(currentSighting, editing: this._editing);
 
@@ -958,6 +977,9 @@ class _SightingEditPageState extends State<SightingEditPage>
         });*/
       }
     }
+
+
+
   }
 
   @override
@@ -974,6 +996,15 @@ class _SightingEditPageState extends State<SightingEditPage>
       _isLoading = false;
     });
     ErrorHandler.handle(context, statusCode);
+  }
+
+  @override
+  void onException(Exception e) {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleException(context, e);
+
   }
 
   @override
@@ -1007,6 +1038,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           print(
               "[SIGHTING_EDIT_PAGE::onSyncSuccess()] updated/creation not completed");
         }
+
       });
 
     }else if(nid <=0 || nid == null){
@@ -1016,16 +1048,6 @@ class _SightingEditPageState extends State<SightingEditPage>
         body: "Unexpected error!\nUnable to create new sighting.Please try again",
       );
 
-      // unable to create the sighting on server then delete the saved sighting on local DB
-      /*sighting.delete().then((deleted){
-
-        if(deleted){
-          print("[Sighting::onSyncSuccess()] deleted sighting!");
-        }else{
-          print("[Sighting::onSyncSuccess()] Unable to delete sighting!");
-        }
-
-      });*/
 
     }
 
