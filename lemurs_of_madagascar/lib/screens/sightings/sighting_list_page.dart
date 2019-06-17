@@ -268,7 +268,7 @@ class _SightingListPageState extends State<SightingListPage>  {
                     itemBuilder: (BuildContext buildContext, int index) {
                       //print("item count ${snapshot.data.length}
                       Sighting sighting = snapshot.data[index];
-                      //print("{SIGHYTING} $sighting");
+                      //print("{SIGHTING} $sighting");
                       return this.buildCellItem(context,sighting,sightingBloc);
                     });
               }
@@ -360,11 +360,11 @@ class _SightingListPageState extends State<SightingListPage>  {
 
           },
           title: Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
               child: Container(
                   child: Material(
                     elevation: 1.0,
-                    borderRadius: BorderRadius.circular(0),
+                    borderRadius: BorderRadius.circular(0.5),
                     shadowColor: Colors.blueGrey,
                     child: Padding(
                         padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
