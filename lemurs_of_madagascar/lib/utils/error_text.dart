@@ -18,7 +18,8 @@ class ErrorText {
   static String noActivityTypeError = "Select a type of illegal activity!\n";
   static String noSiteError = "Please Select a site!\n";
   static String noSpeciesCount = "Please provide the number observed!\n";
-  static String noTitle = "Please provide a title to your sighting!\n";
+  static String noTitle = "Please give a title to this sighting!\n";
+  static String noImage = "No image of the illegal activity is selected!\n Please provide one or select a species to set a default image";
   static String emptyString = "No value provided!\n";
 
 }

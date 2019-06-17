@@ -214,11 +214,11 @@ class Sighting {
     this.uid = this.uid == null ? user.uid : this.uid;
 
     Photograph defaultImage =
-        await this._species.getPhotographObjectAtIndex(0);
+        await this._species?.getPhotographObjectAtIndex(0);
     this.photoFileName = this.photoFileName != null
         ? this.photoFileName
-        : defaultImage.photoAssetPath(ext: Constants.imageType);
-    print("SIGHTING photo name :" + this.photoFileName);
+        : defaultImage?.photoAssetPath(ext: Constants.imageType);
+    //print("SIGHTING photo name :" + this.photoFileName);
 
     this.isLocal = 1;
     this.isSynced = 0;
@@ -514,16 +514,14 @@ class Sighting {
               return snapshot.data;
             }),
         Container(height: 10),
-        sighting.speciesNid != 0
-            ? Text(
+        (sighting.speciesName != null) ? Text(
                 sighting.id.toString() +
                     " " +
                     sighting.nid.toString() +
                     " " +
                     sighting.speciesName,
                 style: Constants.sightingSpeciesNameTextStyle,
-              )
-            : Container(),
+              ) : Container(),
         Container(height: 5),
         Sighting.buildAction(sighting, sightingBloc, buildContext),
         Container(height: 5),
@@ -555,10 +553,10 @@ class Sighting {
               ),
             ]),
         Container(height: 5),
-        Text(
+        (sighting.placeName != null) ? Text(
           sighting.placeName,
           style: Constants.sightingSpeciesCountTextStyle,
-        ),
+        ) : Container(),
         Container(height: 10),
         Text(
           sighting.title,
@@ -628,7 +626,6 @@ class Sighting {
   }
 
   static Future<File> getImageFile(Sighting sighting) async {
-    //print("{Sighing::getImageFile()} photo " + sighting.photoFileName);
 
     try {
 
@@ -677,6 +674,10 @@ class Sighting {
     }
   }
 
+  static void deleteAllSightings() {
+    SightingDatabaseHelper.deleteAllSightings();
+  }
+
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,
       {double width = 1280.0,
@@ -685,10 +686,13 @@ class Sighting {
       BoxFit standardFit = BoxFit.cover,
       BoxFit assetImageFit = BoxFit.fitHeight,
       bool assetImage = false}) async {
+
     if (sighting != null) {
+
       Future<Image> image = Sighting.getImage(sighting);
 
       return image.then((_image) {
+
         var fit = BoxFit.fitWidth;
 
         ImageStream imageStream =
@@ -712,14 +716,12 @@ class Sighting {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [_image])),
         ); // Return image from Documents
+
       });
+
     }
 
     return Container();
-  }
-
-  static void deleteAllSightings() {
-    SightingDatabaseHelper.deleteAllSightings();
   }
 
   @override

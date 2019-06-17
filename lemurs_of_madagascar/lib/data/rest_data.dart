@@ -279,11 +279,9 @@ class RestData {
         if(user != null) {
 
           //sighting.initProperties(user, editing);
-          print("[HERE] " + sighting.photoFileName);
+          //print("[HERE] " + sighting.photoFileName);
 
           var _file = Sighting.getImageFile(sighting);
-
-
 
           var longitude = sighting.longitude != null ? sighting
               .longitude.toStringAsPrecision(Constants
@@ -298,9 +296,10 @@ class RestData {
               Constants.gpsDecimalPrecision) : 0.0;
 
 
+
           return _file.then((file) async {
             if (file != null) {
-              print("HERE");
+              //print("HERE");
 
               String fileName = basename(file.path);
 
@@ -325,6 +324,10 @@ class RestData {
 
                 if (!editing) {
 
+                  var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : null.toString();
+                  var siteNID    = sighting.placeNID != null ? sighting.placeNID.toString() : null.toString();
+
+
                   var type = (sighting.activityTagTid != null &&
                       sighting.activityTagTid != 0)
                       ? sighting.activityTagTid
@@ -341,7 +344,7 @@ class RestData {
                     "body": sighting.title,
                     "field_place_name": sighting.placeName,
                     "field_date": formattedDate,
-                    "field_associated_species": sighting.speciesNid.toString(),
+                    "field_associated_species": speciesNID,//sighting.speciesNid.toString(),
                     "field_lat": latitude,// sighting.latitude.toString(),
                     "field_long": longitude,// sighting.longitude.toString(),
                     "field_altitude": altitude,// sighting.altitude.toString(),
@@ -355,7 +358,7 @@ class RestData {
                     "field_photo": fid.toString(),
                     "field_type": type,//sighting.activityTagTid.toString(),
                     //TODO Optimisation do not upload unchanged photo
-                    "field_place_name_reference": sighting.placeNID.toString(),
+                    "field_place_name_reference": siteNID,//sighting.placeNID.toString(),
                   };
 
                   Map<String, String> postHeaders = {
@@ -397,6 +400,9 @@ class RestData {
                       ? sighting.activityTagTid
                       : "_none";
 
+                  var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : "_none";
+                  var siteNID    = sighting.placeNID != null ? sighting.placeNID.toString() : "_none";
+
 
                   Map<String, String> putHeaders = {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -425,12 +431,10 @@ class RestData {
                       Constants.gpsDecimalPrecision) : 0.0;*/
 
                   String putBody = "title=${sighting
-                      .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=${sighting
-                      .placeNID}&body[und][0][value]=${sighting
+                      .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=$siteNID&body[und][0][value]=${sighting
                       .title}&field_place_name[und][0][value]=${sighting
                       .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting
-                      .speciesCount}&field_associated_species[und][nid]=${sighting
-                      .speciesNid}&field_photo[und][0][fid]=$fid&field_long[und][0][value]=$longitude&field_lat[und][0][value]=$latitude&field_altitude[und][0][value]=$altitude";
+                      .speciesCount}&field_associated_species[und][nid]=$speciesNID&field_photo[und][0][fid]=$fid&field_long[und][0][value]=$longitude&field_lat[und][0][value]=$latitude&field_altitude[und][0][value]=$altitude";
 
                   String nodeUpdateUrl = NODE_UPDATE_ENDPOINT +
                       sighting.nid.toString();

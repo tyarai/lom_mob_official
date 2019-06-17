@@ -190,11 +190,19 @@ class _SightingEditPageState extends State<SightingEditPage>
           actions: []);
       return false;
     }
-    if (sightingToSave.title.length == 0 && sightingToSave.tag == null) {
+    if (sightingToSave.title?.length == 0 || sightingToSave.title == null) {
       showAlert(
           context: context,
           title: this.title,
           body: ErrorText.noTitle,
+          actions: []);
+      return false;
+    }
+    if (sightingToSave.speciesNid == null && sightingToSave.photoFileName == null  && this._isIllegalActivity) {
+      showAlert(
+          context: context,
+          title: this.title,
+          body: ErrorText.noImage,
           actions: []);
       return false;
     }
@@ -247,7 +255,7 @@ class _SightingEditPageState extends State<SightingEditPage>
           if (snapshot.data != null && snapshot.hasData) {
             return ListView(children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(5),
+                padding: const EdgeInsets.all(10),
                 child: Material(
                   color: Colors.white,
                   elevation: 5.0,
@@ -878,9 +886,9 @@ class _SightingEditPageState extends State<SightingEditPage>
                       },
 
                   validator: (String arg) {
-                    if (arg == null || arg.length == 0) {
+                    /*if (arg == null || arg.length == 0) {
                       return ErrorText.emptyString;
-                    }
+                    }*/
                   },
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.done,
@@ -908,9 +916,9 @@ class _SightingEditPageState extends State<SightingEditPage>
                         //_onNumberChanged(val)
                       },
                   validator: (String arg) {
-                    if ((arg == null || arg.length == 0 || int.parse(arg) <= 0) &&  (!this._isIllegalActivity) ){
+                    /*if ((arg == null || arg.length == 0 || int.parse(arg) <= 0) &&  (!this._isIllegalActivity) ){
                       return ErrorText.invalidIntegerNumber;
-                    }
+                    }*/
                   },
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
@@ -934,8 +942,6 @@ class _SightingEditPageState extends State<SightingEditPage>
       ],
     );
   }
-
-
 
   _submit(BuildContext buildContext) async {
 
