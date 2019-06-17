@@ -97,6 +97,22 @@ class _SightingListPageState extends State<SightingListPage>  {
   }
 
 
+  Widget _buildTitle(){
+
+    return FutureBuilder<String>(
+
+        future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
+        builder: (context,snapshot){
+
+          if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
+            this._bottomNavIndex = int.parse(snapshot.data);
+              return Text(this._menuName[int.parse(snapshot.data)]);
+          }
+          return Container();
+        }
+
+    );
+  }
 
   @override
   Widget build(BuildContext buildContext)  {
@@ -108,7 +124,7 @@ class _SightingListPageState extends State<SightingListPage>  {
               actions: <Widget>[
                 _buildSearch(),
               ],
-              title: Text(title),
+              title: _buildTitle(),
             ),
             body:  _showTab(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
@@ -125,6 +141,7 @@ class _SightingListPageState extends State<SightingListPage>  {
 
         if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
           this._bottomNavIndex = int.parse(snapshot.data);
+          print("INDEX ${this._bottomNavIndex}");
           switch (this._bottomNavIndex) {
             case 0:
               return _buildSightingListView(buildContext);
@@ -132,7 +149,7 @@ class _SightingListPageState extends State<SightingListPage>  {
               return _buildIllegalActivityListView(buildContext);
           }
         }
-        return Container();
+        return Container(child:CircularProgressIndicator());
       }
 
     );
@@ -144,6 +161,7 @@ class _SightingListPageState extends State<SightingListPage>  {
       child: Icon(Icons.add,size: 35,),
       onPressed: (){
 
+        LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"0");
         Sighting emptySighting = Sighting();
         sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
         Navigator.of(context).push(
@@ -174,18 +192,19 @@ class _SightingListPageState extends State<SightingListPage>  {
             onTap: (int index) {
               setState(() {
                 _bottomNavIndex = index;
+                _handleBottomNavTap(_bottomNavIndex);
                 title = _menuName[_bottomNavIndex];
               });
-              _handleBottomNavTap(_bottomNavIndex);
+
             },
             items: [
               BottomNavigationBarItem(
                 icon:  Icon(Icons.remove_red_eye,color: Constants.iconColor,),
-                title: Text(_menuName[0],style:Constants.defaultTextStyle.copyWith(color:Colors.white,fontSize: 15)),
+                title: Text(_menuName[0],style:Constants.defaultTextStyle.copyWith(color:Constants.iconColor,fontSize: 15)),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.report_problem,color: Constants.iconColor,),
-                title: Text(_menuName[1],style:Constants.defaultTextStyle.copyWith(color:Colors.white,fontSize: 15)),
+                title: Text(_menuName[1],style:Constants.defaultTextStyle.copyWith(color:Constants.iconColor,fontSize: 15)),
               ),
 
 
