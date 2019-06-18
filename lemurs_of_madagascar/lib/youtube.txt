@@ -1,7 +1,5 @@
 MTECHVIRAL : Flutter Tutorial
 
-A4683707-0270-48C7-98AC-09B1528D9713
-
 1- Pull to refresh list view :
 2- Expandable and sticky header list
 3- Integrate Google MAPs
@@ -13,7 +11,8 @@ A4683707-0270-48C7-98AC-09B1528D9713
 
 7- QUIZZ App
 8- Face ID, Touche ID, FingerPrint
-9- Programmatically check if in debug or release mode
+9- Programmatically check if in debug or release modes
+10- Background fetch
 
 VOID REALMS
 

@@ -494,9 +494,6 @@ class Sighting {
         .format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
     if (sighting != null) {
-      //print("{SIGHTING} $sighting");
-      //sighting.loadTag();
-      //print("{SIGHTING} $sighting");
 
       double screenWidth = MediaQuery.of(buildContext).size.width;
 
@@ -515,21 +512,21 @@ class Sighting {
             }),
         Container(height: 10),
         (sighting.speciesName != null) ? Text(
-                sighting.id.toString() +
-                    " " +
-                    sighting.nid.toString() +
-                    " " +
+                //sighting.id.toString() +
+                  //  " " +
+                    //sighting.nid.toString() +
+                    //" " +
                     sighting.speciesName,
                 style: Constants.sightingSpeciesNameTextStyle,
               ) : Container(),
-        Container(height: 5),
-        Sighting.buildAction(sighting, sightingBloc, buildContext),
+        //Container(height: 5),
+        //Sighting.buildAction(sighting, sightingBloc, buildContext),
         Container(height: 5),
         Row(
             //mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Expanded(
+              sighting.speciesCount != null ? Expanded(
                 child: Column(
                     //mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,7 +536,7 @@ class Sighting {
                         style: Constants.sightingSpeciesCountTextStyle,
                       )
                     ]),
-              ),
+              ): Container(),
               Container(width: 10),
               Expanded(
                 child: Column(
@@ -563,20 +560,28 @@ class Sighting {
           style: Constants.sightingTitleTextStyle,
         ),
         Container(height: 10),
-        FutureBuilder<bool>(
-          future: sighting.loadTag(),
-          builder: (context, snapshot) {
-            if(! snapshot.hasData) return Container();
-            if (snapshot.data != null && snapshot.hasData) {
-              return sighting.tag != null
-                  ? Text(
-                      sighting.tag.nameEN,
-                      style: Constants.sightingSpeciesNameTextStyle,
-                    )
-                  : Container();
-            }
-          },
-        ),
+        Divider(
+            height: Constants.listViewDividerHeight,
+            color: Constants.listViewDividerColor),
+        Row(
+          children: [
+            FutureBuilder<bool>(
+            future: sighting.loadTag(),
+            builder: (context, snapshot) {
+              if(! snapshot.hasData) return Container();
+              if (snapshot.data != null && snapshot.hasData) {
+                return sighting.tag != null
+                    ? Text(
+                        sighting.tag.nameEN,
+                        style: Constants.sightingSpeciesNameTextStyle.copyWith(color: Colors.red),
+                      )
+                    : Container();
+              }
+            },
+          ),
+            Spacer(),
+            Sighting.buildAction(sighting, sightingBloc, buildContext),
+        ]),
       ]);
     }
 
