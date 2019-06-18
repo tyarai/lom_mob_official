@@ -22,9 +22,14 @@ import 'package:uuid/uuid.dart';
 
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting, int nid, bool editing);
-  void onGetSuccess(List<Sighting> sightingList);
   void onDeleteSuccess(Sighting sighting);
   void onSyncFailure(int statusCode);
+  void onSocketFailure();
+}
+
+abstract class GetSightingsContract {
+  void onGetSightingSuccess(List<Sighting> sightingList);
+  void onGetSightingFailure(int statusCode);
   void onSocketFailure();
 }
 
@@ -52,24 +57,6 @@ class SyncSightingPresenter {
 
   }
 
-  get(DateTime fromDate) {
-
-    api.getSightings(fromDate).then((sightingList) {
-
-      if(sightingList.length != 0) {
-        print("GetSightingPresenter ${sightingList.toString()}");
-        _syncingView.onGetSuccess(sightingList);
-      }
-
-    }).catchError((error) {
-      if (error is SocketException) _syncingView.onSocketFailure();
-      if (error is LOMException) _syncingView.onSyncFailure(error.statusCode);
-    });
-
-
-
-  }
-
   delete(Sighting sighting) {
     if (sighting != null) {
       api.deleteSighting(sighting).then((isDeleted) {
@@ -82,6 +69,33 @@ class SyncSightingPresenter {
       });
     }
   }
+
+}
+
+class GetSightingPresenter {
+
+  GetSightingsContract _getView;
+  RestData api = RestData();
+  GetSightingPresenter(this._getView);
+
+  get(DateTime fromDate) {
+
+    api.getSightings(fromDate).then((sightingList) {
+
+      if(sightingList.length != 0) {
+        print("GetSightingPresenter ${sightingList.toString()}");
+        _getView.onGetSightingSuccess(sightingList);
+      }
+
+    }).catchError((error) {
+      if (error is SocketException) _getView.onSocketFailure();
+      if (error is LOMException) _getView.onGetSightingFailure(error.statusCode);
+    });
+
+
+
+  }
+
 }
 
 class Sighting {

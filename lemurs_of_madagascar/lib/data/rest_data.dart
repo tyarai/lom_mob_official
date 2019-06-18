@@ -582,7 +582,7 @@ class RestData {
         String token = currentSession.token;
 
         String formattedDate =
-        DateFormat(Constants.apiNodeUpdateDateFormat).format(
+        DateFormat(Constants.apiDateFormat).format(
             DateTime.fromMillisecondsSinceEpoch(
                 fromDate?.millisecondsSinceEpoch));
 
@@ -594,7 +594,6 @@ class RestData {
         params += "uid=${user.uid}";
         params += (fromDate != null) ? "&from_date=$formattedDate" : "";
 
-
         Map<String, String> postHeaders = {
           "Content-Type": "application/x-www-form-urlencoded",
           "Accept": "application/json",
@@ -604,29 +603,26 @@ class RestData {
 
         // get changed sighting from the specified date
         return _networkUtil.post(SERVICE_MY_SIGHTINGS + params,
-          //body: json.encode(postBody),
-          //body: body,
-          headers: postHeaders,
-
+            headers: postHeaders,
         ).then((dynamic resultMap) async {
 
-          print("[REST_DATA::getSightings()] " +
-              resultMap.toString());
+            print("[REST_DATA::getSightings()] " +
+                resultMap.toString());
 
-          if (resultMap[RestData.errorKey] != null) {
-            throw new Exception(resultMap["error_msg"]);
-          }
+            if (resultMap[RestData.errorKey] != null) {
+              throw new Exception(resultMap["error_msg"]);
+            }
 
-          return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
-            return Sighting.fromMap(jsonSighting);
-          }).toList();
+            return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
+              return Sighting.fromMap(jsonSighting);
+            }).toList();
 
         }).catchError((error) {
 
-          print(
-              "[REST_DATA::getSightings()] Getting sightings list error :" +
-                  error.toString());
-          throw error;
+            print(
+                "[REST_DATA::getSightings()] Getting sightings list error :" +
+                    error.toString());
+            throw error;
 
         });
       }

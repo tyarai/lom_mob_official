@@ -26,17 +26,20 @@ class SightingListPage extends StatefulWidget {
 
 }
 
-class _SightingListPageState extends State<SightingListPage>  {
+class _SightingListPageState extends State<SightingListPage>  implements GetSightingsContract {
 
   String title;
   int currentUid = 0;
   int _bottomNavIndex = 0;
   List<Sighting> sightingList = List<Sighting>();
   SightingBloc sightingBloc = SightingBloc();
-  bool _isEditing = false;
+  //bool _isEditing = false;
+  GetSightingPresenter _getSightingPresenter;
 
 
-  _SightingListPageState(this.title);
+  _SightingListPageState(this.title){
+    _getSightingPresenter = GetSightingPresenter(this);
+  }
 
   List<String> _menuName = [
     "My sightings",
@@ -130,7 +133,7 @@ class _SightingListPageState extends State<SightingListPage>  {
             ),
             body:  _showTab(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
-            //floatingActionButton: _buildFloatingActionButton(),
+            floatingActionButton: _buildFloatingActionButton(),
         );
   }
 
@@ -177,26 +180,14 @@ class _SightingListPageState extends State<SightingListPage>  {
     );
   }
 
-  /*_buildFloatingActionButton(){
+  _buildFloatingActionButton(){
     return FloatingActionButton(
       child: Icon(Icons.add,size: 35,),
       onPressed: (){
-
-        LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"0");
-        Sighting emptySighting = Sighting();
-        sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
-        Navigator.of(context).push(
-            MaterialPageRoute(
-                fullscreenDialog: true, builder: (buildContext) =>
-                BlocProvider(
-                  child: SightingEditPage(this._menuName[0],emptySighting,false),
-                  bloc: sightingBloc,
-                ))
-        );
-
+        this._getSightingPresenter.get(DateTime.now());
       },
     );
-  }*/
+  }
 
   Theme _buildBottomNavBar() {
     return Theme(
@@ -419,6 +410,21 @@ class _SightingListPageState extends State<SightingListPage>  {
 
     return Container();
 
+  }
+
+  @override
+  void onGetSightingFailure(int statusCode) {
+    // TODO: implement onGetSightingFailure
+  }
+
+  @override
+  void onGetSightingSuccess(List<Sighting> sightingList) {
+    // TODO: implement onGetSightingSuccess
+  }
+
+  @override
+  void onSocketFailure() {
+    // TODO: implement onSocketFailure
   }
 
 

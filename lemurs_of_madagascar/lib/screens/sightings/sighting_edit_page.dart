@@ -1066,11 +1066,6 @@ class _SightingEditPageState extends State<SightingEditPage>
     });
   }
 
-  @override
-  void onGetSuccess(List<Sighting> sightingList){
-    if(sightingList.length != 0){
-      //TODO save this list to database
-    }
-  }
+
 
 }
