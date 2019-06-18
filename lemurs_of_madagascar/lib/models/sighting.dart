@@ -22,6 +22,7 @@ import 'package:uuid/uuid.dart';
 
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting, int nid, bool editing);
+  void onGetSuccess(List<Sighting> sightingList);
   void onDeleteSuccess(Sighting sighting);
   void onSyncFailure(int statusCode);
   void onSocketFailure();
@@ -48,6 +49,24 @@ class SyncSightingPresenter {
       });
 
     }
+
+  }
+
+  get(DateTime fromDate) {
+
+    api.getSightings(fromDate).then((sightingList) {
+
+      if(sightingList.length != 0) {
+        print("GetSightingPresenter ${sightingList.toString()}");
+        _syncingView.onGetSuccess(sightingList);
+      }
+
+    }).catchError((error) {
+      if (error is SocketException) _syncingView.onSocketFailure();
+      if (error is LOMException) _syncingView.onSyncFailure(error.statusCode);
+    });
+
+
 
   }
 
@@ -80,6 +99,7 @@ class Sighting {
   static String createdKey = "_createdTime";
   static String modifiedKey = "_modifiedTime";
   static String uidKey = "_uid";
+  static String authorNameKey = "_author_name";
   static String isLocalKey = "_isLocal";
   static String isSyncedKey = "_isSynced";
   static String dateKey = "_date";
@@ -88,7 +108,6 @@ class Sighting {
   static String lockedKey = "_locked";
   static String altKey = "_placeAltitude";
   static String hasPhotoChangedKey = "_hasPhotoChanged";
-  //static String isIllegalKey = "_illegal";
   static String activityTagTidKey = "_activityTagTid";
 
   Species _species;
@@ -535,66 +554,67 @@ class Sighting {
       double screenWidth = MediaQuery.of(buildContext).size.width;
 
       return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
-          FutureBuilder<Container>(
-              future: Sighting.getImageContainer(sighting, buildContext,
-                  width: screenWidth,
-                  height: Constants.sightingListImageHeight,
-                  fittedImage: true,
-                  assetImage: true),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                return snapshot.data;
-              }),
-          Container(height: 10),
-          _buildSpeciesInfoAndTag(sighting),
-          Container(height: 10),
-          (sighting.placeName != null) ? Row(
-            children: [
-              Icon(Icons.place,color: Colors.grey,),
-              Text(sighting.placeName,
-                style: Constants.sightingSpeciesCountTextStyle,
+        FutureBuilder<Container>(
+            future: Sighting.getImageContainer(sighting, buildContext,
+                width: screenWidth,
+                height: Constants.sightingListImageHeight,
+                fittedImage: true,
+                assetImage: true),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+              return snapshot.data;
+            }),
+        Container(height: 10),
+        _buildSpeciesInfoAndTag(sighting),
+        Container(height: 10),
+        Text(
+          sighting.title,
+          textAlign: TextAlign.justify,
+          style: Constants.sightingTitleTextStyle,
+        ),
+        Container(height: 10),
+        (sighting.placeName != null) ? Row(
+          children: [
+            Icon(Icons.place,color: Colors.grey,),
+            Text(sighting.placeName,
+              style: Constants.sightingSpeciesCountTextStyle,
+            ),
+        ]) : Container(),
+        Container(height: 10),
+        Row(
+          //mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              sighting.speciesCount != null ? Expanded(
+                child: Column(
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        sighting.speciesCount.toString() + " species observed",
+                        style: Constants.sightingSpeciesCountTextStyle,
+                      )
+                    ]),
+              ): Container(),
+              Spacer(),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        formattedDate,
+                        style: Constants.sightingSpeciesCountTextStyle,
+                      )
+                    ]),
               ),
-          ]) : Container(),
-          Container(height: 10),
-          Row(
-            //mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                sighting.speciesCount != null ? Expanded(
-                  child: Column(
-                    //mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          sighting.speciesCount.toString() + " species observed",
-                          style: Constants.sightingSpeciesCountTextStyle,
-                        )
-                      ]),
-                ): Container(),
-                Spacer(),
-                Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          formattedDate,
-                          style: Constants.sightingSpeciesCountTextStyle,
-                        )
-                      ]),
-                ),
-              ]),
-          Container(height: 10),
-          Text(
-            sighting.title,
-            style: Constants.sightingTitleTextStyle,
-          ),
-          Container(height: 10),
-          Divider(
-              height: Constants.listViewDividerHeight,
-              color: Constants.listViewDividerColor),
-          Row(
+            ]),
+        Container(height: 10),
+        Divider(
+            height: Constants.listViewDividerHeight,
+            color: Constants.listViewDividerColor),
+        Row(
           children: [
 
             Expanded(

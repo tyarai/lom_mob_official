@@ -18,6 +18,7 @@ class RestData {
   static const errorKey = "error";
   static const formErrorKey = "form_errors"; // Used to track existing account created twice
   static const userStructureKey = "user";
+  static const nodesKey = "nodes";
 
   NetworkUtil _networkUtil = NetworkUtil();
 
@@ -563,6 +564,77 @@ class RestData {
       });
     }
     return false;
+  }
+
+  Future<List<Sighting>> getSightings(DateTime fromDate) async {
+
+    Future<User> _user =  User.getCurrentUser();
+
+    return _user.then((user) async {
+
+      if (user != null) {
+
+        UserSession currentSession = await UserSession
+            .getCurrentSession();
+
+        String cookie = currentSession.sessionName + "=" +
+            currentSession.sessionID;
+        String token = currentSession.token;
+
+        String formattedDate =
+        DateFormat(Constants.apiNodeUpdateDateFormat).format(
+            DateTime.fromMillisecondsSinceEpoch(
+                fromDate?.millisecondsSinceEpoch));
+
+        //DateFormat(Constants.apiDateFormat).format(
+        //    DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
+        //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
+
+        String params = "?";
+        params += "uid=${user.uid}";
+        params += (fromDate != null) ? "&from_date=$formattedDate" : "";
+
+
+        Map<String, String> postHeaders = {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/json",
+          "Cookie": cookie,
+          "X-CSRF-Token": token
+        };
+
+        // get changed sighting from the specified date
+        return _networkUtil.post(SERVICE_MY_SIGHTINGS + params,
+          //body: json.encode(postBody),
+          //body: body,
+          headers: postHeaders,
+
+        ).then((dynamic resultMap) async {
+
+          print("[REST_DATA::getSightings()] " +
+              resultMap.toString());
+
+          if (resultMap[RestData.errorKey] != null) {
+            throw new Exception(resultMap["error_msg"]);
+          }
+
+          return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
+            return Sighting.fromMap(jsonSighting);
+          }).toList();
+
+        }).catchError((error) {
+
+          print(
+              "[REST_DATA::getSightings()] Getting sightings list error :" +
+                  error.toString());
+          throw error;
+
+        });
+      }
+
+      return List();
+
+    });
+
   }
 
   Future<int> syncComment(Comment comment, {bool editing = false}) async {

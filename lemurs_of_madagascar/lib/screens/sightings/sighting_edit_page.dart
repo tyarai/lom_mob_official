@@ -877,9 +877,11 @@ class _SightingEditPageState extends State<SightingEditPage>
               new Padding(
                 padding: EdgeInsets.all(10),
                 child: new TextFormField(
+
                   controller: _titleController,
                   style: Constants.formDefaultTextStyle,
-                  maxLines: 4,
+                  maxLength: 250,
+                  maxLines: 3,
                   //initialValue: sighting.title,
                   onSaved: (val) => {
                         //_onTitleChanged(val)
@@ -1051,9 +1053,7 @@ class _SightingEditPageState extends State<SightingEditPage>
 
     }
 
-
   }
-
 
   @override
   void onDeleteSuccess(Sighting sighting) {
@@ -1065,4 +1065,12 @@ class _SightingEditPageState extends State<SightingEditPage>
       this._navigateToPreviousPage();
     });
   }
+
+  @override
+  void onGetSuccess(List<Sighting> sightingList){
+    if(sightingList.length != 0){
+      //TODO save this list to database
+    }
+  }
+
 }
