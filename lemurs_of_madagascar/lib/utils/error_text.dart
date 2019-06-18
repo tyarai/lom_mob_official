@@ -5,6 +5,8 @@ class ErrorText {
   static String emailError = "Invalid mail address!";
   static String credentialMessageError = "Wrong username or password!\nPlease check and try again";
   static String unauthorizedOperation = "Unauthorized operation!";
+  static String anonymousUser = "Access denied for user anonymous!\nYou need to be logged in to interact with the server";
+
   static String credentialTitle = "Authentication";
   static String serverTitle = "Server response";
   static String registerTitleError = "Registration error";

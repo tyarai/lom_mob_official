@@ -149,7 +149,7 @@ class _SightingListPageState extends State<SightingListPage>  {
               return _buildIllegalActivityListView(buildContext);
           }
         }
-        return Container(child:CircularProgressIndicator());
+        return Container();
       }
 
     );

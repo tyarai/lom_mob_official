@@ -434,13 +434,6 @@ class RestData {
                     "X-CSRF-Token": token
                   };
 
-                  /*
-
-                  var type = (sighting.activityTagTid != null &&
-                      sighting.activityTagTid != 0)
-                      ? sighting.activityTagTid
-                      : "_none";
-
                   var longitude = sighting.longitude != null ? sighting
                       .longitude.toStringAsPrecision(Constants
                       .gpsDecimalPrecision) : 0.0;
@@ -451,7 +444,7 @@ class RestData {
 
                   var altitude = sighting.altitude != null ? sighting
                       .altitude.toStringAsPrecision(
-                      Constants.gpsDecimalPrecision) : 0.0;*/
+                      Constants.gpsDecimalPrecision) : 0.0;
 
                   /*String putBody = "title=${sighting
                       .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=$siteNID&body[und][0][value]=${sighting
@@ -465,9 +458,9 @@ class RestData {
                   putBody += sighting.placeName != null ? "&field_place_name[und][0][value]=${sighting.placeName}" : "";
                   putBody += "&field_date[und][0][value][date]=$formattedDate";
                   putBody += sighting.speciesNid != null ? "&field_associated_species[und][nid]=${sighting.speciesNid}" : ""; //sighting.speciesNid.toString(),
-                  putBody += "&field_lat[und][0][value]=${sighting.latitude.toString()}";
-                  putBody += "&field_long[und][0][value]=${sighting.longitude.toString()}";
-                  putBody += "&field_altitude[und][0][value]=${sighting.altitude.toString()}";
+                  putBody += "&field_lat[und][0][value]=$latitude";
+                  putBody += "&field_long[und][0][value]=$longitude";
+                  putBody += "&field_altitude[und][0][value]=$altitude";
                   putBody += "&field_count[und][0][value]=$count";
                   putBody += "&field_photo[und][0][fid]=${fid.toString()}";
                   //TODO Optimisation do not upload unchanged photo

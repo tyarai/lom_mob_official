@@ -41,6 +41,15 @@ class ErrorHandler{
         );
         break;
       }
+      case 403:{
+        showAlert(
+          context: context,
+          title: ErrorText.serverTitle,
+          body: ErrorText.anonymousUser,
+          actions: [],
+        );
+        break;
+      }
       case 406:{
         showAlert(
           context: context,
