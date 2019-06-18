@@ -121,14 +121,16 @@ class _SightingListPageState extends State<SightingListPage>  {
         Scaffold(
             backgroundColor: Constants.backGroundColor,
             appBar: AppBar(
+              centerTitle: true,
               actions: <Widget>[
+                _buildAddSighting(),
                 _buildSearch(),
               ],
               title: _buildTitle(),
             ),
             body:  _showTab(buildContext),
             bottomNavigationBar: _buildBottomNavBar(),
-            floatingActionButton: _buildFloatingActionButton(),
+            //floatingActionButton: _buildFloatingActionButton(),
         );
   }
 
@@ -156,7 +158,26 @@ class _SightingListPageState extends State<SightingListPage>  {
 
   }
 
-  _buildFloatingActionButton(){
+  _buildAddSighting(){
+    return IconButton(
+      icon: Icon(Icons.add,size: 30,),
+      onPressed:(){
+        LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"0");
+        Sighting emptySighting = Sighting();
+        sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            fullscreenDialog: true, builder: (buildContext) =>
+            BlocProvider(
+              child: SightingEditPage(this._menuName[0],emptySighting,false),
+              bloc: sightingBloc,
+            ))
+        );
+      },
+    );
+  }
+
+  /*_buildFloatingActionButton(){
     return FloatingActionButton(
       child: Icon(Icons.add,size: 35,),
       onPressed: (){
@@ -175,7 +196,7 @@ class _SightingListPageState extends State<SightingListPage>  {
 
       },
     );
-  }
+  }*/
 
   Theme _buildBottomNavBar() {
     return Theme(
