@@ -9,6 +9,8 @@ class SightingDatabaseHelper  {
   final idCol             = Sighting.idKey;
   final modifiedCol       = Sighting.modifiedKey;
   final uidCol            = Sighting.uidKey;
+  final nidCol            = Sighting.nidKey;
+  final uuidCol           = Sighting.uuidKey;
   final typeTagCol        = Sighting.activityTagTidKey;
 
   Future<Map<String, dynamic>> getSightingMapWithID(int id) async {
@@ -18,6 +20,18 @@ class SightingDatabaseHelper  {
       var result = await database.rawQuery(
           "SELECT * FROM $sightingsTable WHERE $idCol = ?  ", [id]);
       return result[0];
+    }
+    return Map();
+  }
+
+  Future<Map<String, dynamic>> getSightingMapWithNID(int nid) async {
+
+    if(nid != null && nid != 0 ){
+      print("NID $nid");
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.rawQuery(
+          "SELECT * FROM $sightingsTable WHERE $nidCol = ?  ", [nid]);
+      return result.length != 0 ? result[0] : Map();
     }
     return Map();
   }
@@ -32,7 +46,7 @@ class SightingDatabaseHelper  {
             "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NULL  ORDER BY $modifiedCol DESC ",
             [uid]);
       }else{
-        //print("TATO");
+
         result = await database.rawQuery(
             "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NOT NULL  ORDER BY $modifiedCol DESC ",
             [uid]);
@@ -56,16 +70,26 @@ class SightingDatabaseHelper  {
     }
   }
 
-  Future<int> updateSighting(Sighting sighting) async {
+  Future<int> updateSighting(Sighting sighting,{int nid}) async {
     try{
 
-      if(sighting.id != null &&  sighting.id != 0) {
+      if(nid == null || nid == 0) {
+        // Search by ID
+        if (sighting.id != null && sighting.id != 0) {
+          Database database = await DatabaseHelper.instance.database;
+          var result = await database.update(sightingsTable, sighting.toMap(),
+              where: '$idCol = ?', whereArgs: [sighting.id]);
 
-        Database database = await DatabaseHelper.instance.database;
-        var result = await database.update(sightingsTable, sighting.toMap(),
-            where: '$idCol = ?', whereArgs: [sighting.id]);
-        
-        return result;
+          return result;
+        }
+      }else{
+        // Search by NID
+          Database database = await DatabaseHelper.instance.database;
+          var result = await database.update(sightingsTable, sighting.toMap(),
+              where: '$nidCol = ?', whereArgs: [nid]);
+
+          return result;
+
       }
 
     }catch(e){
@@ -124,6 +148,14 @@ class SightingDatabaseHelper  {
   Future<Sighting> getSightingWithID(int id) async {
     var map = await this.getSightingMapWithID(id);
     return Sighting.fromMap(map);
+  }
+
+  Future<Sighting> getSightingWithNID(int nid) async {
+    if(nid != null && nid !=0) {
+      var map = await this.getSightingMapWithNID(nid);
+      return Sighting.fromMap(map);
+    }
+    return null;
   }
 
 

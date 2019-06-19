@@ -62,6 +62,7 @@ class Constants {
   static const String publicFolder = "public://";
   static const String appImagesFolder = "/images/";
   static const String appImagesAssetsFolder = "assets/images/";
+  static const String http = "http";
 
   // List Item Color
   static const Color selectedListItemBackgroundColor = Colors.lime;

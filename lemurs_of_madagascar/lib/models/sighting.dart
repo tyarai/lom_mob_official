@@ -20,6 +20,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
+
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting, int nid, bool editing);
   void onDeleteSuccess(Sighting sighting);
@@ -262,7 +263,7 @@ class Sighting {
 
   }
 
-  Future<Sighting> saveToDatabase(bool editing) async {
+  Future<Sighting> saveToDatabase(bool editing,{int nid}) async {
 
     Future<User> user = User.getCurrentUser();
 
@@ -270,52 +271,13 @@ class Sighting {
       try {
         if (user != null && user.uid != 0 && user.uuid != null) {
 
-          /*this.uid = user.uid;
-          var _uuid = Uuid();
-          this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
-          this.speciesNid =
-              this.species?.id != null ? this.species.id : this.speciesNid;
-          this.speciesName = this.species?.title != null
-              ? this.species.title
-              : this.speciesName;
-          this.placeNID = this.site?.id != null ? this.site.id : this.placeNID;
-          this.placeName =
-              this.site?.title != null ? this.site.title : this.placeName;
-
-          this.date = this.date == null
-              ? DateTime.now().millisecondsSinceEpoch.toDouble()
-              : this.date;
-
-          this.created = this.created == null
-              ? DateTime.now().millisecondsSinceEpoch.toDouble()
-              : this.created;
-
-          this.modified = DateTime.now().millisecondsSinceEpoch.toDouble();
-
-          this.uid = this.uid == null ? user.uid : this.uid;
-
-          Photograph defaultImage =
-              await this._species.getPhotographObjectAtIndex(0);
-          this.photoFileName = this.photoFileName != null
-              ? this.photoFileName
-              : defaultImage.photoAssetPath(ext: Constants.imageType);
-          //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
-
-          this.isLocal = 1;
-          this.isSynced = 0;
-          this.deleted = 0;
-
-          this.locked = 0;
-          this.hasPhotoChanged = 0;
-          */
-
           initProperties(user,editing);
 
           SightingDatabaseHelper db = SightingDatabaseHelper();
           Future<int> id;
 
           if (editing) {
-            id = db.updateSighting(this);
+            id = db.updateSighting(this,nid:nid);
           } else {
             id = db.insertSighting(this);
           }
@@ -407,23 +369,23 @@ class Sighting {
       this.speciesNid = map[Sighting.speciesNidKey];
       this.speciesCount = map[Sighting.speciesCountKey];
       this.placeName = map[Sighting.placeNameKey];
-      this.longitude = map[Sighting.longKey];
-      this.latitude = map[Sighting.latKey];
+      this.longitude = double.tryParse(map[Sighting.longKey].toString()) ?? 0.0;
+      this.latitude = double.tryParse(map[Sighting.latKey].toString()) ?? 0.0 ;
       this.photoFileName = map[Sighting.photoFileNamesKey];
       this.title = map[Sighting.titleKey];
-      this.created = map[Sighting.createdKey];
-      this.modified = map[Sighting.modifiedKey];
+      this.created = double.tryParse(map[Sighting.createdKey].toString()) ?? 0.0;
+      this.modified = double.tryParse(map[Sighting.modifiedKey].toString()) ?? 0.0;
       this.uid = map[Sighting.uidKey];
       this.isLocal = map[Sighting.isLocalKey];
       this.isSynced = map[Sighting.isSyncedKey];
-      this.date = map[Sighting.dateKey];
+      this.date = double.tryParse(map[Sighting.dateKey].toString()) ?? 0.0;
       this.deleted = map[Sighting.deletedKey];
       this.placeNID = map[Sighting.placeNidKey];
       this.locked = map[Sighting.lockedKey];
       this.altitude = double.tryParse(map[Sighting.altKey].toString()) ?? 0.0;
       this.hasPhotoChanged = map[Sighting.hasPhotoChangedKey];
       //this.illegal = map[Sighting.isIllegalKey];
-      this.activityTagTid = map[Sighting.activityTagTidKey];
+      this.activityTagTid = (map[Sighting.activityTagTidKey] != 0 && map[Sighting.activityTagTidKey] != null) ? map[Sighting.activityTagTidKey] : null;
 
       loadSpeciesAndSiteAndTag();
     } catch (e) {
@@ -658,7 +620,71 @@ class Sighting {
     return Container();
   }
 
+
+  static Future<void> _downloadHttpImage(Sighting sighting) async {
+
+    if (sighting != null && sighting.photoFileName != null  && sighting.photoFileName.startsWith(Constants.http)){
+
+      var docFolder = await getApplicationDocumentsDirectory();
+      Uri imageURI = Uri.parse(sighting.photoFileName);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      HttpClient client = new HttpClient();
+      var _downloadData = List<int>();
+      var fileSave = new File(docFolder.path + "/" + fileName);
+
+      client.getUrl(imageURI)
+      .then((HttpClientRequest request) {
+        return request.close();
+
+      })
+      .then((HttpClientResponse response) {
+        response.listen((d) => _downloadData.addAll(d),
+          onDone: () {
+            fileSave.writeAsBytes(_downloadData);
+            print("SIGHTING::_downloadHttpImage() Success downloading : $fileName");
+            //sighting.photoFileName = fileName;
+
+          }
+        );
+        //return fileName;
+      }).catchError((error){
+        print("SIGHTING::_downloadHttpImage() Failure - downloading : $fileName");
+      });
+    }
+
+    //return null;
+
+  }
+
   static Future<Image> getImage(Sighting sighting) async {
+
+    if(sighting != null && sighting.photoFileName.startsWith(Constants.http)){
+
+      Uri imageURI = Uri.parse(sighting.photoFileName);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      Future<void> _downLoad = Sighting._downloadHttpImage(sighting);
+      _downLoad.then((_){
+          //print("#10");
+          //sighting.photoFileName = fileName;
+          sighting.photoFileName = fileName;
+          sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
+            if(savedSighting != null){
+              //print("UPDATED SIGHTING");
+              //print("Getimage()" +sighting.toString());
+            }
+          }).catchError((error){
+              print("Sighting::Getimage() Error unable to update sighting photo :" +error.toString());
+          });
+
+      });
+
+      //sighting.saveToDatabase(true);
+    }
+
     if (sighting != null &&
         sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
       Species species = sighting.species;
@@ -686,6 +712,7 @@ class Sighting {
     return getApplicationDocumentsDirectory().then((folder) {
       if (folder != null) {
         String fullPath = join(folder.path, sighting.photoFileName);
+        print("SIGHTING PHOTO ${sighting.photoFileName}");
 
         File file = File(fullPath);
 
@@ -801,6 +828,6 @@ class Sighting {
 
   @override
   String toString() {
-    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName} - {site: ${this._site} species: ${this._species} tag:${this._tag}}";
+    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName}";
   }
 }

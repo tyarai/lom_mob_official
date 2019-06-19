@@ -182,7 +182,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   _buildFloatingActionButton(){
     return FloatingActionButton(
-      child: Icon(Icons.add,size: 35,),
+      child: Icon(Icons.refresh,size: 35,),
       onPressed: (){
         this._getSightingPresenter.get(DateTime.now());
       },
@@ -419,7 +419,35 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   @override
   void onGetSightingSuccess(List<Sighting> sightingList) {
-    // TODO: implement onGetSightingSuccess
+     if(sightingList.length != 0 ){
+       SightingDatabaseHelper db = SightingDatabaseHelper();
+       for(Sighting sighting in sightingList){
+         if(sighting != null){
+            if (db.getSightingMapWithNID(sighting.nid) != null){
+              // The sighting already exists in local database the update local data
+              sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
+                if(savedSighting == null){
+                  print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
+                }else{
+                  print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
+                }
+              });
+
+            }else{
+              // The sighting  does not exist in local database the update local data
+              sighting.saveToDatabase(false,nid:sighting.nid).then((savedSighting){
+                if(savedSighting == null){
+                  print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not inserted to local database");
+                }else{
+                  print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
+                }
+
+              });
+
+            }
+         }
+       }
+     }
   }
 
   @override
