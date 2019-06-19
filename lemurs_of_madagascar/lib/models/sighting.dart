@@ -385,7 +385,7 @@ class Sighting {
       this.altitude = double.tryParse(map[Sighting.altKey].toString()) ?? 0.0;
       this.hasPhotoChanged = map[Sighting.hasPhotoChangedKey];
       //this.illegal = map[Sighting.isIllegalKey];
-      this.activityTagTid = map[Sighting.activityTagTidKey];
+      this.activityTagTid = (map[Sighting.activityTagTidKey] != 0 && map[Sighting.activityTagTidKey] != null) ? map[Sighting.activityTagTidKey] : null;
 
       loadSpeciesAndSiteAndTag();
     } catch (e) {
@@ -666,13 +666,12 @@ class Sighting {
       List<String> pathSegments = imageURI.pathSegments;
       String fileName = pathSegments[pathSegments.length - 1];
 
-      sighting.photoFileName = fileName;
-
       Future<void> _downLoad = Sighting._downloadHttpImage(sighting);
       _downLoad.then((_){
           //print("#10");
           //sighting.photoFileName = fileName;
-          sighting.saveToDatabase(true).then((savedSighting){
+          sighting.photoFileName = fileName;
+          sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
             if(savedSighting != null){
               //print("UPDATED SIGHTING");
               //print("Getimage()" +sighting.toString());
