@@ -182,7 +182,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   _buildFloatingActionButton(){
     return FloatingActionButton(
-      child: Icon(Icons.add,size: 35,),
+      child: Icon(Icons.refresh,size: 35,),
       onPressed: (){
         this._getSightingPresenter.get(DateTime.now());
       },

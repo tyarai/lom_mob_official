@@ -609,12 +609,14 @@ class RestData {
             print("[REST_DATA::getSightings()] " +
                 resultMap.toString());
 
-            if (resultMap[RestData.errorKey] != null) {
+            /*if (resultMap[RestData.errorKey] != null) {
               throw new Exception(resultMap["error_msg"]);
-            }
+            }*/
 
             return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
+
               return Sighting.fromMap(jsonSighting);
+
             }).toList();
 
         }).catchError((error) {
