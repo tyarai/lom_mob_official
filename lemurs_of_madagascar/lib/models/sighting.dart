@@ -262,7 +262,7 @@ class Sighting {
 
   }
 
-  Future<Sighting> saveToDatabase(bool editing) async {
+  Future<Sighting> saveToDatabase(bool editing,{int nid}) async {
 
     Future<User> user = User.getCurrentUser();
 
@@ -270,52 +270,13 @@ class Sighting {
       try {
         if (user != null && user.uid != 0 && user.uuid != null) {
 
-          /*this.uid = user.uid;
-          var _uuid = Uuid();
-          this.uuid = editing ? this.uuid : _uuid.v1(); // time-based
-          this.speciesNid =
-              this.species?.id != null ? this.species.id : this.speciesNid;
-          this.speciesName = this.species?.title != null
-              ? this.species.title
-              : this.speciesName;
-          this.placeNID = this.site?.id != null ? this.site.id : this.placeNID;
-          this.placeName =
-              this.site?.title != null ? this.site.title : this.placeName;
-
-          this.date = this.date == null
-              ? DateTime.now().millisecondsSinceEpoch.toDouble()
-              : this.date;
-
-          this.created = this.created == null
-              ? DateTime.now().millisecondsSinceEpoch.toDouble()
-              : this.created;
-
-          this.modified = DateTime.now().millisecondsSinceEpoch.toDouble();
-
-          this.uid = this.uid == null ? user.uid : this.uid;
-
-          Photograph defaultImage =
-              await this._species.getPhotographObjectAtIndex(0);
-          this.photoFileName = this.photoFileName != null
-              ? this.photoFileName
-              : defaultImage.photoAssetPath(ext: Constants.imageType);
-          //print("SIGHTING SAVE TO DB image photo name :" + this.photoFileName);
-
-          this.isLocal = 1;
-          this.isSynced = 0;
-          this.deleted = 0;
-
-          this.locked = 0;
-          this.hasPhotoChanged = 0;
-          */
-
           initProperties(user,editing);
 
           SightingDatabaseHelper db = SightingDatabaseHelper();
           Future<int> id;
 
           if (editing) {
-            id = db.updateSighting(this);
+            id = db.updateSighting(this,nid:nid);
           } else {
             id = db.insertSighting(this);
           }
@@ -411,12 +372,12 @@ class Sighting {
       this.latitude = map[Sighting.latKey] ;
       this.photoFileName = map[Sighting.photoFileNamesKey];
       this.title = map[Sighting.titleKey];
-      this.created = map[Sighting.createdKey] as double;
-      this.modified = map[Sighting.modifiedKey] as double;
+      this.created = double.tryParse(map[Sighting.createdKey].toString()) ?? 0.0;
+      this.modified = double.tryParse(map[Sighting.modifiedKey].toString()) ?? 0.0;
       this.uid = map[Sighting.uidKey];
       this.isLocal = map[Sighting.isLocalKey];
       this.isSynced = map[Sighting.isSyncedKey];
-      this.date = map[Sighting.dateKey] as double;
+      this.date = double.tryParse(map[Sighting.dateKey].toString()) ?? 0.0;
       this.deleted = map[Sighting.deletedKey];
       this.placeNID = map[Sighting.placeNidKey];
       this.locked = map[Sighting.lockedKey];
@@ -801,6 +762,6 @@ class Sighting {
 
   @override
   String toString() {
-    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName} - {site: ${this._site} species: ${this._species} tag:${this._tag}}";
+    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName}";
   }
 }
