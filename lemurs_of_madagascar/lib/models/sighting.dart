@@ -20,6 +20,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
+
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting, int nid, bool editing);
   void onDeleteSuccess(Sighting sighting);
@@ -368,8 +369,8 @@ class Sighting {
       this.speciesNid = map[Sighting.speciesNidKey];
       this.speciesCount = map[Sighting.speciesCountKey];
       this.placeName = map[Sighting.placeNameKey];
-      this.longitude = map[Sighting.longKey] ;
-      this.latitude = map[Sighting.latKey] ;
+      this.longitude = double.tryParse(map[Sighting.longKey].toString()) ?? 0.0;
+      this.latitude = double.tryParse(map[Sighting.latKey].toString()) ?? 0.0 ;
       this.photoFileName = map[Sighting.photoFileNamesKey];
       this.title = map[Sighting.titleKey];
       this.created = double.tryParse(map[Sighting.createdKey].toString()) ?? 0.0;
@@ -619,7 +620,72 @@ class Sighting {
     return Container();
   }
 
+
+  static Future<void> _downloadHttpImage(Sighting sighting) async {
+
+    if (sighting != null && sighting.photoFileName != null  && sighting.photoFileName.startsWith(Constants.http)){
+
+      var docFolder = await getApplicationDocumentsDirectory();
+      Uri imageURI = Uri.parse(sighting.photoFileName);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      HttpClient client = new HttpClient();
+      var _downloadData = List<int>();
+      var fileSave = new File(docFolder.path + "/" + fileName);
+
+      client.getUrl(imageURI)
+      .then((HttpClientRequest request) {
+        return request.close();
+
+      })
+      .then((HttpClientResponse response) {
+        response.listen((d) => _downloadData.addAll(d),
+          onDone: () {
+            fileSave.writeAsBytes(_downloadData);
+            print("SIGHTING::_downloadHttpImage() Success downloading : $fileName");
+            //sighting.photoFileName = fileName;
+
+          }
+        );
+        //return fileName;
+      }).catchError((error){
+        print("SIGHTING::_downloadHttpImage() Failure - downloading : $fileName");
+      });
+    }
+
+    //return null;
+
+  }
+
   static Future<Image> getImage(Sighting sighting) async {
+
+    if(sighting != null && sighting.photoFileName.startsWith(Constants.http)){
+
+      Uri imageURI = Uri.parse(sighting.photoFileName);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      sighting.photoFileName = fileName;
+
+      Future<void> _downLoad = Sighting._downloadHttpImage(sighting);
+      _downLoad.then((_){
+          //print("#10");
+          //sighting.photoFileName = fileName;
+          sighting.saveToDatabase(true).then((savedSighting){
+            if(savedSighting != null){
+              //print("UPDATED SIGHTING");
+              //print("Getimage()" +sighting.toString());
+            }
+          }).catchError((error){
+              print("Sighting::Getimage() Error unable to update sighting photo :" +error.toString());
+          });
+
+      });
+
+      //sighting.saveToDatabase(true);
+    }
+
     if (sighting != null &&
         sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
       Species species = sighting.species;
@@ -647,6 +713,7 @@ class Sighting {
     return getApplicationDocumentsDirectory().then((folder) {
       if (folder != null) {
         String fullPath = join(folder.path, sighting.photoFileName);
+        print("SIGHTING PHOTO ${sighting.photoFileName}");
 
         File file = File(fullPath);
 
