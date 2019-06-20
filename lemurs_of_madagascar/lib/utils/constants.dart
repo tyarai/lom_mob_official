@@ -73,6 +73,7 @@ class Constants {
   //Date
   static String dateFormat = "yyyy-MMMM-dd";
   static String apiDateFormat = "yyyy-MM-dd";
+  static String searchDateFormat = "yyyy-MM-dd HH:mm:ss";
   static String apiNodeUpdateDateFormat = "M/d/y";
 
   //Sighting List

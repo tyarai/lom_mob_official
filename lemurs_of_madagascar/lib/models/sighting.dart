@@ -530,7 +530,8 @@ class Sighting {
 
         String formattedDate = DateFormat.yMMMMd("en_US")
             .format(DateTime.fromMillisecondsSinceEpoch(date));
-        //String formattedDate = "${sighting.date}";
+        //String formattedDate = DateFormat.yMMMMd("en_US")
+          //  .format(DateTime(date));
 
         print("DATE $date - $formattedDate");
 
@@ -823,8 +824,8 @@ class Sighting {
         });
 
         return Container(
-          height: height,
-          width: width,
+          height:  height ,
+          width: fit == BoxFit.fitHeight ? double.infinity : width,
           child: !fittedImage
               ? _image
               :

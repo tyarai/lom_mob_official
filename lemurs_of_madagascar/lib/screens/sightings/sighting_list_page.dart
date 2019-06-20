@@ -36,7 +36,6 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   //bool _isEditing = false;
   GetSightingPresenter _getSightingPresenter;
 
-
   _SightingListPageState(this.title){
     _getSightingPresenter = GetSightingPresenter(this);
   }
@@ -180,11 +179,21 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     );
   }
 
-  _buildFloatingActionButton(){
+  _buildFloatingActionButton()  {
     return FloatingActionButton(
       child: Icon(Icons.refresh,size: 35,),
       onPressed: (){
-        this._getSightingPresenter.get(DateTime.now());
+
+        LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime).then((_lastDate){
+          var fromDate;
+          if(_lastDate != null && _lastDate.length != 0){
+            fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate));
+          }else{
+            fromDate =  DateTime.now();
+          }
+          this._getSightingPresenter.get(fromDate);
+        });
+
       },
     );
   }
