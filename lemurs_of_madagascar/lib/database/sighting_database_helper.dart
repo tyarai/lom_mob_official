@@ -29,11 +29,12 @@ class SightingDatabaseHelper  {
     if(nid != null && nid != 0 ){
       print("NID $nid");
       Database database = await DatabaseHelper.instance.database;
-      var result = await database.rawQuery(
+      List<Map<String,dynamic>> result = await database.rawQuery(
           "SELECT * FROM $sightingsTable WHERE $nidCol = ?  ", [nid]);
-      return result.length != 0 ? result[0] : Map();
+      print("RESULT $result");
+      return ( result != null && result.length != 0 ) ?  result[0] : null;
     }
-    return Map();
+    return null;
   }
 
   Future<List<Map<String, dynamic>>> getSightingMapList(int uid,{bool illegalActivity=false}) async {

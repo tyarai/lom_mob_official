@@ -235,6 +235,7 @@ class Sighting {
     this.placeName =
     this.site?.title != null ? this.site.title : this.placeName;
 
+
     this.date = this.date == null
         ? DateTime.now().millisecondsSinceEpoch.toDouble()
         : this.date;
@@ -522,100 +523,117 @@ class Sighting {
       Sighting sighting, SightingBloc sightingBloc, BuildContext buildContext,
       {bool lookInAssetsFolder = false,
       CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
-    String formattedDate = DateFormat.yMMMMd("en_US")
-        .format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
-    if (sighting != null) {
+      try {
 
-      double screenWidth = MediaQuery.of(buildContext).size.width;
+        int date = sighting.date.toInt();
 
-      return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
-        FutureBuilder<Container>(
-            future: Sighting.getImageContainer(sighting, buildContext,
-                width: screenWidth,
-                height: Constants.sightingListImageHeight,
-                fittedImage: true,
-                assetImage: true),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return snapshot.data;
-            }),
-        Container(height: 10),
-        _buildSpeciesInfoAndTag(sighting),
-        Container(height: 10),
-        Text(
-          sighting.title,
-          textAlign: TextAlign.justify,
-          style: Constants.sightingTitleTextStyle,
-        ),
-        Container(height: 10),
-        (sighting.placeName != null) ? Row(
-          children: [
-            Icon(Icons.place,color: Colors.grey,),
-            Text(sighting.placeName,
-              style: Constants.sightingSpeciesCountTextStyle,
-            ),
-        ]) : Container(),
-        Container(height: 10),
-        Row(
-          //mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              sighting.speciesCount != null ? Expanded(
-                child: Column(
-                  //mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        sighting.speciesCount.toString() + " species observed",
-                        style: Constants.sightingSpeciesCountTextStyle,
-                      )
-                    ]),
-              ): Container(),
-              Spacer(),
-              Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        formattedDate,
-                        style: Constants.sightingSpeciesCountTextStyle,
-                      )
-                    ]),
-              ),
-            ]),
-        Container(height: 10),
-        Divider(
-            height: Constants.listViewDividerHeight,
-            color: Constants.listViewDividerColor),
-        Row(
-          children: [
+        String formattedDate = DateFormat.yMMMMd("en_US")
+            .format(DateTime.fromMillisecondsSinceEpoch(date));
+        //String formattedDate = DateFormat.yMMMMd("en_US")
+          //  .format(DateTime(date));
 
-            Expanded(
-              flex:1,
-              child: FutureBuilder<bool>(
-                future: sighting.loadTag(),
+        print("DATE $date - $formattedDate");
+
+        if (sighting != null) {
+          double screenWidth = MediaQuery
+              .of(buildContext)
+              .size
+              .width;
+
+          return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
+            FutureBuilder<Container>(
+                future: Sighting.getImageContainer(sighting, buildContext,
+                    width: screenWidth,
+                    height: Constants.sightingListImageHeight,
+                    fittedImage: true,
+                    assetImage: true),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return Container();
-                  if (snapshot.data != null && snapshot.hasData) {
-                    return sighting.tag != null
-                        ? Text(
-                      sighting.tag.nameEN,
-                      style: Constants.sightingSpeciesNameTextStyle.copyWith(
-                          color: Colors.red),
-                    )
-                        : Container();
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
                   }
-                },
-              ),
+                  return snapshot.data;
+                }),
+            Container(height: 10),
+            _buildSpeciesInfoAndTag(sighting),
+            Container(height: 10),
+            Text(
+              sighting.title,
+              textAlign: TextAlign.justify,
+              style: Constants.sightingTitleTextStyle,
             ),
-            Padding(padding: EdgeInsets.only(right: 10),),
-            Sighting.buildAction(sighting, sightingBloc, buildContext),
-        ]),
-      ]);
-    }
+            Container(height: 10),
+            (sighting.placeName != null) ? Row(
+                children: [
+                  Icon(Icons.place, color: Colors.grey,),
+                  Text(sighting.placeName,
+                    style: Constants.sightingSpeciesCountTextStyle,
+                  ),
+                ]) : Container(),
+            Container(height: 10),
+            Row(
+              //mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  sighting.speciesCount != null ? Expanded(
+                    child: Column(
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            sighting.speciesCount.toString() +
+                                " species observed",
+                            style: Constants.sightingSpeciesCountTextStyle,
+                          )
+                        ]),
+                  ) : Container(),
+                  Spacer(),
+                  Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          Text(
+                            formattedDate,
+                            style: Constants.sightingSpeciesCountTextStyle,
+                          )
+                        ]),
+                  ),
+                ]),
+            Container(height: 10),
+            Divider(
+                height: Constants.listViewDividerHeight,
+                color: Constants.listViewDividerColor),
+            Row(
+                children: [
+
+                  Expanded(
+                    flex: 1,
+                    child: FutureBuilder<bool>(
+                      future: sighting.loadTag(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return Container();
+                        if (snapshot.data != null && snapshot.hasData) {
+                          return sighting.tag != null
+                              ? Text(
+                            sighting.tag.nameEN,
+                            style: Constants.sightingSpeciesNameTextStyle
+                                .copyWith(
+                                color: Colors.red),
+                          )
+                              : Container();
+                        }
+                      },
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.only(right: 10),),
+                  Sighting.buildAction(sighting, sightingBloc, buildContext),
+                ]),
+          ]);
+        }
+
+      }catch(error){
+        print("[Sighting::buildCellInfo()] Error :${error.toString()}");
+      }
 
     return Container();
   }
@@ -806,8 +824,8 @@ class Sighting {
         });
 
         return Container(
-          height: height,
-          width: width,
+          height:  height ,
+          width: fit == BoxFit.fitHeight ? double.infinity : width,
           child: !fittedImage
               ? _image
               :

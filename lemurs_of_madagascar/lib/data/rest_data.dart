@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import "package:lemurs_of_madagascar/models/sighting.dart";
 import "package:lemurs_of_madagascar/utils/constants.dart";
+import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import "package:lemurs_of_madagascar/utils/user_session.dart";
 import "package:lemurs_of_madagascar/utils/network_util.dart";
 import "package:lemurs_of_madagascar/models/user.dart";
@@ -581,10 +582,12 @@ class RestData {
             currentSession.sessionID;
         String token = currentSession.token;
 
-        String formattedDate =
-        DateFormat(Constants.apiDateFormat).format(
+        String formattedDate = fromDate.toString();
+
+        /*String formattedDate =
+        DateFormat(Constants.searchDateFormat).format(
             DateTime.fromMillisecondsSinceEpoch(
-                fromDate?.millisecondsSinceEpoch));
+                fromDate?.millisecondsSinceEpoch));*/
 
         //DateFormat(Constants.apiDateFormat).format(
         //    DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
@@ -608,6 +611,9 @@ class RestData {
 
             print("[REST_DATA::getSightings()] " +
                 resultMap.toString());
+
+            String lastSyncDate = DateTime.now().millisecondsSinceEpoch.toString();
+            LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
 
             /*if (resultMap[RestData.errorKey] != null) {
               throw new Exception(resultMap["error_msg"]);

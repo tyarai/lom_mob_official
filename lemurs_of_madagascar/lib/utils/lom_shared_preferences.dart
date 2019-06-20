@@ -7,8 +7,10 @@ class LOMSharedPreferences{
 
   static String recentSpeciesSearchKey   = "recentSpeciesSearchKey";
   static String lastSightingMenuIndexKey = "lastSightingMenuIndexKey";
+  static String lastSyncDateTime         = "lastSyncDateTime";
 
   static void addToRecentSpeciesSearch(Species species) async {
+
     if(species != null){
 
       List<Species> speciesList =  await LOMSharedPreferences.loadRecentSpeciesSearch();
@@ -84,7 +86,5 @@ class LOMSharedPreferences{
 
 
   }
-
-
 
 }
