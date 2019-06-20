@@ -419,19 +419,25 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   @override
   void onGetSightingSuccess(List<Sighting> sightingList) {
+
      if(sightingList.length != 0 ){
        SightingDatabaseHelper db = SightingDatabaseHelper();
        for(Sighting sighting in sightingList){
          if(sighting != null){
-            if (db.getSightingMapWithNID(sighting.nid) != null){
-              // The sighting already exists in local database the update local data
-              sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
-                if(savedSighting == null){
-                  print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
-                }else{
-                  print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
-                }
-              });
+
+            db.getSightingMapWithNID(sighting.nid).then((result){
+
+              if(result != null && result.length != 0){
+
+                print("EXISTING SIGHTING $sighting.nid");
+                // The sighting already exists in local database the update local data
+                sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
+                  if(savedSighting == null){
+                    print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
+                  }else{
+                    print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
+                  }
+                });
 
             }else{
               // The sighting  does not exist in local database the update local data
@@ -441,10 +447,13 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                 }else{
                   print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
                 }
-
-              });
+             });
 
             }
+
+          });
+
+
          }
        }
      }
