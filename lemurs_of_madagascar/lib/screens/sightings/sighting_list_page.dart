@@ -9,7 +9,9 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class SightingListPage extends StatefulWidget {
 
@@ -31,6 +33,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   String title;
   int currentUid = 0;
   int _bottomNavIndex = 0;
+  bool _isLoading = false;
   List<Sighting> sightingList = List<Sighting>();
   SightingBloc sightingBloc = SightingBloc();
   //bool _isEditing = false;
@@ -68,9 +71,10 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         try {
 
           if (currentUid > 0) {
-            print("current UID " + this.currentUid.toString());
+            //print("current UID " + this.currentUid.toString());
 
             //if (sightingList.length == 0) {
+              // Load local database
               _loadSighting(false);
             //}
 
@@ -92,6 +96,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     Future<List<Sighting>> futureList = _loadData(currentUid,illegalActivity: illegalActivity);
     futureList.then((list) {
       setState(() {
+        _isLoading = false;
         sightingList = list;
       });
     });
@@ -130,7 +135,14 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
               ],
               title: _buildTitle(),
             ),
-            body:  _showTab(buildContext),
+            body: ModalProgressHUD(
+                child: _showTab(buildContext),
+                opacity: 0.8,
+                //color: Constants.mainSplashColor,
+                //progressIndicator: CircularProgressIndicator(),
+                //offset: 5.0,
+                //dismissible: false,
+                inAsyncCall: _isLoading),
             bottomNavigationBar: _buildBottomNavBar(),
             floatingActionButton: _buildFloatingActionButton(),
         );
@@ -145,7 +157,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
         if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
           this._bottomNavIndex = int.parse(snapshot.data);
-          print("INDEX ${this._bottomNavIndex}");
+          //print("INDEX ${this._bottomNavIndex}");
           switch (this._bottomNavIndex) {
             case 0:
               return _buildSightingListView(buildContext);
@@ -184,13 +196,19 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       child: Icon(Icons.refresh,size: 35,),
       onPressed: (){
 
+        setState((){
+          _isLoading = true;
+        });
+
         LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime).then((_lastDate){
           var fromDate;
           if(_lastDate != null && _lastDate.length != 0){
             fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate));
           }else{
-            fromDate =  DateTime.now();
+            //fromDate =   DateTime.now().millisecondsSinceEpoch;
+            fromDate =   DateTime.now();
           }
+          print(fromDate);
           this._getSightingPresenter.get(fromDate);
         });
 
@@ -212,6 +230,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
             currentIndex: _bottomNavIndex,
             onTap: (int index) {
               setState(() {
+                //_isLoading = true;
                 _bottomNavIndex = index;
                 _handleBottomNavTap(_bottomNavIndex);
                 title = _menuName[_bottomNavIndex];
@@ -291,11 +310,13 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
         switch(snapshot.connectionState) {
 
-          case  ConnectionState.active : return Center(child: CircularProgressIndicator());
+          case  ConnectionState.active : return Container();//break;//return Center(child: CircularProgressIndicator());
 
           case ConnectionState.waiting :
             {
-              return Center(child: CircularProgressIndicator());
+              //return Center(child: CircularProgressIndicator());
+              //break;
+              return Container();
 
             }
           case ConnectionState.done:
@@ -370,8 +391,13 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   Future<List<Sighting>> _loadData(int uid,{bool illegalActivity=false}) async {
     if(uid != null) {
       SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
-      List<Sighting> futureList = await sightingDBHelper.getSightingList(uid,illegalActivity: illegalActivity);
-      return futureList;
+      //List<Sighting> futureList = await sightingDBHelper.getSightingList(uid,illegalActivity: illegalActivity);
+      sightingDBHelper.getSightingList(uid,illegalActivity: illegalActivity).then((_list){
+        //this.onLoadingListSuccess();
+        //print("got list : " +_list.toString());
+        return _list;
+      });
+
     }
     return List();
   }
@@ -424,10 +450,25 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   @override
   void onGetSightingFailure(int statusCode) {
     // TODO: implement onGetSightingFailure
+    setState(() {
+      _isLoading = false;
+    });
+    //ErrorHandler.handleException(context, e);
+  }
+
+  void onLoadingListSuccess() {
+    setState(() {
+      _isLoading = false;
+    });
+    //ErrorHandler.handleException(context, e);
   }
 
   @override
   void onGetSightingSuccess(List<Sighting> sightingList) {
+
+    setState((){
+      _isLoading = false;
+    });
 
      if(sightingList.length != 0 ){
        SightingDatabaseHelper db = SightingDatabaseHelper();
@@ -449,7 +490,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                 });
 
             }else{
-              // The sighting  does not exist in local database the update local data
+              // The sighting  does not exist in local database then insert it
               sighting.saveToDatabase(false,nid:sighting.nid).then((savedSighting){
                 if(savedSighting == null){
                   print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not inserted to local database");
@@ -471,6 +512,18 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   @override
   void onSocketFailure() {
     // TODO: implement onSocketFailure
+    setState(() {
+      _isLoading = false;
+    });
+    //ErrorHandler.handleException(context, e);
+  }
+
+  @override
+  void onException(Exception e) {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handleException(context, e);
   }
 
 

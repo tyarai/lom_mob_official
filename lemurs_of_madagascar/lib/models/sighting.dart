@@ -32,6 +32,7 @@ abstract class GetSightingsContract {
   void onGetSightingSuccess(List<Sighting> sightingList);
   void onGetSightingFailure(int statusCode);
   void onSocketFailure();
+  void onException(Exception e);
 }
 
 class SyncSightingPresenter {
@@ -81,16 +82,19 @@ class GetSightingPresenter {
 
   get(DateTime fromDate) {
 
+    print("ATOATO#1");
     api.getSightings(fromDate).then((sightingList) {
 
-      if(sightingList.length != 0) {
+      print("ATOATO#2");
+      //if(sightingList.length != 0) {
         print("GetSightingPresenter ${sightingList.toString()}");
         _getView.onGetSightingSuccess(sightingList);
-      }
+      //}
 
     }).catchError((error) {
       if (error is SocketException) _getView.onSocketFailure();
       if (error is LOMException) _getView.onGetSightingFailure(error.statusCode);
+      if (error is Exception) _getView.onException(error);
     });
 
 
@@ -533,7 +537,7 @@ class Sighting {
         //String formattedDate = DateFormat.yMMMMd("en_US")
           //  .format(DateTime(date));
 
-        print("DATE $date - $formattedDate");
+        //print("DATE $date - $formattedDate");
 
         if (sighting != null) {
           double screenWidth = MediaQuery
@@ -730,7 +734,7 @@ class Sighting {
     return getApplicationDocumentsDirectory().then((folder) {
       if (folder != null) {
         String fullPath = join(folder.path, sighting.photoFileName);
-        print("SIGHTING PHOTO ${sighting.photoFileName}");
+        //print("SIGHTING PHOTO ${sighting.photoFileName}");
 
         File file = File(fullPath);
 

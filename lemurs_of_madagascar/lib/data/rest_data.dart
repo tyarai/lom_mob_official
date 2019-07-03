@@ -583,6 +583,7 @@ class RestData {
         String token = currentSession.token;
 
         String formattedDate = fromDate.toString();
+        //String formattedDate = fromDate.millisecondsSinceEpoch.toString();
 
         /*String formattedDate =
         DateFormat(Constants.searchDateFormat).format(
@@ -598,7 +599,8 @@ class RestData {
         params += (fromDate != null) ? "&from_date=$formattedDate" : "";
 
         Map<String, String> postHeaders = {
-          "Content-Type": "application/x-www-form-urlencoded",
+          //"Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           "Accept": "application/json",
           "Cookie": cookie,
           "X-CSRF-Token": token
@@ -609,7 +611,7 @@ class RestData {
             headers: postHeaders,
         ).then((dynamic resultMap) async {
 
-            print("[REST_DATA::getSightings()] " +
+            print("[REST_DATA::getSightings()] -->" +
                 resultMap.toString());
 
             String lastSyncDate = DateTime.now().millisecondsSinceEpoch.toString();
@@ -619,11 +621,13 @@ class RestData {
               throw new Exception(resultMap["error_msg"]);
             }*/
 
-            return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
-
-              return Sighting.fromMap(jsonSighting);
-
-            }).toList();
+            //if(resultMap != null &&  resultMap[RestData.nodesKey] != null && (resultMap[RestData.nodesKey] as List).length != 0) {
+              return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
+                return Sighting.fromMap(jsonSighting);
+              }).toList();
+            //}
+            //print("RETURN");
+            //return List();
 
         }).catchError((error) {
 

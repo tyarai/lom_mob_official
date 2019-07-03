@@ -13,13 +13,22 @@ class NetworkUtil {
 
   Future<dynamic> get(String url) {
     return http.get(url).then((http.Response response) {
-      final String res = response.body;
-      final int statusCode = response.statusCode;
 
-      if (statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception("Error while fetching data");
+      final String res = response.body;
+
+      if(res != null && res.length != 0) {
+
+        final int statusCode = response.statusCode;
+
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new LOMException(statusCode);
+        }
+        return _decoder.convert(res);
+
       }
-      return _decoder.convert(res);
+
+      return null;
+
     });
   }
 
@@ -32,17 +41,23 @@ class NetworkUtil {
 
        print("[NETWORK_UTIL::post()]" + response.body);
 
-      final String res = response.body;
-      final int statusCode = response.statusCode;
-      dynamic decodedData = _decoder.convert(res);
+       final String res = response.body;
 
-      if (statusCode < 200 || statusCode > 400 || json == null) {
-        print("NETWORK STATUS CODE :"+statusCode.toString());
-        //throw new Exception(statusCode);
-        throw new LOMException(statusCode);
-      }
+       if(res != null && res.length != 0) {
 
-      return decodedData;
+         final int statusCode = response.statusCode;
+         dynamic decodedData = _decoder.convert(res);
+
+         if (statusCode < 200 || statusCode > 400 || json == null) {
+           print("NETWORK STATUS CODE :" + statusCode.toString());
+           //throw new Exception(statusCode);
+           throw new LOMException(statusCode);
+         }
+
+         return decodedData;
+       }
+
+       return null;
 
     }).catchError((Object error){
 
@@ -54,7 +69,9 @@ class NetworkUtil {
   }
 
   Future<dynamic> put(String url, {Map headers, body, encoding}) {
+
     print("network util putting...$url ..$body.. $headers.. $encoding");
+
     return http
         .put(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {

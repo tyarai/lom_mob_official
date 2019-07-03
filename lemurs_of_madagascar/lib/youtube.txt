@@ -13,6 +13,7 @@ MTECHVIRAL : Flutter Tutorial
 8- Face ID, Touche ID, FingerPrint
 9- Programmatically check if in debug or release modes
 10- Background fetch
+11- Internet Connectivity
 
 VOID REALMS
 
