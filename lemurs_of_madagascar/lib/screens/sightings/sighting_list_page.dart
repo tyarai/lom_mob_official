@@ -34,7 +34,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   int currentUid = 0;
   int _bottomNavIndex = 0;
   bool _isLoading = false;
-  List<Sighting> sightingList = List<Sighting>();
+  List<Sighting> _myCurrentList;
   SightingBloc sightingBloc = SightingBloc();
   //bool _isEditing = false;
   GetSightingPresenter _getSightingPresenter;
@@ -59,8 +59,9 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
     //Sighting.deleteAllSightings();
     super.initState();
+    _loadData(illegalActivity: false);
 
-    Future<User> user = User.getCurrentUser();
+    /*Future<User> user = User.getCurrentUser();
 
     user.then((_user){
 
@@ -75,7 +76,8 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
             //if (sightingList.length == 0) {
               // Load local database
-              _loadSighting(false);
+              //_loadSighting(false);
+              _loadData(currentUid,illegalActivity: false);
             //}
 
           } else {
@@ -88,20 +90,24 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
       }
 
-    });
+    }); */
   }
 
-  _loadSighting(bool illegalActivity){
+  /*
 
-    Future<List<Sighting>> futureList = _loadData(currentUid,illegalActivity: illegalActivity);
+  _loadSighting(bool illegalActivity)  {
+
+    /*Future<List<Sighting>> futureList = _loadData(currentUid,illegalActivity: illegalActivity);
     futureList.then((list) {
       setState(() {
         _isLoading = false;
-        sightingList = list;
+        _myCurrentList = list;
       });
-    });
+    });*/
+
 
   }
+  */
 
 
   Widget _buildTitle(){
@@ -156,16 +162,22 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       builder: (context,snapshot){
 
         if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
+
+          print("LAST MENU "+ snapshot.data);
+
           this._bottomNavIndex = int.parse(snapshot.data);
+
+          return _buildSightingListView(buildContext);
+
           //print("INDEX ${this._bottomNavIndex}");
-          switch (this._bottomNavIndex) {
+          /*switch (this._bottomNavIndex) {
             case 0:
               return _buildSightingListView(buildContext);
             case 1:
               return _buildIllegalActivityListView(buildContext);
-          }
+          }*/
         }
-        return Container();
+        return Container(child:CircularProgressIndicator());
       }
 
     );
@@ -261,27 +273,13 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
       case 0:
         {
-          /*Navigator.of(context).push(
-              MaterialPageRoute(
-                  fullscreenDialog: true, builder: (buildContext) =>
-                  BlocProvider(
-                    child: SightingListPage(title: this._menuName[0]),
-                    bloc: sightingBloc,
-                  ))
-          );*/
+          _loadSighting(false);
           break;
         }
 
       case 1:
         {
-          /*Navigator.of(context).push(
-              MaterialPageRoute(
-                  fullscreenDialog: true, builder: (buildContext) =>
-                  BlocProvider(
-                    child: SightingListPage(title: this._menuName[1]),
-                    bloc: sightingBloc,
-                  ))
-          );*/
+          _loadSighting(true);
           break;
         }
 
@@ -304,52 +302,28 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
     return FutureBuilder<List<Sighting>>(
 
-      future: _loadData(this.currentUid,illegalActivity:false),//Get Sighting list
+      future: _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true),
 
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
-
-        switch(snapshot.connectionState) {
-
-          case  ConnectionState.active : return Container();//break;//return Center(child: CircularProgressIndicator());
-
-          case ConnectionState.waiting :
-            {
-              //return Center(child: CircularProgressIndicator());
-              //break;
-              return Container();
-
-            }
-          case ConnectionState.done:
-            {
-              if(snapshot.hasData && !snapshot.hasError) {
-
-                return ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (BuildContext buildContext, int index) {
-                      //print("item count ${snapshot.data.length}
-                      Sighting sighting = snapshot.data[index];
-                      //print("{SIGHTING} $sighting");
-                      return this.buildCellItem(context,sighting,sightingBloc);
-                    });
-              }
-              break;
-            }
-
-          case ConnectionState.none:{
-            return Container();
-          }
-
+        if (snapshot.hasData && !snapshot.hasError) {
+          print("GOT LIST");
+          return ListView.builder(
+              scrollDirection: Axis.vertical,
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext buildContext, int index) {
+                Sighting sighting = snapshot.data[index];
+                return this.buildCellItem(context, sighting, sightingBloc);
+              });
         }
-      },
-    );
+        return Container(child: CircularProgressIndicator(),);
+      });
   }
 
   Widget _buildIllegalActivityListView(BuildContext buildContext) {
 
     return FutureBuilder<List<Sighting>>(
 
-      future: _loadData(this.currentUid,illegalActivity: true),
+      future: _loadData(illegalActivity: true),
 
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
 
@@ -370,9 +344,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                     scrollDirection: Axis.vertical,
                     itemCount: snapshot.data.length,
                     itemBuilder: (BuildContext buildContext, int index) {
-                      //print("item count ${snapshot.data.length}
                       Sighting sighting = snapshot.data[index];
-                      //print("{SIGHYTING} $sighting");
                       return this.buildCellItem(context,sighting,sightingBloc);
                     });
               }
@@ -388,26 +360,40 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     );
   }
 
-  Future<List<Sighting>> _loadData(int uid,{bool illegalActivity=false}) async {
-    if(uid != null) {
-      SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
-      //List<Sighting> futureList = await sightingDBHelper.getSightingList(uid,illegalActivity: illegalActivity);
-      sightingDBHelper.getSightingList(uid,illegalActivity: illegalActivity).then((_list){
-        //this.onLoadingListSuccess();
-        //print("got list : " +_list.toString());
-        return _list;
-      });
+  Future<List<Sighting>> _loadData({bool illegalActivity=false}) async {
 
-    }
-    return List();
+    Future<User> user = User.getCurrentUser();
+
+    return user.then((_user){
+
+      if(_user != null) {
+
+        this.currentUid = _user.uid;
+
+        try {
+
+          if (currentUid > 0) {
+
+            SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
+            return sightingDBHelper.getSightingList(currentUid,illegalActivity: illegalActivity).then((_list){
+              this._myCurrentList = _list;
+              return _list;
+            });
+          }
+
+        } catch (e) {
+          print("[SIghting_list::_loadData()] Error : "+ e.toString());
+        }
+
+      }
+
+    });
   }
 
   Widget buildCellItem(BuildContext context,Sighting sighting,SightingBloc bloc)
   {
 
     if(sighting != null) {
-
-      //print("{SIGHTING} $sighting");
 
       return ListTile(
         contentPadding: EdgeInsets.only(left:5.0,right:5.0),
@@ -449,7 +435,6 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   @override
   void onGetSightingFailure(int statusCode) {
-    // TODO: implement onGetSightingFailure
     setState(() {
       _isLoading = false;
     });
