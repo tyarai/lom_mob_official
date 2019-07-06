@@ -82,14 +82,10 @@ class GetSightingPresenter {
 
   get(DateTime fromDate) {
 
-    print("ATOATO#1");
     api.getSightings(fromDate).then((sightingList) {
 
-      print("ATOATO#2");
-      //if(sightingList.length != 0) {
         print("GetSightingPresenter ${sightingList.toString()}");
         _getView.onGetSightingSuccess(sightingList);
-      //}
 
     }).catchError((error) {
       if (error is SocketException) _getView.onSocketFailure();
@@ -260,7 +256,8 @@ class Sighting {
     //print("SIGHTING photo name :" + this.photoFileName);
 
     this.isLocal = 1;
-    this.isSynced = 0;
+    //this.isSynced = 0;
+    this.isSynced = 1;
     this.deleted = 0;
 
     this.locked = 0;
@@ -492,14 +489,16 @@ class Sighting {
 
       return Row(children: [
 
-        (sighting.speciesName != null) ? Text(
-          //sighting.id.toString() +
-          //  " " +
-          //sighting.nid.toString() +
-          //" " +
-          sighting.speciesName,
-          style: Constants.sightingSpeciesNameTextStyle,
-        ) : Container(),
+        Expanded(
+          child: (sighting.speciesName != null) ? Text(
+            //sighting.id.toString() +
+            //  " " +
+            //sighting.nid.toString() +
+            //" " +
+            sighting.speciesName,
+            style: Constants.sightingSpeciesNameTextStyle,
+          ) : Container(),
+        ),
         //Spacer(),
         /*FutureBuilder<bool>(
           future: sighting.loadTag(),
@@ -534,10 +533,6 @@ class Sighting {
 
         String formattedDate = DateFormat.yMMMMd("en_US")
             .format(DateTime.fromMillisecondsSinceEpoch(date));
-        //String formattedDate = DateFormat.yMMMMd("en_US")
-          //  .format(DateTime(date));
-
-        //print("DATE $date - $formattedDate");
 
         if (sighting != null) {
           double screenWidth = MediaQuery
@@ -545,7 +540,7 @@ class Sighting {
               .size
               .width;
 
-          return Column(crossAxisAlignment: crossAlignment, children: <Widget>[
+          return Column( crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
             FutureBuilder<Container>(
                 future: Sighting.getImageContainer(sighting, buildContext,
                     width: screenWidth,
@@ -563,8 +558,8 @@ class Sighting {
             Container(height: 10),
             Text(
               sighting.title,
-              textAlign: TextAlign.justify,
-              style: Constants.sightingTitleTextStyle,
+              textAlign: TextAlign.left,
+              style: Constants.sightingTitleTextStyle.copyWith(color: Colors.blueGrey),
             ),
             Container(height: 10),
             (sighting.placeName != null) ? Row(

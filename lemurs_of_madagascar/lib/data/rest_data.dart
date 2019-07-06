@@ -275,14 +275,9 @@ class RestData {
 
       Future<User> _user =  User.getCurrentUser();
 
-      print("HERE#1" +sighting.toString());
-
       return _user.then((user){
 
         if(user != null) {
-
-          //sighting.initProperties(user, editing);
-          //print("[HERE] " + sighting.photoFileName);
 
           var _file = Sighting.getImageFile(sighting);
 
@@ -298,11 +293,8 @@ class RestData {
               .altitude.toStringAsPrecision(
               Constants.gpsDecimalPrecision) : 0.0;
 
-
-
           return _file.then((file) async {
             if (file != null) {
-              //print("HERE");
 
               String fileName = basename(file.path);
 
@@ -352,10 +344,11 @@ class RestData {
                     "field_altitude": altitude,// sighting.altitude.toString(),
                     "field_is_local": editing ? sighting.isLocal.toString() : 0
                         .toString(), //NO
-                    "field_is_synced": editing
+                    /*"field_is_synced": editing
                         ? sighting.isSynced.toString()
                         : 1
-                        .toString(), //YES
+                        .toString(), //YES*/
+                    "field_is_synced" : 1.toString(),
                     "field_count":  sighting.speciesCount != null ? sighting.speciesCount.toString() : 0,
                     "field_photo": fid.toString(),
                     "field_type": type,//sighting.activityTagTid.toString(),
@@ -363,27 +356,6 @@ class RestData {
                     "field_place_name_reference": siteNID,//sighting.placeNID.toString(),
                   };
 
-                  /*String  postBody = "{";
-                  postBody += " title : " +  sighting.title;
-                  postBody += " uuid  : ${sighting.uuid},";
-                  postBody += " uid   : ${sighting.uid.toString()},";
-                  postBody += " status : 1,";
-                  postBody += " field_uuid : ${sighting.uuid},";
-                  postBody += " body : ${sighting.title},";
-                  postBody += sighting.placeName != null ? " field_place_name : ${sighting.placeName}," : "";
-                  postBody += " field_date: $formattedDate,";
-                  postBody += sighting.speciesNid != null ? " field_associated_species : ${sighting.speciesNid}," : ""; //sighting.speciesNid.toString(),
-                  postBody += " field_lat : ${sighting.latitude.toString()},";
-                  postBody += " field_long : ${sighting.longitude.toString()},";
-                  postBody += " field_altitude : ${sighting.altitude.toString()},";
-                  postBody += " field_is_local : ${editing ? sighting.isLocal.toString() : 0},";
-                  postBody += " field_is_synced : ${editing  ? sighting.isSynced.toString() : 1},";
-                  postBody += " field_count : ${sighting.speciesCount.toString()},";
-                  postBody += " field_photo : ${fid.toString()},";
-                  //TODO Optimisation do not upload unchanged photo
-                  postBody +=  sighting.placeNID != null ? " field_place_name_reference : ${sighting.placeNID}," : "";
-                  postBody += " field_type : $type";//sighting.activityTagTid.toString(),
-                  postBody += "}";*/
 
                   Map<String, String> postHeaders = {
                     "Content-Type": "application/json",
@@ -424,9 +396,6 @@ class RestData {
                       ? sighting.activityTagTid
                       : "_none";
 
-                  //var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : "_none";
-                  //var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : 0;
-                  //var siteNID    = sighting.placeNID != null ? sighting.placeNID.toString() : "_none";
                   var count      = sighting.speciesCount != null ? sighting.speciesCount : 0;
 
                   Map<String, String> putHeaders = {
@@ -448,11 +417,6 @@ class RestData {
                       .altitude.toStringAsPrecision(
                       Constants.gpsDecimalPrecision) : 0.0;
 
-                  /*String putBody = "title=${sighting
-                      .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=$siteNID&body[und][0][value]=${sighting
-                      .title}&field_place_name[und][0][value]=${sighting
-                      .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=${sighting
-                      .speciesCount}&field_associated_species[und][nid]=$speciesNID&field_photo[und][0][fid]=$fid&field_long[und][0][value]=$longitude&field_lat[und][0][value]=$latitude&field_altitude[und][0][value]=$altitude";*/
 
                   String  putBody = "";
                   putBody += " title=" + sighting.title;
@@ -470,11 +434,6 @@ class RestData {
                   putBody += "&field_type[und][]=$type";//sighting.activityTagTid.toString(),
                   putBody += "";
 
-
-                  /*String putBody = "title=${sighting
-                      .title}&field_type[und][]=$type&field_place_name_reference[und][nid]=$siteNID&body[und][0][value]=${sighting
-                      .title}&field_place_name[und][0][value]=${sighting
-                      .placeName}&field_date[und][0][value][date]=$formattedDate&field_count[und][0][value]=$count&field_associated_species[und][nid]=$speciesNID&field_photo[und][0][fid]=$fid&field_long[und][0][value]=$longitude&field_lat[und][0][value]=$latitude&field_altitude[und][0][value]=$altitude";*/
 
                   String nodeUpdateUrl = NODE_UPDATE_ENDPOINT +
                       sighting.nid.toString();
@@ -583,6 +542,7 @@ class RestData {
         String token = currentSession.token;
 
         String formattedDate = fromDate.toString();
+
         //String formattedDate = fromDate.millisecondsSinceEpoch.toString();
 
         /*String formattedDate =

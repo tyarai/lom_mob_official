@@ -177,7 +177,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
               return _buildIllegalActivityListView(buildContext);
           }*/
         }
-        return Container(child:CircularProgressIndicator());
+        return Center(child: Container(child:CircularProgressIndicator()));
       }
 
     );
@@ -220,7 +220,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
             //fromDate =   DateTime.now().millisecondsSinceEpoch;
             fromDate =   DateTime.now();
           }
-          print(fromDate);
+          print("REFERENCE DATE "+fromDate.toString());
           this._getSightingPresenter.get(fromDate);
         });
 
@@ -229,6 +229,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   }
 
   Theme _buildBottomNavBar() {
+
     return Theme(
         data: Theme.of(context).copyWith(
           canvasColor: Constants.mainColor,
@@ -306,7 +307,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
         if (snapshot.hasData && !snapshot.hasError) {
-          print("GOT LIST");
+          //print("GOT LIST");
           return ListView.builder(
               scrollDirection: Axis.vertical,
               itemCount: snapshot.data.length,
@@ -319,7 +320,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       });
   }
 
-  Widget _buildIllegalActivityListView(BuildContext buildContext) {
+  /*Widget _buildIllegalActivityListView(BuildContext buildContext) {
 
     return FutureBuilder<List<Sighting>>(
 
@@ -358,7 +359,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
       },
     );
-  }
+  } */
 
   Future<List<Sighting>> _loadData({bool illegalActivity=false}) async {
 
@@ -376,6 +377,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
             SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
             return sightingDBHelper.getSightingList(currentUid,illegalActivity: illegalActivity).then((_list){
+              this.onLoadingListSuccess();
               this._myCurrentList = _list;
               return _list;
             });
@@ -395,38 +397,37 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
     if(sighting != null) {
 
-      return ListTile(
-        contentPadding: EdgeInsets.only(left:5.0,right:5.0),
-          onTap: () {
+      return Container(
+        child: ListTile(
+          contentPadding: EdgeInsets.only(left:5.0,right:5.0),
+            onTap: () {
 
-               this.sightingBloc.sightingEventController.add(SightingChangeEvent(sighting));
+                 this.sightingBloc.sightingEventController.add(SightingChangeEvent(sighting));
 
-               Navigator.of(context).push(
-                   MaterialPageRoute(
-                       fullscreenDialog: true, builder: (buildContext) =>
-                       BlocProvider(
-                         child: SightingEditPage("Edit sighting",sighting,true),
-                         bloc: this.sightingBloc,
-                       ))
-               );
+                 Navigator.of(context).push(
+                     MaterialPageRoute(
+                         fullscreenDialog: true, builder: (buildContext) =>
+                         BlocProvider(
+                           child: SightingEditPage("Edit sighting",sighting,true),
+                           bloc: this.sightingBloc,
+                         ))
+                 );
 
-          },
-          title: Padding(
-              padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
-              child: Container(
-                  child: Material(
-                    elevation: 1.0,
-                    borderRadius: BorderRadius.circular(0.5),
-                    shadowColor: Colors.blueGrey,
-                    child: Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(height: 10),
+            },
+            title: Padding(
+                padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                child: Container(
+                    child: Material(
+                      elevation: 1.0,
+                      borderRadius: BorderRadius.circular(0.5),
+                      shadowColor: Colors.blueGrey,
+                      child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          child:
                               Sighting.buildCellInfo(sighting,bloc,context),
-                            ])),
-                  ))));
+                            ),
+                    )))),
+      );
     }
 
     return Container();
@@ -442,29 +443,28 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   }
 
   void onLoadingListSuccess() {
-    setState(() {
-      _isLoading = false;
-    });
+    _isLoading = false;
     //ErrorHandler.handleException(context, e);
   }
 
   @override
   void onGetSightingSuccess(List<Sighting> sightingList) {
 
-    setState((){
-      _isLoading = false;
-    });
 
-     if(sightingList.length != 0 ){
+
+     if(sightingList != null ){
+
        SightingDatabaseHelper db = SightingDatabaseHelper();
+
        for(Sighting sighting in sightingList){
+
          if(sighting != null){
 
             db.getSightingMapWithNID(sighting.nid).then((result){
 
               if(result != null && result.length != 0){
 
-                print("EXISTING SIGHTING $sighting.nid");
+                //print("EXISTING SIGHTING $sighting.nid");
                 // The sighting already exists in local database the update local data
                 sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
                   if(savedSighting == null){
@@ -472,6 +472,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                   }else{
                     print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
                   }
+
                 });
 
             }else{
@@ -482,6 +483,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                 }else{
                   print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
                 }
+
              });
 
             }
@@ -491,6 +493,11 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
          }
        }
+
+       setState((){
+         _isLoading = false;
+       });
+
      }
   }
 
