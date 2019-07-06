@@ -61,14 +61,16 @@ class LOMSharedPreferences{
 
     String resultValue = "";
 
+
     try{
 
       final prefs = await SharedPreferences.getInstance();
-      resultValue = prefs.getString(paramName);
+      resultValue = prefs.getString(paramName) ;
 
     }catch(e){
       print("[Shared preferences - loadUserSession()]  :" + e.toString());
     }
+
 
     return resultValue;
   }

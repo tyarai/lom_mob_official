@@ -59,55 +59,9 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
     //Sighting.deleteAllSightings();
     super.initState();
-    _loadData(illegalActivity: false);
-
-    /*Future<User> user = User.getCurrentUser();
-
-    user.then((_user){
-
-      if(_user != null) {
-
-        this.currentUid = _user.uid;
-
-        try {
-
-          if (currentUid > 0) {
-            //print("current UID " + this.currentUid.toString());
-
-            //if (sightingList.length == 0) {
-              // Load local database
-              //_loadSighting(false);
-              _loadData(currentUid,illegalActivity: false);
-            //}
-
-          } else {
-            //TODO : The user is not connected. Redirect to login page
-          }
-
-        } catch (e) {
-          print(e.toString());
-        }
-
-      }
-
-    }); */
-  }
-
-  /*
-
-  _loadSighting(bool illegalActivity)  {
-
-    /*Future<List<Sighting>> futureList = _loadData(currentUid,illegalActivity: illegalActivity);
-    futureList.then((list) {
-      setState(() {
-        _isLoading = false;
-        _myCurrentList = list;
-      });
-    });*/
-
+    //_loadData(illegalActivity: false);
 
   }
-  */
 
 
   Widget _buildTitle(){
@@ -117,11 +71,14 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
         builder: (context,snapshot){
 
+          this._bottomNavIndex = 0;
+
           if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
             this._bottomNavIndex = int.parse(snapshot.data);
-              return Text(this._menuName[int.parse(snapshot.data)]);
+
           }
-          return Container();
+          return Text(this._menuName[this._bottomNavIndex]);
+          //return Container();//Empty list no sighting
         }
 
     );
@@ -161,21 +118,15 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
       builder: (context,snapshot){
 
-        if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
+        //if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
+        if(snapshot.connectionState == ConnectionState.done) {
 
-          print("LAST MENU "+ snapshot.data);
+          //print("LAST MENU "+ snapshot.data);
 
-          this._bottomNavIndex = int.parse(snapshot.data);
+          this._bottomNavIndex = (snapshot.data != null && snapshot.data.length != 0) ? int.parse(snapshot.data) : 0;
 
           return _buildSightingListView(buildContext);
 
-          //print("INDEX ${this._bottomNavIndex}");
-          /*switch (this._bottomNavIndex) {
-            case 0:
-              return _buildSightingListView(buildContext);
-            case 1:
-              return _buildIllegalActivityListView(buildContext);
-          }*/
         }
         return Center(child: Container(child:CircularProgressIndicator()));
       }
@@ -306,8 +257,8 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       future: _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true),
 
       builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
-        if (snapshot.hasData && !snapshot.hasError) {
-          //print("GOT LIST");
+        if (snapshot.hasData ) {
+          print("GOT LIST");
           return ListView.builder(
               scrollDirection: Axis.vertical,
               itemCount: snapshot.data.length,
@@ -442,8 +393,13 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     //ErrorHandler.handleException(context, e);
   }
 
+
   void onLoadingListSuccess() {
-    _isLoading = false;
+    //print("TATO");
+    /*setState((){
+      _isLoading = false;
+    });*/
+
     //ErrorHandler.handleException(context, e);
   }
 
