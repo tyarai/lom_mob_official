@@ -269,9 +269,6 @@ class Species extends SelectableListItem {
       return map;
   }
 
-
-  
-
   static Widget buildLemurPhoto(Species species,{double width = Constants.listViewImageWidth,double height = Constants.listViewImageHeight, SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular}) {
 
       Widget widget;
@@ -313,7 +310,7 @@ class Species extends SelectableListItem {
             height: height,
           ));
     }
-    return Container();
+    return Container(child:Center(child:CircularProgressIndicator()));
   }
 
   static Widget loadHeroTitle(Species species,{TextStyle style = Constants.speciesTitleStyle}) {

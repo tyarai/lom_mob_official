@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
@@ -18,9 +19,8 @@ class SpeciesListPage extends StatefulWidget {
   }
 }
 
-
-
 class SpeciesListPageState extends State<SpeciesListPage> {
+
   List<Species> _speciesList = List<Species>();
 
   SpeciesListPageState();
@@ -30,21 +30,38 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     super.initState();
 
     // Only do this one time if the List is empty
-    if (_speciesList.length == 0) {
-      Future<List<Species>> futureList = _loadData();
+    /*if (_speciesList.length == 0) {
+      Future<List<Species>> futureList = _loadSpeciesFromDatabase();
       futureList.then((list) {
         setState(() {
           _speciesList = list;
         });
       });
+    }*/
+    _initSpeciesList();
+
+  }
+
+  _initSpeciesList() async {
+    if (_speciesList.length == 0) {
+      _speciesList = await _loadSpeciesFromDatabase();
     }
   }
 
-  Future<List<Species>> _loadData() async {
+ /*Future<List<Species>> _loadSpeciesFromDatabase({int pageIndex,int limit}) async {
     SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
-    List<Species> futureList = await speciesDBHelper.getSpeciesList();
+    List<Species> futureList = await speciesDBHelper.getSpeciesList(pageIndex:pageIndex,limit :limit);
     return futureList;
+  }*/
+
+  Future<List<Species>> _loadSpeciesFromDatabase({int pageIndex,int limit}) async {
+    SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
+    return speciesDBHelper.getSpeciesList(pageIndex:pageIndex,limit :limit).then((futureList){
+      return futureList;
+    });
+
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +100,28 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     );
   }
 
-  Widget _buildSpeciesListView() {
+  Widget _buildSpeciesListView(){
+    return PagewiseListView(
+        pageSize: Constants.recordLimit,
+        showRetry: false,
+        itemBuilder: (context, entry, index) {
+          Species currentSpecies = entry;
+          return  SpeciesListPageState.buildCellItem(context,currentSpecies);
+        },
+        pageFuture: (pageIndex) {
+          return _loadSpeciesFromDatabase(pageIndex:pageIndex * Constants.recordLimit,limit:Constants.recordLimit);
+        },
+        errorBuilder: (context, error) {
+          return Text('Error: $error');
+        },
+        loadingBuilder: (context) {
+          return Center(child:CircularProgressIndicator());
+        }
+    );
+
+  }
+
+  /*Widget _buildSpeciesListView() {
     return FutureBuilder<List<Species>>(
       future: _loadData(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -100,7 +138,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
             });
       },
     );
-  }
+  }*/
 
   static Widget buildCellItem(
       BuildContext context,
@@ -115,8 +153,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
         SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular
       })
   {
-
-    //Species species = list[index];
 
     Widget widget;
 

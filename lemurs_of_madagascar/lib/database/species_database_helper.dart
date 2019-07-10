@@ -24,9 +24,17 @@ class SpeciesDatabaseHelper  {
     return List();
   }
 
-  Future<List<Map<String, dynamic>>> getSpeciesMapList() async {
+
+  Future<List<Map<String, dynamic>>> getSpeciesMapList({int pageIndex,int limit}) async {
     Database database = await DatabaseHelper.instance.database;
-    var result = await database.rawQuery("SELECT * FROM $speciesTable ORDER BY $titleCol ASC ");
+    var result;
+    if(pageIndex != null && limit != null) {
+      result = await database.rawQuery(
+          "SELECT * FROM $speciesTable ORDER BY $titleCol ASC limit $pageIndex,$limit ");
+    }else{
+      result = await database.rawQuery(
+          "SELECT * FROM $speciesTable ORDER BY $titleCol ASC");
+    }
     return result;
   }
 
@@ -72,10 +80,10 @@ class SpeciesDatabaseHelper  {
     return list;
   }
 
-  Future<List<Species>> getSpeciesList() async {
+  Future<List<Species>> getSpeciesList({int pageIndex,int limit}) async {
 
 
-    var speciesMapList = await this.getSpeciesMapList();
+    var speciesMapList = await this.getSpeciesMapList(pageIndex:pageIndex,limit:limit);
     int count = speciesMapList.length;
 
     List<Species> list = new List<Species>();

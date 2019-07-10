@@ -64,7 +64,13 @@ dependencies:
 
   bloc: ^0.13.0
 
-  uuid: 2.0.0
+  uuid: ^2.0.0
+
+  xlive_switch: ^1.0.5
+
+  flutter_pagewise: ^1.2.3
+
+  pull_to_refresh: ^1.4.9
 
 dev_dependencies:
   flutter_test:

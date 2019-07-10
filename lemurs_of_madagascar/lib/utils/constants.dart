@@ -21,6 +21,7 @@ class Constants {
   static const double speciesImageBorderRadius = 15.0;
   static const int speciesHeroTransitionDuration = 800;
   static const double iconSize = 40.0;
+  static const int recordLimit = 5;// Raha atao 10 ity dia lasa tsy mi-charge tsara ilay Species Sary ao @ SpeciesList
 
   static const String fontFamily = 'Montserrat';
   static const TextStyle flatButtonTextStyle = TextStyle(fontFamily: fontFamily, fontSize: 20.0,color: mainColor);
