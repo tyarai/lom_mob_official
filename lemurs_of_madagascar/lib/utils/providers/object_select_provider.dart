@@ -102,15 +102,12 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
     if( typeOf<T>() == typeOf<Species>()){
       SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
       List<Species> futureList = await speciesDBHelper.getSpeciesList();
-      //print("#SPecies");
       return futureList;
     }
 
     if( typeOf<T>() == typeOf<Site>()){
-      //print("#Sites");
       SiteDatabaseHelper siteDBHelper = SiteDatabaseHelper();
       List<Site> futureList = await siteDBHelper.getSiteList();
-
       return futureList;
     }
 
@@ -118,7 +115,6 @@ class _ListProviderPageState<T extends SelectableListItem> extends State<ListPro
     if( typeOf<T>() == typeOf<Tag>()){
       TagDatabaseHelper tagDBHelper = TagDatabaseHelper();
       List<Tag> futureList = await tagDBHelper.getTagList("illegal_activity_type");
-
       return futureList;
     }
 

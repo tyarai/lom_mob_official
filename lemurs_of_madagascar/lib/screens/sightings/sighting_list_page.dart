@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
@@ -252,6 +253,46 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   Widget _buildSightingListView(BuildContext buildContext) {
 
+    return PagewiseListView(
+        pageSize: Constants.recordLimit,
+        showRetry: false,
+        itemBuilder: (context, entry, index) {
+          Sighting sighting = entry;
+          return this.buildCellItem(context, sighting, sightingBloc);
+        },
+        pageFuture: (pageIndex) {
+          return _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true);
+        },
+        errorBuilder: (context, error) {
+          return Text('Error: $error');
+        },
+        loadingBuilder: (context) {
+          return Center(child:CircularProgressIndicator());
+        }
+    );
+
+    /*return FutureBuilder<List<Sighting>>(
+
+        future: _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true),
+
+        builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
+          if (snapshot.hasData ) {
+            print("GOT LIST");
+            return ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext buildContext, int index) {
+                  Sighting sighting = snapshot.data[index];
+                  return this.buildCellItem(context, sighting, sightingBloc);
+                });
+          }
+          return Container(child: CircularProgressIndicator(),);
+        }); */
+  }
+
+  /*
+  Widget _buildSightingListView(BuildContext buildContext) {
+
     return FutureBuilder<List<Sighting>>(
 
       future: _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true),
@@ -269,7 +310,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
         return Container(child: CircularProgressIndicator(),);
       });
-  }
+  } */
 
   /*Widget _buildIllegalActivityListView(BuildContext buildContext) {
 
@@ -312,7 +353,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     );
   } */
 
-  Future<List<Sighting>> _loadData({bool illegalActivity=false}) async {
+  Future<List<Sighting>> _loadData({int pageIndex, int limit,bool illegalActivity=false}) async {
 
     Future<User> user = User.getCurrentUser();
 
@@ -327,7 +368,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
           if (currentUid > 0) {
 
             SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
-            return sightingDBHelper.getSightingList(currentUid,illegalActivity: illegalActivity).then((_list){
+            return sightingDBHelper.getSightingList(currentUid,pageIndex:pageIndex,limit:limit,illegalActivity: illegalActivity).then((_list){
               this.onLoadingListSuccess();
               this._myCurrentList = _list;
               return _list;
