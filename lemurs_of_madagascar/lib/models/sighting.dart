@@ -87,7 +87,7 @@ class GetSightingPresenter {
     api.getSightings(fromDate).then((sightingList) {
 
       try {
-        print("GetSightingPresenter ${sightingList?.length} ${sightingList
+        print("[GetSightingPresenter] ${sightingList?.length} sighting(s) from server ${sightingList
             .toString()}");
         _getView.onGetSightingSuccess(sightingList);
       }catch(e){
