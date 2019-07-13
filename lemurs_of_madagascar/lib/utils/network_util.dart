@@ -39,29 +39,30 @@ class NetworkUtil {
         .post(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {
 
-       print("[NETWORK_UTIL::post()]" + response.body);
+       if(response != null) {
 
-       final String res = response.body;
+         print("[NETWORK_UTIL::post()]" + response?.body);
 
-       if(res != null && res.length != 0) {
+         final String res = response?.body;
 
-         final int statusCode = response.statusCode;
-         dynamic decodedData = _decoder.convert(res);
+         if (res != null && res.length != 0) {
+           final int statusCode = response.statusCode;
+           dynamic decodedData = _decoder.convert(res);
 
-         if (statusCode < 200 || statusCode > 400 || json == null) {
-           print("NETWORK STATUS CODE :" + statusCode.toString());
-           //throw new Exception(statusCode);
-           throw new LOMException(statusCode);
+           if (statusCode < 200 || statusCode > 400 || json == null) {
+             print("NETWORK STATUS CODE :" + statusCode.toString());
+             //throw new Exception(statusCode);
+             throw new LOMException(statusCode);
+           }
+
+           return decodedData;
          }
-
-         return decodedData;
        }
 
        return null;
 
     }).catchError((Object error){
 
-        //@TODO Handle SocketException when the user does not have to internet.
       print("[NETWORK_UTIL::post()] error " + error.toString());
       throw error;
 

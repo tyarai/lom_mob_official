@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
@@ -82,10 +83,16 @@ class GetSightingPresenter {
 
   get(DateTime fromDate) {
 
+
     api.getSightings(fromDate).then((sightingList) {
 
-        print("GetSightingPresenter ${sightingList.length} ${sightingList.toString()}");
+      try {
+        print("GetSightingPresenter ${sightingList?.length} ${sightingList
+            .toString()}");
         _getView.onGetSightingSuccess(sightingList);
+      }catch(e){
+        print(e.toString());
+      }
 
     }).catchError((error) {
       if (error is SocketException) _getView.onSocketFailure();
@@ -375,6 +382,8 @@ class Sighting {
       this.latitude = double.tryParse(map[Sighting.latKey].toString()) ?? 0.0 ;
       this.photoFileName = map[Sighting.photoFileNamesKey];
       this.title = map[Sighting.titleKey];
+      //HtmlEscape converter = HtmlEscape();
+      //this.title =  converter. (map[Sighting.titleKey]);
       this.created = double.tryParse(map[Sighting.createdKey].toString()) ?? 0.0;
       this.modified = double.tryParse(map[Sighting.modifiedKey].toString()) ?? 0.0;
       this.uid = map[Sighting.uidKey];
@@ -814,13 +823,13 @@ class Sighting {
 
         var fit = BoxFit.fitWidth;
 
-        ImageStream imageStream =
+        /*ImageStream imageStream =
             _image.image.resolve(createLocalImageConfiguration(buildContext));
         imageStream.addListener((imageInfo, _) {
           if (imageInfo.image.width < imageInfo.image.height) {
             fit = BoxFit.fitHeight;
           }
-        });
+        });*/
 
         return Container(
           height:  height ,

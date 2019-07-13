@@ -165,12 +165,13 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         });
 
         LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime).then((_lastDate){
-          var fromDate;
+          DateTime fromDate;
           if(_lastDate != null && _lastDate.length != 0){
-            fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate));
+            fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate),isUtc: true);
           }else{
             //fromDate =   DateTime.now().millisecondsSinceEpoch;
-            fromDate =   DateTime.now();
+            fromDate =   DateTime.now().toUtc();
+
           }
           print("REFERENCE DATE "+fromDate.toString());
           this._getSightingPresenter.get(fromDate);
@@ -447,7 +448,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   @override
   void onGetSightingSuccess(List<Sighting> sightingList) {
 
-
+    print("onGetSightingSuccess()");
 
      if(sightingList != null ){
 
@@ -496,6 +497,11 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
        });
 
      }
+
+     /*setState((){
+       print("NOT Loading");
+       _isLoading = false;
+     });*/
   }
 
   @override

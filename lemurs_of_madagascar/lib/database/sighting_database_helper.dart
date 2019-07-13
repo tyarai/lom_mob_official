@@ -144,7 +144,7 @@ class SightingDatabaseHelper  {
   
   Future<List<Sighting>> getSightingList(int uid,{int pageIndex,int limit,bool illegalActivity=false}) async {
 
-    var sightingMapList = await this.getSightingMapList(uid,pageIndex:pageIndex,limit:limit illegalActivity: illegalActivity);
+    var sightingMapList = await this.getSightingMapList(uid,pageIndex:pageIndex,limit:limit ,illegalActivity: illegalActivity);
     int count = sightingMapList.length;
 
     List<Sighting> list = new List<Sighting>();

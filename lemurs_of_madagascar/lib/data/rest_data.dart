@@ -24,7 +24,7 @@ class RestData {
   NetworkUtil _networkUtil = NetworkUtil();
 
   //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  static const SERVER = "http://192.168.2.242";
+  static const SERVER = "http://192.168.3.242";
   static const LOGIN_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/services/user/login.json";
   static const LOGOUT_ENDPOINT = SERVER +
@@ -475,6 +475,8 @@ class RestData {
           print("[REST_DATA::syncSighting()] Current user null");
         }
 
+        return null;
+
       });
 
       // Default image
@@ -574,20 +576,19 @@ class RestData {
             print("[REST_DATA::getSightings()] -->" +
                 resultMap.toString());
 
-            String lastSyncDate = DateTime.now().millisecondsSinceEpoch.toString();
+            String lastSyncDate = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
             LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
+            print("Reference Date "+ lastSyncDate);
 
             /*if (resultMap[RestData.errorKey] != null) {
               throw new Exception(resultMap["error_msg"]);
             }*/
 
             //if(resultMap != null &&  resultMap[RestData.nodesKey] != null && (resultMap[RestData.nodesKey] as List).length != 0) {
-              return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
-                return Sighting.fromMap(jsonSighting);
-              }).toList();
-            //}
-            //print("RETURN");
-            //return List();
+            return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
+              return Sighting.fromMap(jsonSighting);
+            }).toList();
+
 
         }).catchError((error) {
 
