@@ -121,7 +121,7 @@ class SightingBloc implements BlocBase {
       _sighting.longitude = event.longitude;
       _sighting.latitude  = event.latitude;
       _sighting.altitude  = event.altitude;
-      //print(.*)
+      print("lat ${_sighting.latitude} long ${_sighting.longitude} alt ${_sighting.altitude} ");
     }
 
     //Add the new value of sighting to the sink state controller so that this can be returned

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
@@ -17,6 +18,7 @@ import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
+import 'package:lemurs_of_madagascar/utils/location/gps_locator.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:location/location.dart';
@@ -616,8 +618,11 @@ class _SightingEditPageState extends State<SightingEditPage>
                     textAlign: TextAlign.center,
                     style: Constants.flatButtonTextStyle
                         .copyWith(color: Constants.mainColor)),
-                onPressed: () {
-                  Future<LocationData> locationData =
+                onPressed: () async {
+
+                  var long = 0.0 ,lat = 0.0,alt = 0.0;
+                  
+                  /*Future<LocationData> locationData =
                       GPSLocation.getOneTimeLocation();
 
                   if (locationData != null) {
@@ -631,6 +636,43 @@ class _SightingEditPageState extends State<SightingEditPage>
                       }
                     });
                   }
+                  */
+
+                  try {
+
+                    Position position;
+
+                    if ( ! await GPSLocator.isLocationServiceEnabled() ){
+
+                      showAlert(
+                        context: context,
+                        title: ErrorText.serviceTitle,
+                        body: ErrorText.disabledGPS,
+                        actions: [],
+                      );
+
+                    }
+
+                    position = await GPSLocator.getOneTimeLocation();
+                    if (position != null) {
+                      lat = position.latitude;
+                      long = position.longitude;
+                      alt = position.altitude;
+                    }
+
+
+                    print("alt $alt long $long lat $lat");
+
+                    bloc.sightingEventController.add(
+                    SightingLocationChangeEvent(
+                        longitude: long,
+                        latitude: lat,
+                        altitude: alt));
+
+                  } catch(e) {
+                      print("[Sighting_edit_page::_getUpdateLocationButton()] " +e.toString());
+                  }
+                  
                 }, //callback when button is clicked
                 borderSide: BorderSide(
                   color: Constants.registerBtnBorderColor, //Color of the border

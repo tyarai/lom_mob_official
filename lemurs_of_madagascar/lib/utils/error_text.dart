@@ -8,6 +8,7 @@ class ErrorText {
   static String anonymousUser = "Access denied for user anonymous!\nYou need to be logged in to interact with the server";
 
   static String credentialTitle = "Authentication";
+  static String serviceTitle = "Service";
   static String serverTitle = "Server response";
   static String registerTitleError = "Registration error";
   static String registerPasswordsDoNotMatch = "Passwords do not match!\nPlease check and try again";
@@ -23,6 +24,7 @@ class ErrorText {
   static String noTitle = "Please give a title to this sighting!\n";
   static String noImage = "No image of the illegal activity is selected!\n Please provide one or select a species to set a default image";
   static String emptyString = "No value provided!\n";
+  static String disabledGPS = "Location service is disabled!\nTo capture location, please go to your phone settings and activate the service";
 
 }
 
