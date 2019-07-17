@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_alert/flutter_alert.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
@@ -11,6 +14,7 @@ import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_edit_page.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
+import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -39,6 +43,9 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   SightingBloc sightingBloc = SightingBloc();
   //bool _isEditing = false;
   GetSightingPresenter _getSightingPresenter;
+  Connectivity connectivity;
+  StreamSubscription<ConnectivityResult> connectivityStreamSubscription;
+
 
   _SightingListPageState(this.title){
     _getSightingPresenter = GetSightingPresenter(this);
@@ -60,10 +67,64 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
     //Sighting.deleteAllSightings();
     super.initState();
-    //_loadData(illegalActivity: false);
+    connectivity = Connectivity();
+    connectivityStreamSubscription = connectivity.onConnectivityChanged.listen((ConnectivityResult result){
+
+    });
 
   }
 
+  _loadOnlineList(){
+
+    setState((){
+      _isLoading = true;
+    });
+
+    LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime).then((_lastDate){
+      DateTime fromDate;
+      if(_lastDate != null && _lastDate.length != 0){
+        fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate),isUtc: true);
+      }else{
+        //fromDate =   DateTime.now().millisecondsSinceEpoch;
+        fromDate =   DateTime.now().toUtc();
+
+      }
+      print("REFERENCE DATE "+fromDate.toString());
+      this._getSightingPresenter.get(fromDate);
+    });
+
+  }
+
+  Future<void> _loadList(){
+
+
+    return connectivity.checkConnectivity().then((result){
+      //If there is connection then load online data
+      if (result != ConnectivityResult.none){
+
+        _loadOnlineList();
+
+
+      }else{
+        // force to load local database
+        showAlert(
+          context: context,
+          title: ErrorText.connectivityTitle,
+          body: ErrorText.noConnectivity,
+          actions: [],
+        );
+
+        setState(() {
+          _isLoading = false;
+        });
+
+      }
+
+      return;
+
+    });
+
+  }
 
   Widget _buildTitle(){
 
@@ -100,7 +161,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
               title: _buildTitle(),
             ),
             body: ModalProgressHUD(
-                child: _showTab(buildContext),
+                child: RefreshIndicator(child: _showTab(buildContext),onRefresh: _onPullToRefresh,) , // <= PullToRefresh
                 opacity: 0.8,
                 //color: Constants.mainSplashColor,
                 //progressIndicator: CircularProgressIndicator(),
@@ -108,8 +169,15 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                 //dismissible: false,
                 inAsyncCall: _isLoading),
             bottomNavigationBar: _buildBottomNavBar(),
-            floatingActionButton: _buildFloatingActionButton(),
+            //floatingActionButton: _buildFloatingActionButton(),
         );
+  }
+
+  Future<void> _onPullToRefresh(){
+    /*setState((){
+      _isLoading = true;
+    });*/
+    return _loadList();
   }
 
    Widget _showTab(BuildContext buildContext)  {
@@ -119,10 +187,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
       builder: (context,snapshot){
 
-        //if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
         if(snapshot.connectionState == ConnectionState.done) {
-
-          //print("LAST MENU "+ snapshot.data);
 
           this._bottomNavIndex = (snapshot.data != null && snapshot.data.length != 0) ? int.parse(snapshot.data) : 0;
 
@@ -262,7 +327,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
           return this.buildCellItem(context, sighting, sightingBloc);
         },
         pageFuture: (pageIndex) {
-          return _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true);
+          return _loadData(pageIndex * Constants.recordLimit,illegalActivity: _bottomNavIndex == 0 ? false : true);
         },
         errorBuilder: (context, error) {
           return Text('Error: $error');
@@ -354,7 +419,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     );
   } */
 
-  Future<List<Sighting>> _loadData({int pageIndex, int limit,bool illegalActivity=false}) async {
+  Future<List<Sighting>> _loadData(int pageIndex,{int limit = Constants.recordLimit , bool illegalActivity=false}) async {
 
     Future<User> user = User.getCurrentUser();
 
@@ -370,6 +435,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
             SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
             return sightingDBHelper.getSightingList(currentUid,pageIndex:pageIndex,limit:limit,illegalActivity: illegalActivity).then((_list){
+              print("Lazy List "+_list.toString());
               this.onLoadingListSuccess();
               this._myCurrentList = _list;
               return _list;
@@ -381,6 +447,8 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
 
       }
+
+      return List();
 
     });
   }

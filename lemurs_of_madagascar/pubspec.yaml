@@ -73,6 +73,9 @@ dependencies:
 
   pull_to_refresh: ^1.4.9
 
+  #connectivity
+  connectivity: ^0.4.3+2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
