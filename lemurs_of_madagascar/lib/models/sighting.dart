@@ -317,7 +317,7 @@ class Sighting {
   Future<bool> delete() async {
     try {
       SightingDatabaseHelper db = SightingDatabaseHelper();
-      db.deleteSighting(sighting: this).then((deletedRow) {
+      db.deleteSighting(this).then((deletedRow) {
         //print("deleted Row $deletedRow");
         if (deletedRow > 0) {
           return true;
@@ -574,8 +574,10 @@ class Sighting {
             (sighting.placeName != null) ? Row(
                 children: [
                   Icon(Icons.place, color: Colors.grey,),
-                  Text(sighting.placeName,
-                    style: Constants.sightingSpeciesCountTextStyle,
+                  Expanded(
+                    child: Text(sighting.placeName,
+                      style: Constants.sightingSpeciesCountTextStyle,
+                    ),
                   ),
                 ]) : Container(),
             Container(height: 10),

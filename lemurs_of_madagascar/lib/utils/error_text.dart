@@ -10,12 +10,14 @@ class ErrorText {
   static String credentialTitle = "Authentication";
   static String serviceTitle = "Service";
   static String serverTitle = "Server response";
+  static String connectivityTitle = "Connectivity";
   static String registerTitleError = "Registration error";
   static String registerPasswordsDoNotMatch = "Passwords do not match!\nPlease check and try again";
   static String takenNameOrMail = "Username and/or email are already taken!\nPlease check and provide different ones";
 
   static String unreachableAddress = "Unable to reach the server!\nPlease check your connection and try again";
 
+  static String noConnectivity = "No internet connection!\nPlease check your WiFi or cellular data";
   static String invalidIntegerNumber = "Invalid number!\n";
   static String noSpeciesError = "Please select a species!\n";
   static String noActivityTypeError = "Select a type of illegal activity!\n";

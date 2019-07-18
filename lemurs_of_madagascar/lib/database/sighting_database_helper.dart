@@ -31,7 +31,7 @@ class SightingDatabaseHelper  {
       Database database = await DatabaseHelper.instance.database;
       List<Map<String,dynamic>> result = await database.rawQuery(
           "SELECT * FROM $sightingsTable WHERE $nidCol = ?  ", [nid]);
-      print("RESULT $result");
+      //print("RESULT $result");
       return ( result != null && result.length != 0 ) ?  result[0] : null;
     }
     return null;
@@ -111,17 +111,26 @@ class SightingDatabaseHelper  {
     return 0;
   }
 
-  Future<int> deleteSighting({sighting : Sighting}) async {
+  Future<int> deleteSighting(Sighting sighting ) async {
     try{
+      print("TO BE DELETED ${sighting.nid} -  ${sighting.id}");
       Database database = await DatabaseHelper.instance.database;
-      var result =
-      await database.delete(sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
+
+      var deletedRow = 0;
+
+      if(sighting.id != null) {
+        deletedRow = await database.delete(
+            sightingsTable, where: '$idCol = ?', whereArgs: [sighting.id]);
+      }else{
+        deletedRow = await database.delete(
+            sightingsTable, where: '$nidCol = ?', whereArgs: [sighting.nid]);
+      }
       
-      return result;
+      return deletedRow;
     }catch(e){
       print("[SIGHTING_DATABASE_HELPER::deleteSighting()] exception :"+e.toString());
-      return null;
     }
+    return null;
   }
 
   static Future<int> deleteAllSightings() async {
