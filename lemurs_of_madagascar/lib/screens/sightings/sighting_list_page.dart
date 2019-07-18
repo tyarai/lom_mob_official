@@ -561,12 +561,12 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
            }else{ // Sighting deleted on the server
 
-             print("DELETING ${sighting.nid}");
+
              sighting.delete().then((deleted){
                if(deleted){
-                 print("Sighting ${sighting.nid} deleted locally");
+                 print("[Sighting_list::onGetSightingSuccess]:  ${sighting.nid} success! deleted locally");
                }else{
-                 print("ERROR DELETING ${sighting.nid}");
+                 print("[Sighting_list::onGetSightingSuccess]:  ${sighting.nid} error! not deleted");
                }
              });
 

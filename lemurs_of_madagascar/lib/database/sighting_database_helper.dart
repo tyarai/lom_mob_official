@@ -113,7 +113,7 @@ class SightingDatabaseHelper  {
 
   Future<int> deleteSighting(Sighting sighting ) async {
     try{
-      print("TO BE DELETED ${sighting.nid} -  ${sighting.id}");
+      //print("TO BE DELETED ${sighting.nid} -  ${sighting.id}");
       Database database = await DatabaseHelper.instance.database;
 
       var deletedRow = 0;
