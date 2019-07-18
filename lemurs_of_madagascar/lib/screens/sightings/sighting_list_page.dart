@@ -526,35 +526,51 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
          if(sighting != null){
 
-            db.getSightingMapWithNID(sighting.nid).then((result){
 
-              if(result != null && result.length != 0){
+           if(sighting.deleted !=  1) { // Sighting is not deleted on the server
 
-                //print("EXISTING SIGHTING $sighting.nid");
-                // The sighting already exists in local database the update local data
-                sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
-                  if(savedSighting == null){
-                    print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
-                  }else{
-                    print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
-                  }
+             db.getSightingMapWithNID(sighting.nid).then((result) {
 
-                });
-
-            }else{
-              // The sighting  does not exist in local database then insert it
-              sighting.saveToDatabase(false,nid:sighting.nid).then((savedSighting){
-                if(savedSighting == null){
-                  print("[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not inserted to local database");
-                }else{
-                  print("[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
-                }
-
+               if (result != null && result.length != 0) {
+                 //print("EXISTING SIGHTING $sighting.nid");
+                 // The sighting already exists in local database the update local data
+                 sighting.saveToDatabase(true, nid: sighting.nid).then((
+                     savedSighting) {
+                   if (savedSighting == null) {
+                     print(
+                         "[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
+                   } else {
+                     print(
+                         "[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
+                   }
+                 });
+               } else {
+                 // The sighting  does not exist in local database then insert it
+                 sighting.saveToDatabase(false, nid: sighting.nid).then((
+                     savedSighting) {
+                   if (savedSighting == null) {
+                     print(
+                         "[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not inserted to local database");
+                   } else {
+                     print(
+                         "[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
+                   }
+                 });
+               }
              });
 
-            }
+           }else{ // Sighting deleted on the server
 
-          });
+             print("DELETING ${sighting.nid}");
+             sighting.delete().then((deleted){
+               if(deleted){
+                 print("Sighting ${sighting.nid} deleted locally");
+               }else{
+                 print("ERROR DELETING ${sighting.nid}");
+               }
+             });
+
+           }
 
 
          }
