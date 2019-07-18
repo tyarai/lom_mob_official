@@ -606,6 +606,67 @@ class RestData {
 
   }
 
+  Future<List<Comment>> getComments(DateTime fromDate) async {
+
+    Future<User> _user =  User.getCurrentUser();
+
+    return _user.then((user) async {
+
+      if (user != null) {
+
+        UserSession currentSession = await UserSession
+            .getCurrentSession();
+
+        String cookie = currentSession.sessionName + "=" +
+            currentSession.sessionID;
+        String token = currentSession.token;
+
+        String formattedDate = fromDate.toIso8601String();
+
+        String params = "?";
+        params += "uid=${user.uid}";
+        params += (fromDate != null) ? "&from_date=$formattedDate" : "";
+
+        Map<String, String> postHeaders = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Cookie": cookie,
+          "X-CSRF-Token": token
+        };
+
+        // get changed comments from the specified date
+        return _networkUtil.post(CHANGED_COMMENTS + params,
+          headers: postHeaders,
+        ).then((dynamic resultMap) async {
+
+          print("[REST_DATA::getComments()] -->" +
+              resultMap.toString());
+
+          String lastSyncDate = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
+          LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
+          print("Reference Date "+ lastSyncDate);
+
+          return (resultMap[RestData.nodesKey] as List).map((jsonComment) {
+            return Comment.fromMap(jsonComment);
+          }).toList();
+
+
+        }).catchError((error) {
+
+          print(
+              "[REST_DATA::getComments()] Getting sightings list error :" +
+                  error.toString());
+          throw error;
+
+        });
+      }
+
+      return List();
+
+    });
+
+  }
+
   Future<int> syncComment(Comment comment, {bool editing = false}) async {
     if (comment != null) {
       UserSession currentSession = await UserSession.getCurrentSession();
