@@ -12,6 +12,14 @@ abstract class SyncCommentContract {
   void onSocketFailure();
 }
 
+abstract class GetCommentContract {
+  void onGetCommentSuccess(List<Comment> commentList);
+  void onGetCommentFailure(int statusCode);
+  void onSocketFailure();
+  void onException(Exception e);
+}
+
+
 class SyncCommentPresenter {
 
   SyncCommentContract _syncingView;
@@ -47,6 +55,38 @@ class SyncCommentPresenter {
       });
     }
   }*/
+
+}
+
+class GetCommentPresenter {
+
+  GetCommentContract _getView;
+  RestData api = RestData();
+
+  GetCommentPresenter(this._getView);
+
+  get(DateTime fromDate) {
+
+
+    api.getComments(fromDate).then((commentList) {
+
+      try {
+        print("[GetCommentPresenter] ${commentList?.length} comments(s) from server ${commentList
+            .toString()}");
+        _getView.onGetCommentSuccess(commentList);
+      }catch(e){
+        print(e.toString());
+      }
+
+    }).catchError((error) {
+      if (error is SocketException) _getView.onSocketFailure();
+      if (error is LOMException) _getView.onGetCommentFailure(error.statusCode);
+      if (error is Exception) _getView.onException(error);
+    });
+
+
+
+  }
 
 }
 
