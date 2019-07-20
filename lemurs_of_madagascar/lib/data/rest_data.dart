@@ -20,6 +20,7 @@ class RestData {
   static const formErrorKey = "form_errors"; // Used to track existing account created twice
   static const userStructureKey = "user";
   static const nodesKey = "nodes";
+  static const commentsKey = "comments";
 
   NetworkUtil _networkUtil = NetworkUtil();
 
@@ -606,6 +607,9 @@ class RestData {
 
   }
 
+  /*
+  * Get all comments on the server that belong to this user
+  * */
   Future<List<Comment>> getComments(DateTime fromDate) async {
 
     Future<User> _user =  User.getCurrentUser();
@@ -623,9 +627,9 @@ class RestData {
 
         String formattedDate = fromDate.toIso8601String();
 
-        String params = "?";
+        /* params = "?";
         params += "uid=${user.uid}";
-        params += (fromDate != null) ? "&from_date=$formattedDate" : "";
+        params += (fromDate != null) ? "&from_date=$formattedDate" : "";*/
 
         Map<String, String> postHeaders = {
           "Content-Type": "application/json",
@@ -634,8 +638,14 @@ class RestData {
           "X-CSRF-Token": token
         };
 
+        Map<String, String> postBody = {
+          "uid": user.uid.toString(),
+          "fromDate": formattedDate,
+        };
+
         // get changed comments from the specified date
-        return _networkUtil.post(CHANGED_COMMENTS + params,
+        return _networkUtil.post(CHANGED_COMMENTS,
+          body: json.encode(postBody),
           headers: postHeaders,
         ).then((dynamic resultMap) async {
 
@@ -646,7 +656,7 @@ class RestData {
           LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
           print("Reference Date "+ lastSyncDate);
 
-          return (resultMap[RestData.nodesKey] as List).map((jsonComment) {
+          return (resultMap[RestData.commentsKey] as List).map((jsonComment) {
             return Comment.fromMap(jsonComment);
           }).toList();
 

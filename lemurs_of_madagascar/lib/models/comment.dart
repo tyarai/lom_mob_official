@@ -32,7 +32,7 @@ class SyncCommentPresenter {
 
       api.syncComment(comment,editing: editing)
           .then((cid) {
-        print("presenter cid: $cid");
+        print("[Comment::sync()] presenter cid: $cid");
         _syncingView.onSyncSuccess(comment,cid,editing);
       })
           .catchError((error) {
@@ -153,6 +153,8 @@ class Comment{
 
     try {
 
+      //print(map);
+
       this.id = map[Comment.idKey];
       this.nid = map[Comment.nidKey];
       this.pid = map[Comment.pidKey];
@@ -209,6 +211,24 @@ class Comment{
     }
 
 
+  }
+
+  Future<bool> delete() async {
+    try {
+      CommentDatabaseHelper db = CommentDatabaseHelper();
+      db.deleteComment(this).then((deletedRow) {
+        //print("deleted Row $deletedRow");
+        if (deletedRow > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    } catch (e) {
+      print("{Comment::delete()} Exception " + e.toString());
+      throw e;
+    }
+    return false;
   }
 
   @override

@@ -7,6 +7,8 @@ import 'package:flutter_alert/flutter_alert.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_event.dart';
+import 'package:lemurs_of_madagascar/database/comment_database_helper.dart';
+import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
@@ -33,22 +35,23 @@ class SightingListPage extends StatefulWidget {
 
 }
 
-class _SightingListPageState extends State<SightingListPage>  implements GetSightingsContract {
+class _SightingListPageState extends State<SightingListPage>  implements GetSightingsContract, GetCommentContract {
 
   String title;
   int currentUid = 0;
   int _bottomNavIndex = 0;
   bool _isLoading = false;
-  List<Sighting> _myCurrentList;
   SightingBloc sightingBloc = SightingBloc();
-  //bool _isEditing = false;
+
+  GetCommentPresenter  _getCommentPresenter;
   GetSightingPresenter _getSightingPresenter;
   Connectivity connectivity;
   StreamSubscription<ConnectivityResult> connectivityStreamSubscription;
 
 
-  _SightingListPageState(this.title){
+  _SightingListPageState(this.title) {
     _getSightingPresenter = GetSightingPresenter(this);
+    _getCommentPresenter  = GetCommentPresenter(this);
   }
 
   List<String> _menuName = [
@@ -59,53 +62,48 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   @override
   void dispose() {
     sightingBloc.dispose();
+    connectivityStreamSubscription.cancel();
     super.dispose();
   }
 
   @override
-  initState()  {
-
+  initState() {
     //Sighting.deleteAllSightings();
     super.initState();
     connectivity = Connectivity();
-    connectivityStreamSubscription = connectivity.onConnectivityChanged.listen((ConnectivityResult result){
+    connectivityStreamSubscription =
+        connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
 
-    });
-
+        });
   }
 
-  _loadOnlineList(){
-
-    setState((){
+  _loadOnlineList() {
+    setState(() {
       _isLoading = true;
     });
 
-    LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime).then((_lastDate){
+    LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime)
+        .then((_lastDate) {
       DateTime fromDate;
-      if(_lastDate != null && _lastDate.length != 0){
-        fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate),isUtc: true);
-      }else{
+      if (_lastDate != null && _lastDate.length != 0) {
+        fromDate = DateTime.fromMillisecondsSinceEpoch(
+            int.parse(_lastDate), isUtc: true);
+      } else {
         //fromDate =   DateTime.now().millisecondsSinceEpoch;
-        fromDate =   DateTime.now().toUtc();
-
+        fromDate = DateTime.now().toUtc();
       }
-      print("REFERENCE DATE "+fromDate.toString());
+      print("REFERENCE DATE " + fromDate.toString());
       this._getSightingPresenter.get(fromDate);
+      this._getCommentPresenter.get(fromDate);
     });
-
   }
 
-  Future<void> _loadList(){
-
-
-    return connectivity.checkConnectivity().then((result){
+  Future<void> _loadList() {
+    return connectivity.checkConnectivity().then((result) {
       //If there is connection then load online data
-      if (result != ConnectivityResult.none){
-
+      if (result != ConnectivityResult.none) {
         _loadOnlineList();
-
-
-      }else{
+      } else {
         // force to load local database
         showAlert(
           context: context,
@@ -117,27 +115,23 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         setState(() {
           _isLoading = false;
         });
-
       }
 
       return;
-
     });
-
   }
 
-  Widget _buildTitle(){
-
+  Widget _buildTitle() {
     return FutureBuilder<String>(
 
-        future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
-        builder: (context,snapshot){
-
+        future: LOMSharedPreferences.loadString(
+            LOMSharedPreferences.lastSightingMenuIndexKey),
+        builder: (context, snapshot) {
           this._bottomNavIndex = 0;
 
-          if(snapshot.data != null &&  snapshot.data.length != 0 && snapshot.hasData) {
+          if (snapshot.data != null && snapshot.data.length != 0 &&
+              snapshot.hasData) {
             this._bottomNavIndex = int.parse(snapshot.data);
-
           }
           return Text(this._menuName[this._bottomNavIndex]);
           //return Container();//Empty list no sighting
@@ -147,107 +141,107 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   }
 
   @override
-  Widget build(BuildContext buildContext)  {
-
-      return
-        Scaffold(
-            backgroundColor: Constants.backGroundColor,
-            appBar: AppBar(
-              centerTitle: true,
-              actions: <Widget>[
-                _buildAddSighting(),
-                _buildSearch(),
-              ],
-              title: _buildTitle(),
-            ),
-            body: ModalProgressHUD(
-                child: RefreshIndicator(child: _showTab(buildContext),onRefresh: _onPullToRefresh,) , // <= PullToRefresh
-                opacity: 0.8,
-                //color: Constants.mainSplashColor,
-                //progressIndicator: CircularProgressIndicator(),
-                //offset: 5.0,
-                //dismissible: false,
-                inAsyncCall: _isLoading),
-            bottomNavigationBar: _buildBottomNavBar(),
-            //floatingActionButton: _buildFloatingActionButton(),
-        );
+  Widget build(BuildContext buildContext) {
+    return
+      Scaffold(
+        backgroundColor: Constants.backGroundColor,
+        appBar: AppBar(
+          centerTitle: true,
+          actions: <Widget>[
+            _buildAddSighting(),
+            _buildSearch(),
+          ],
+          title: _buildTitle(),
+        ),
+        body: ModalProgressHUD(
+            child: RefreshIndicator(
+              child: _showTab(buildContext), onRefresh: _onPullToRefresh,),
+            // <= PullToRefresh
+            opacity: 0.8,
+            //color: Constants.mainSplashColor,
+            //progressIndicator: CircularProgressIndicator(),
+            //offset: 5.0,
+            //dismissible: false,
+            inAsyncCall: _isLoading),
+        bottomNavigationBar: _buildBottomNavBar(),
+        //floatingActionButton: _buildFloatingActionButton(),
+      );
   }
 
-  Future<void> _onPullToRefresh(){
+  Future<void> _onPullToRefresh() {
     /*setState((){
       _isLoading = true;
     });*/
     return _loadList();
   }
 
-   Widget _showTab(BuildContext buildContext)  {
-
+  Widget _showTab(BuildContext buildContext) {
     return FutureBuilder<String>(
 
-      future: LOMSharedPreferences.loadString(LOMSharedPreferences.lastSightingMenuIndexKey),
-      builder: (context,snapshot){
+        future: LOMSharedPreferences.loadString(
+            LOMSharedPreferences.lastSightingMenuIndexKey),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            this._bottomNavIndex =
+            (snapshot.data != null && snapshot.data.length != 0) ? int.parse(
+                snapshot.data) : 0;
 
-        if(snapshot.connectionState == ConnectionState.done) {
-
-          this._bottomNavIndex = (snapshot.data != null && snapshot.data.length != 0) ? int.parse(snapshot.data) : 0;
-
-          return _buildSightingListView(buildContext);
-
+            return _buildSightingListView(buildContext);
+          }
+          return Center(child: Container(child: CircularProgressIndicator()));
         }
-        return Center(child: Container(child:CircularProgressIndicator()));
-      }
 
     );
-
   }
 
-  _buildAddSighting(){
+  _buildAddSighting() {
     return IconButton(
-      icon: Icon(Icons.add,size: 30,),
-      onPressed:(){
-        LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,"0");
+      icon: Icon(Icons.add, size: 30,),
+      onPressed: () {
+        LOMSharedPreferences.setString(
+            LOMSharedPreferences.lastSightingMenuIndexKey, "0");
         Sighting emptySighting = Sighting();
-        sightingBloc.sightingEventController.add(SightingChangeEvent(emptySighting));
+        sightingBloc.sightingEventController.add(
+            SightingChangeEvent(emptySighting));
         Navigator.of(context).push(
-          MaterialPageRoute(
-            fullscreenDialog: true, builder: (buildContext) =>
-            BlocProvider(
-              child: SightingEditPage(this._menuName[0],emptySighting,false),
-              bloc: sightingBloc,
-            ))
+            MaterialPageRoute(
+                fullscreenDialog: true, builder: (buildContext) =>
+                BlocProvider(
+                  child: SightingEditPage(
+                      this._menuName[0], emptySighting, false),
+                  bloc: sightingBloc,
+                ))
         );
       },
     );
   }
 
-  _buildFloatingActionButton()  {
+  _buildFloatingActionButton() {
     return FloatingActionButton(
-      child: Icon(Icons.refresh,size: 35,),
-      onPressed: (){
-
-        setState((){
+      child: Icon(Icons.refresh, size: 35,),
+      onPressed: () {
+        setState(() {
           _isLoading = true;
         });
 
-        LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime).then((_lastDate){
+        LOMSharedPreferences.loadString(LOMSharedPreferences.lastSyncDateTime)
+            .then((_lastDate) {
           DateTime fromDate;
-          if(_lastDate != null && _lastDate.length != 0){
-            fromDate = DateTime.fromMillisecondsSinceEpoch(int.parse(_lastDate),isUtc: true);
-          }else{
+          if (_lastDate != null && _lastDate.length != 0) {
+            fromDate = DateTime.fromMillisecondsSinceEpoch(
+                int.parse(_lastDate), isUtc: true);
+          } else {
             //fromDate =   DateTime.now().millisecondsSinceEpoch;
-            fromDate =   DateTime.now().toUtc();
-
+            fromDate = DateTime.now().toUtc();
           }
-          print("REFERENCE DATE "+fromDate.toString());
+          print("REFERENCE DATE " + fromDate.toString());
           this._getSightingPresenter.get(fromDate);
         });
-
       },
     );
   }
 
   Theme _buildBottomNavBar() {
-
     return Theme(
         data: Theme.of(context).copyWith(
           canvasColor: Constants.mainColor,
@@ -266,16 +260,19 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                 _handleBottomNavTap(_bottomNavIndex);
                 title = _menuName[_bottomNavIndex];
               });
-
             },
             items: [
               BottomNavigationBarItem(
-                icon:  Icon(Icons.remove_red_eye,color: Constants.iconColor,),
-                title: Text(_menuName[0],style:Constants.defaultTextStyle.copyWith(color:Constants.iconColor,fontSize: 15)),
+                icon: Icon(Icons.remove_red_eye, color: Constants.iconColor,),
+                title: Text(_menuName[0],
+                    style: Constants.defaultTextStyle.copyWith(
+                        color: Constants.iconColor, fontSize: 15)),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.report_problem,color: Constants.iconColor,),
-                title: Text(_menuName[1],style:Constants.defaultTextStyle.copyWith(color:Constants.iconColor,fontSize: 15)),
+                icon: Icon(Icons.report_problem, color: Constants.iconColor,),
+                title: Text(_menuName[1],
+                    style: Constants.defaultTextStyle.copyWith(
+                        color: Constants.iconColor, fontSize: 15)),
               ),
 
 
@@ -284,9 +281,9 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         ));
   }
 
-  void _handleBottomNavTap(int index){
-
-    LOMSharedPreferences.setString(LOMSharedPreferences.lastSightingMenuIndexKey,index.toString());
+  void _handleBottomNavTap(int index) {
+    LOMSharedPreferences.setString(
+        LOMSharedPreferences.lastSightingMenuIndexKey, index.toString());
 
     /*switch(index) {
 
@@ -306,10 +303,10 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   }
 
-  Widget _buildSearch(){
+  Widget _buildSearch() {
     return IconButton(
       icon: Icon(Icons.search),
-      onPressed:(){
+      onPressed: () {
         /*showSearch(
             context: context,
             delegate: DataSearch(speciesList: this._speciesList));*/
@@ -318,7 +315,6 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   }
 
   Widget _buildSightingListView(BuildContext buildContext) {
-
     return PagewiseListView(
         pageSize: Constants.recordLimit,
         showRetry: false,
@@ -327,13 +323,14 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
           return this.buildCellItem(context, sighting, sightingBloc);
         },
         pageFuture: (pageIndex) {
-          return _loadData(pageIndex * Constants.recordLimit,illegalActivity: _bottomNavIndex == 0 ? false : true);
+          return _loadData(pageIndex * Constants.recordLimit,
+              illegalActivity: _bottomNavIndex == 0 ? false : true);
         },
         errorBuilder: (context, error) {
           return Text('Error: $error');
         },
         loadingBuilder: (context) {
-          return Center(child:CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         }
     );
 
@@ -419,61 +416,55 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     );
   } */
 
-  Future<List<Sighting>> _loadData(int pageIndex,{int limit = Constants.recordLimit , bool illegalActivity=false}) async {
-
+  Future<List<Sighting>> _loadData(int pageIndex,
+      {int limit = Constants.recordLimit, bool illegalActivity = false}) async {
     Future<User> user = User.getCurrentUser();
 
-    return user.then((_user){
-
-      if(_user != null) {
-
+    return user.then((_user) {
+      if (_user != null) {
         this.currentUid = _user.uid;
 
         try {
-
           if (currentUid > 0) {
-
             SightingDatabaseHelper sightingDBHelper = SightingDatabaseHelper();
-            return sightingDBHelper.getSightingList(currentUid,pageIndex:pageIndex,limit:limit,illegalActivity: illegalActivity).then((_list){
-              print("Lazy List "+_list.toString());
+            return sightingDBHelper.getSightingList(
+                currentUid, pageIndex: pageIndex,
+                limit: limit,
+                illegalActivity: illegalActivity).then((_list) {
+              print("Lazy List " + _list.toString());
               this.onLoadingListSuccess();
-              this._myCurrentList = _list;
+              //this._myCurrentList = _list;
               return _list;
             });
           }
-
         } catch (e) {
-          print("[SIghting_list::_loadData()] Error : "+ e.toString());
+          print("[SIghting_list::_loadData()] Error : " + e.toString());
         }
-
       }
 
       return List();
-
     });
   }
 
-  Widget buildCellItem(BuildContext context,Sighting sighting,SightingBloc bloc)
-  {
-
-    if(sighting != null) {
-
+  Widget buildCellItem(BuildContext context, Sighting sighting,
+      SightingBloc bloc) {
+    if (sighting != null) {
       return Container(
         child: ListTile(
-          contentPadding: EdgeInsets.only(left:5.0,right:5.0),
+            contentPadding: EdgeInsets.only(left: 5.0, right: 5.0),
             onTap: () {
+              this.sightingBloc.sightingEventController.add(
+                  SightingChangeEvent(sighting));
 
-                 this.sightingBloc.sightingEventController.add(SightingChangeEvent(sighting));
-
-                 Navigator.of(context).push(
-                     MaterialPageRoute(
-                         fullscreenDialog: true, builder: (buildContext) =>
-                         BlocProvider(
-                           child: SightingEditPage("Edit sighting",sighting,true),
-                           bloc: this.sightingBloc,
-                         ))
-                 );
-
+              Navigator.of(context).push(
+                  MaterialPageRoute(
+                      fullscreenDialog: true, builder: (buildContext) =>
+                      BlocProvider(
+                        child: SightingEditPage(
+                            "Edit sighting", sighting, true),
+                        bloc: this.sightingBloc,
+                      ))
+              );
             },
             title: Padding(
                 padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
@@ -483,16 +474,15 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                       borderRadius: BorderRadius.circular(0.5),
                       shadowColor: Colors.blueGrey,
                       child: Padding(
-                          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                          child:
-                              Sighting.buildCellInfo(sighting,bloc,context),
-                            ),
+                        padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        child:
+                        Sighting.buildCellInfo(sighting, bloc, context),
+                      ),
                     )))),
       );
     }
 
     return Container();
-
   }
 
   @override
@@ -515,74 +505,65 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   @override
   void onGetSightingSuccess(List<Sighting> sightingList) {
-
     print("onGetSightingSuccess()");
 
-     if(sightingList != null ){
+    if (sightingList != null) {
+      SightingDatabaseHelper db = SightingDatabaseHelper();
 
-       SightingDatabaseHelper db = SightingDatabaseHelper();
+      for (Sighting sighting in sightingList) {
+        if (sighting != null) {
+          if (sighting.deleted != 1) { // Sighting is not deleted on the server
 
-       for(Sighting sighting in sightingList){
+            db.getSightingMapWithNID(sighting.nid).then((result) {
+              if (result != null && result.length != 0) {
+                //print("EXISTING SIGHTING $sighting.nid");
+                // The sighting already exists in local database the update local data
+                sighting.saveToDatabase(true, nid: sighting.nid).then((
+                    savedSighting) {
+                  if (savedSighting == null) {
+                    print(
+                        "[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
+                  } else {
+                    print(
+                        "[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
+                  }
+                });
+              } else {
+                // The sighting  does not exist in local database then insert it
+                sighting.saveToDatabase(false, nid: sighting.nid).then((
+                    savedSighting) {
+                  if (savedSighting == null) {
+                    print(
+                        "[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not inserted to local database");
+                  } else {
+                    print(
+                        "[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
+                  }
+                });
+              }
+            });
 
-         if(sighting != null){
+          } else if(sighting.deleted == 1) { // Sighting deleted on the server
 
+            sighting.delete().then((deleted) {
+              if (deleted) {
+                print("[Sighting_list::onGetSightingSuccess]:  ${sighting
+                    .nid} success! deleted locally");
+              } else {
+                print("[Sighting_list::onGetSightingSuccess]:  ${sighting
+                    .nid} error! not deleted");
+              }
+            });
+          }
+        }
+      }
 
-           if(sighting.deleted !=  1) { // Sighting is not deleted on the server
+      setState(() {
+        _isLoading = false;
+      });
+    }
 
-             db.getSightingMapWithNID(sighting.nid).then((result) {
-
-               if (result != null && result.length != 0) {
-                 //print("EXISTING SIGHTING $sighting.nid");
-                 // The sighting already exists in local database the update local data
-                 sighting.saveToDatabase(true, nid: sighting.nid).then((
-                     savedSighting) {
-                   if (savedSighting == null) {
-                     print(
-                         "[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not updated on local database");
-                   } else {
-                     print(
-                         "[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting updated on local database");
-                   }
-                 });
-               } else {
-                 // The sighting  does not exist in local database then insert it
-                 sighting.saveToDatabase(false, nid: sighting.nid).then((
-                     savedSighting) {
-                   if (savedSighting == null) {
-                     print(
-                         "[Sighting_list_page::onGetSightingSuccess()] Error: Online sighting not inserted to local database");
-                   } else {
-                     print(
-                         "[Sighting_list_page::onGetSightingSuccess()] Success: Online sighting inserted to local database");
-                   }
-                 });
-               }
-             });
-
-           }else{ // Sighting deleted on the server
-
-
-             sighting.delete().then((deleted){
-               if(deleted){
-                 print("[Sighting_list::onGetSightingSuccess]:  ${sighting.nid} success! deleted locally");
-               }else{
-                 print("[Sighting_list::onGetSightingSuccess]:  ${sighting.nid} error! not deleted");
-               }
-             });
-
-           }
-
-
-         }
-       }
-
-       setState((){
-         _isLoading = false;
-       });
-
-     }
-
-     /*setState((){
+    /*setState((){
        print("NOT Loading");
        _isLoading = false;
      });*/
@@ -604,6 +585,78 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     });
     ErrorHandler.handleException(context, e);
   }
+
+  @override
+  void onGetCommentFailure(int statusCode) {
+    setState(() {
+      _isLoading = false;
+    });
+    ErrorHandler.handle(context, statusCode);
+  }
+
+  @override
+  void onGetCommentSuccess(List<Comment> commentList) {
+
+    if (commentList.length != 0) {
+
+      CommentDatabaseHelper db = CommentDatabaseHelper();
+
+      for (Comment comment in commentList) {
+        if (comment != null) {
+          if (comment.deleted != 1) { // Sighting is not deleted on the server
+
+            db.getCommentMapWithNID(comment.nid).then((result) {
+
+              if (result != null && result.length != 0) {
+                // The comment already exists in local database then update it
+                comment.saveToDatabase(true).then((savedComment) {
+
+                  if (savedComment == null) {
+                    print("[Sighting_list_page::onGetCommentSuccess()] Error: Online comment not updated on local database");
+                  } else {
+                    print("[Sighting_list_page::onGetCommentSuccess()] Success: Online comment updated on local database");
+                  }
+
+                });
+
+              } else {
+                // The comment  does not exist in local database then insert it
+                comment.saveToDatabase(false).then((savedComment) {
+                  if (savedComment == null) {
+                    print("[Sighting_list_page::onGetCommentSuccess()] Error: Online comment not inserted to local database");
+                  } else {
+                    print("[Sighting_list_page::onGetCommentSuccess()] Success: Online comment inserted to local database");
+                  }
+                });
+              }
+            });
+
+          } else if (comment.deleted == 1)  { // Comment deleted on the server
+
+
+            comment.delete().then((deleted) {
+
+              if (deleted) {
+                print("[Sighting_list::onGetCommentSuccess]:  ${comment
+                    .nid} success! deleted locally");
+              } else {
+                print("[Sighting_list::onGetCommentSuccess]:  ${comment
+                    .nid} error! not deleted");
+              }
+
+            });
+
+          }
+        }
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+  }
+
 
 
 }
