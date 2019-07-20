@@ -21,10 +21,22 @@ class CommentDatabaseHelper {
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
           "SELECT * FROM $commentTable WHERE $idCol = ?  AND $statusCol = ? ", [id,1]);
-      return result[0];
+      return ( result != null && result.length != 0 ) ?  result[0] : null;
     }
     return Map();
   }
+
+  Future<Map<String, dynamic>> getCommentMapWithNID(int nid) async {
+
+    if(nid != null && nid != 0 ){
+      Database database = await DatabaseHelper.instance.database;
+      var result = await database.rawQuery(
+          "SELECT * FROM $commentTable WHERE $nidCol = ?  AND $statusCol = ? ", [nid,1]);
+      return ( result != null && result.length != 0 ) ?  result[0] : null;
+    }
+    return Map();
+  }
+
 
   Future<List<Map<String, dynamic>>> getCommentMapList(int sightingNid) async {
     if(sightingNid != null && sightingNid != 0) {
@@ -67,17 +79,27 @@ class CommentDatabaseHelper {
     return 0;
   }
 
-  Future<int> deleteComment({comment : Comment}) async {
+  Future<int> deleteComment(Comment comment) async {
     try{
+      //print("TO BE DELETED ${sighting.nid} -  ${sighting.id}");
       Database database = await DatabaseHelper.instance.database;
-      var result =
-      await database.delete(commentTable, where: '$idCol = ?', whereArgs: [comment.id]);
-      
-      return result;
+
+      var deletedRow = 0;
+
+      if(comment.id != null) {
+        deletedRow = await database.delete(
+            commentTable, where: '$idCol = ?', whereArgs: [comment.id]);
+      }else{
+        deletedRow = await database.delete(
+            commentTable, where: '$nidCol = ?', whereArgs: [comment.nid]);
+      }
+
+      return deletedRow;
+
     }catch(e){
-      print("[COMMENT_DATABASE_HELPER::deleteComment()] exception :"+e.toString());
-      return null;
+      print("[COMMENT_DATABASE_HELPER::deleteSighting()] exception :"+e.toString());
     }
+    return null;
   }
 
   static Future<int> deleteAllComments(int sightingNid) async {
