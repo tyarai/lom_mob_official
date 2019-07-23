@@ -49,6 +49,7 @@ dependencies:
   # GPS location
   #location: ^2.3.5
   geolocator: ^5.1.1
+  permission_handler: ^3.2.1+1
 
   flutter_datetime_picker: ^1.2.0
 
