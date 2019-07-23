@@ -47,8 +47,8 @@ dependencies:
   intl: ^0.15.7
 
   # GPS location
-  location: ^2.3.5
-  geolocator: ^5.0.1
+  #location: ^2.3.5
+  geolocator: ^5.1.1
 
   flutter_datetime_picker: ^1.2.0
 
