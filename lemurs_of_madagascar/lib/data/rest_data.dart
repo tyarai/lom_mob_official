@@ -25,7 +25,7 @@ class RestData {
   NetworkUtil _networkUtil = NetworkUtil();
 
   //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  static const SERVER = "http://192.168.3.242";
+  static const SERVER = "http://192.168.2.242";
   static const LOGIN_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/services/user/login.json";
   static const LOGOUT_ENDPOINT = SERVER +
@@ -480,11 +480,6 @@ class RestData {
 
       });
 
-      // Default image
-      /*if(sighting.photoFileName == null || sighting.photoFileName.length == 0){
-        Photograph defaultImage = await sighting.species.getPhotographObjectAtIndex(0);
-        sighting.photoFileName = defaultImage.photoAssetPath(ext: Constants.imageType);
-      }*/
 
     }
 
@@ -546,23 +541,11 @@ class RestData {
 
         String formattedDate = fromDate.toIso8601String();
 
-        //String formattedDate = fromDate.millisecondsSinceEpoch.toString();
-
-        /*String formattedDate =
-        DateFormat(Constants.searchDateFormat).format(
-            DateTime.fromMillisecondsSinceEpoch(
-                fromDate?.millisecondsSinceEpoch));*/
-
-        //DateFormat(Constants.apiDateFormat).format(
-        //DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
-        //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
-
         String params = "?";
         params += "uid=${user.uid}";
         params += (fromDate != null) ? "&from_date=$formattedDate" : "";
 
         Map<String, String> postHeaders = {
-          //"Content-Type": "application/x-www-form-urlencoded",
           "Content-Type": "application/json",
           "Accept": "application/json",
           "Cookie": cookie,
@@ -581,11 +564,6 @@ class RestData {
             LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
             print("Reference Date "+ lastSyncDate);
 
-            /*if (resultMap[RestData.errorKey] != null) {
-              throw new Exception(resultMap["error_msg"]);
-            }*/
-
-            //if(resultMap != null &&  resultMap[RestData.nodesKey] != null && (resultMap[RestData.nodesKey] as List).length != 0) {
             return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
               return Sighting.fromMap(jsonSighting);
             }).toList();
@@ -625,32 +603,25 @@ class RestData {
             currentSession.sessionID;
         String token = currentSession.token;
 
-        String formattedDate = fromDate.toIso8601String();
-
-        /* params = "?";
-        params += "uid=${user.uid}";
-        params += (fromDate != null) ? "&from_date=$formattedDate" : "";*/
+        String formattedDate = fromDate.toUtc().toIso8601String();
+        //String formattedDate = fromDate.millisecondsSinceEpoch.toString();
 
         Map<String, String> postHeaders = {
           "Content-Type": "application/json",
           "Accept": "application/json",
           "Cookie": cookie,
           "X-CSRF-Token": token
-        };
+        }; //1563869607049
 
         Map<String, String> postBody = {
           "uid": user.uid.toString(),
           "fromDate": formattedDate,
         };
 
-        // get changed comments from the specified date
         return _networkUtil.post(CHANGED_COMMENTS,
           body: json.encode(postBody),
           headers: postHeaders,
-        ).then((dynamic resultMap) async {
-
-          print("[REST_DATA::getComments()] -->" +
-              resultMap.toString());
+        ).then((dynamic resultMap)  {
 
           String lastSyncDate = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
           LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
@@ -670,7 +641,6 @@ class RestData {
 
         });
       }
-
       return List();
 
     });

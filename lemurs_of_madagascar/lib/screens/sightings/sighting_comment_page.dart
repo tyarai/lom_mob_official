@@ -1,9 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
-import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/database/comment_database_helper.dart';
-import 'package:lemurs_of_madagascar/database/sighting_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/sighting.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
@@ -156,7 +153,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
           return ListView.builder(
             itemCount: snapshot.data.length,
             itemBuilder: (context,index){
-              if(index < _comments.length){
+              //if(index < _comments.length){
                 return Column(
                   children: [
                     Padding(padding: EdgeInsets.only(bottom: 5),),
@@ -175,7 +172,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
                     Padding(padding: EdgeInsets.only(bottom: 5),),
                     Divider(height: Constants.listViewDividerHeight,color: Colors.black87),
                 ]);
-              }
+              //}
             }
           );
 
@@ -186,20 +183,30 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
     );
   }
 
-  bool _checkCommentOwnership(Comment comment){
+  /*bool _checkCommentOwnership(Comment comment){
     if(comment != null){
       Future<User> currentUser = User.getCurrentUser();
       currentUser.then((_currentUser){
         if(_currentUser != null){
           if (comment.uid == _currentUser.uid) return true;
-          else return false;
         }
+        return false;
       });
+    }
+    return false;
+  }*/
+
+  Future<bool> _checkCommentOwnership(Comment comment) async{
+    if(comment != null){
+      User currentUser = await  User.getCurrentUser();
+      if(currentUser != null){
+        if (comment.uid == currentUser.uid) return true;
+      }
     }
     return false;
   }
 
-  _buildCommentContent(Comment comment){
+  _buildCommentContent(Comment comment)  {
 
     if(comment != null){
 
@@ -219,26 +226,36 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
               children: <Widget>[
                 Expanded(flex:1,child:_buildAvatar(comment)),
                 Padding(padding: EdgeInsets.only(left: 10.0)),
-                Expanded(flex:6,child:Text(comment.commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,)),
-
-                Expanded(flex:1,child: _checkCommentOwnership(comment) ? IconButton(
-                  icon: Icon(Icons.remove_circle_outline),
-                  onPressed: (){
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    _markCommentAsDeleted(comment);
-                  },
-                  ) : Container()
-                ),
+                Expanded(flex:4,child:Text(comment.commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,)),
+                Expanded(flex:1,child: _delete(comment)  )
               ]),
-          )));
+          )),
 
+      );
     }
 
     return Container();
 
   }
+
+  Widget _delete(Comment comment){
+      return FutureBuilder(
+        future:_checkCommentOwnership(comment),
+        builder:(context,snapshot){
+          return IconButton(
+            icon: Icon(Icons.remove_circle_outline,color: Colors.red,),
+              onPressed: (){
+              setState(() {
+                _isLoading = true;
+              });
+              _markCommentAsDeleted(comment);
+            },
+          );
+        }
+      );
+    }
+
+
 
   // We use 'status' to hide deleted comment locally and on the server (we do not actually remove comments then)
   _markCommentAsDeleted(Comment comment){
@@ -247,7 +264,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
       double modified = DateTime.now().millisecondsSinceEpoch.toDouble();
       comment.modified = modified;
-      //comment.deleted = 1;
+      comment.deleted = 1;
       comment.status = 0;
       presenter.sync(comment,editing: true);
 
@@ -329,7 +346,9 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
   @override
   void onDeleteSuccess(Comment comment) {
-    // TODO: implement onDeleteSuccess
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -342,7 +361,10 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
 
   @override
   void onSyncFailure(int statusCode) {
-    // TODO: implement onSyncFailure
+    setState(() {
+      _isLoading = false;
+    });
+
   }
 
   @override

@@ -1,6 +1,4 @@
-
 import 'dart:io';
-
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/database/comment_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
@@ -19,7 +17,6 @@ abstract class GetCommentContract {
   void onException(Exception e);
 }
 
-
 class SyncCommentPresenter {
 
   SyncCommentContract _syncingView;
@@ -32,7 +29,7 @@ class SyncCommentPresenter {
 
       api.syncComment(comment,editing: editing)
           .then((cid) {
-        print("[Comment::sync()] presenter cid: $cid");
+        print("[Comment::sync()] Presenter.sync() cid: $cid");
         _syncingView.onSyncSuccess(comment,cid,editing);
       })
           .catchError((error) {
@@ -62,29 +59,28 @@ class GetCommentPresenter {
 
   GetCommentContract _getView;
   RestData api = RestData();
-
   GetCommentPresenter(this._getView);
+  getComments(DateTime fromDate) {
 
-  get(DateTime fromDate) {
+    try {
 
-
-    api.getComments(fromDate).then((commentList) {
-
-      try {
-        print("[GetCommentPresenter] ${commentList?.length} comments(s) from server ${commentList
-            .toString()}");
-        _getView.onGetCommentSuccess(commentList);
-      }catch(e){
-        print(e.toString());
-      }
-
-    }).catchError((error) {
-      if (error is SocketException) _getView.onSocketFailure();
-      if (error is LOMException) _getView.onGetCommentFailure(error.statusCode);
-      if (error is Exception) _getView.onException(error);
-    });
+      api.getComments(fromDate).then((commentList) {
 
 
+          print("[GetCommentPresenter::getComments()] ${commentList?.length} comments(s) from server ${commentList
+              .toString()}");
+          _getView.onGetCommentSuccess(commentList);
+
+
+      }).catchError((error) {
+        if (error is SocketException) _getView.onSocketFailure();
+        if (error is LOMException) _getView.onGetCommentFailure(error.statusCode);
+        if (error is Exception) _getView.onException(error);
+      });
+
+    }catch(e){
+      //print(e.toString());
+    }
 
   }
 
@@ -153,7 +149,6 @@ class Comment{
 
     try {
 
-      //print(map);
 
       this.id = map[Comment.idKey];
       this.nid = map[Comment.nidKey];
@@ -161,8 +156,8 @@ class Comment{
       this.cid = map[Comment.cidKey];
       this.uuid = map[Comment.uuidKey];
       this.uid = map[Comment.uidKey];
-      this.created = map[Comment.createdKey];
-      this.modified = map[Comment.modifiedKey];
+      this.created =  double.tryParse(map[Comment.createdKey].toString()) ?? 0.0;
+      this.modified =  double.tryParse(map[Comment.modifiedKey].toString()) ?? 0.0;
       this.status = map[Comment.statusKey];
       this.name = map[Comment.nameKey];
       this.mail = map[Comment.mailKey];

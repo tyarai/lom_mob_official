@@ -12,6 +12,7 @@ class CommentDatabaseHelper {
   final createdCol        = Comment.createdKey;
   final uidCol            = Comment.uidKey;
   final nidCol            = Comment.nidKey;
+  final cidCol            = Comment.cidKey;
   final statusCol         = Comment.statusKey;
   final deleteCol         = Comment.deletedKey;
 
@@ -26,24 +27,24 @@ class CommentDatabaseHelper {
     return Map();
   }
 
-  Future<Map<String, dynamic>> getCommentMapWithNID(int nid) async {
+  Future<Map<String, dynamic>> getCommentMapWithCID(int cid,{int status = 1}) async {
 
-    if(nid != null && nid != 0 ){
+    if(cid != null && cid != 0 ){
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
-          "SELECT * FROM $commentTable WHERE $nidCol = ?  AND $statusCol = ? ", [nid,1]);
+          "SELECT * FROM $commentTable WHERE $cidCol = ?  AND $statusCol = ? ", [cid,status]);
       return ( result != null && result.length != 0 ) ?  result[0] : null;
     }
     return Map();
   }
 
 
-  Future<List<Map<String, dynamic>>> getCommentMapList(int sightingNid) async {
+  Future<List<Map<String, dynamic>>> getCommentMapList(int sightingNid,{int status = 1}) async {
     if(sightingNid != null && sightingNid != 0) {
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
           "SELECT * FROM $commentTable WHERE  $nidCol = ?  AND $statusCol = ? ORDER BY $createdCol ASC ",
-          [sightingNid,1]);
+          [sightingNid,status]);
       return result;
     }
     return List();
@@ -51,7 +52,7 @@ class CommentDatabaseHelper {
 
   Future<int> insertComment(Comment comment) async {
     try {
-      print("insertComment() "+comment.toString());
+      //print("insertComment() "+comment.toString());
       Database database = await DatabaseHelper.instance.database;
       var result = await database.insert(commentTable, comment.toMap());
 
@@ -63,41 +64,47 @@ class CommentDatabaseHelper {
   }
 
   Future<int> updateComment(Comment comment) async {
-    try{
-
-      if(comment.id != null &&  comment.id != 0) {
-
-        Database database = await DatabaseHelper.instance.database;
-        var result = await database.update(commentTable, comment.toMap(),
-            where: '$idCol = ?', whereArgs: [comment.id]);
-        return result;
+    if(comment != null) {
+      try {
+        if (comment.id != null && comment.id != 0) {
+          Database database = await DatabaseHelper.instance.database;
+          var result = await database.update(commentTable, comment.toMap(),
+              where: '$idCol = ?', whereArgs: [comment.id]);
+          return result;
+        } else {
+          Database database = await DatabaseHelper.instance.database;
+          var result = await database.update(commentTable, comment.toMap(),
+              where: '$cidCol = ?', whereArgs: [comment.cid]);
+          return result;
+        }
+      } catch (e) {
+        print("[COMMENT_DATABASE_HELPER::updateComment()] " + e.toString());
       }
-    }catch(e){
-      print("[COMMENT_DATABASE_HELPER::updateComment()] "+e.toString());
-      return 0;
     }
     return 0;
   }
 
   Future<int> deleteComment(Comment comment) async {
-    try{
-      //print("TO BE DELETED ${sighting.nid} -  ${sighting.id}");
-      Database database = await DatabaseHelper.instance.database;
+    if(comment != null) {
+      try {
+        //print("TO BE DELETED ${sighting.nid} -  ${sighting.id}");
+        Database database = await DatabaseHelper.instance.database;
 
-      var deletedRow = 0;
+        var deletedRow = 0;
 
-      if(comment.id != null) {
-        deletedRow = await database.delete(
-            commentTable, where: '$idCol = ?', whereArgs: [comment.id]);
-      }else{
-        deletedRow = await database.delete(
-            commentTable, where: '$nidCol = ?', whereArgs: [comment.nid]);
+        if (comment.id != null) {
+          deletedRow = await database.delete(
+              commentTable, where: '$idCol = ?', whereArgs: [comment.id]);
+        } else {
+          deletedRow = await database.delete(
+              commentTable, where: '$cidCol = ?', whereArgs: [comment.cid]);
+        }
+
+        return deletedRow;
+      } catch (e) {
+        print("[COMMENT_DATABASE_HELPER::deleteSighting()] exception :" +
+            e.toString());
       }
-
-      return deletedRow;
-
-    }catch(e){
-      print("[COMMENT_DATABASE_HELPER::deleteSighting()] exception :"+e.toString());
     }
     return null;
   }

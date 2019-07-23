@@ -93,8 +93,8 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         fromDate = DateTime.now().toUtc();
       }
       print("REFERENCE DATE " + fromDate.toString());
-      this._getSightingPresenter.get(fromDate);
-      this._getCommentPresenter.get(fromDate);
+      //this._getSightingPresenter.get(fromDate);
+      this._getCommentPresenter.getComments(fromDate);
     });
   }
 
@@ -605,7 +605,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         if (comment != null) {
           if (comment.deleted != 1) { // Sighting is not deleted on the server
 
-            db.getCommentMapWithNID(comment.nid).then((result) {
+            db.getCommentMapWithCID(comment.cid).then((result) {
 
               if (result != null && result.length != 0) {
                 // The comment already exists in local database then update it
@@ -650,10 +650,12 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
       }
 
-      setState(() {
-        _isLoading = false;
-      });
+
     }
+
+    setState(() {
+      _isLoading = false;
+    });
 
   }
 
