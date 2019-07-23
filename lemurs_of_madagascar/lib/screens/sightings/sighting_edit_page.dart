@@ -13,7 +13,6 @@ import 'package:lemurs_of_madagascar/models/user.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/error_text.dart';
-import 'package:lemurs_of_madagascar/utils/location/gps_location.dart';
 import 'dart:core';
 import 'package:camera/camera.dart';
 import 'package:lemurs_of_madagascar/utils/camera/camera_page.dart';
@@ -21,7 +20,6 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/utils/location/gps_locator.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
-//import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -53,6 +51,7 @@ class _SightingEditPageState extends State<SightingEditPage>
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
+  GeolocationStatus _geolocationStatus = GeolocationStatus.denied;
 
   List<String> menu = const ["Sighting","Illegal activities"];
   
@@ -83,6 +82,11 @@ class _SightingEditPageState extends State<SightingEditPage>
         : "";
     _titleController.addListener(_onTitleChanged);
     _countController.addListener(_onNumberChanged);
+    GPSLocator.checkPermission().then((_status){
+      if(_status == GeolocationStatus.denied ){
+        GPSLocator.askPermission();
+      }
+    });
   }
 
   @override
@@ -622,22 +626,6 @@ class _SightingEditPageState extends State<SightingEditPage>
 
                   var long = 0.0 ,lat = 0.0,alt = 0.0;
                   
-                  /*Future<LocationData> locationData =
-                      GPSLocation.getOneTimeLocation();
-
-                  if (locationData != null) {
-                    locationData.then((_locationData) {
-                      if (_locationData != null) {
-                        bloc.sightingEventController.add(
-                            SightingLocationChangeEvent(
-                                longitude: _locationData.longitude,
-                                latitude: _locationData.latitude,
-                                altitude: _locationData.altitude));
-                      }
-                    });
-                  }
-                  */
-
                   try {
 
                     Position position;
