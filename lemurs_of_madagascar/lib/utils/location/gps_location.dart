@@ -1,4 +1,4 @@
-import 'package:location/location.dart';
+/*import 'package:location/location.dart';
 
 class GPSLocation {
 
@@ -18,3 +18,4 @@ class GPSLocation {
   }
 
 }
+*/

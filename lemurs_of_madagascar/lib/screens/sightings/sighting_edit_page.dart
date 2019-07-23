@@ -21,7 +21,7 @@ import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
 import 'package:lemurs_of_madagascar/utils/location/gps_locator.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
-import 'package:location/location.dart';
+//import 'package:location/location.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_alert/flutter_alert.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
