@@ -43,6 +43,7 @@ class _SightingEditPageState extends State<SightingEditPage>
     implements SyncSightingContract {
   final bool _editing;
   bool _isIllegalActivity;// = false;
+  bool _updatingGPS = false;
   Sighting sighting;
   String title;
   bool _isLoading = false;
@@ -83,7 +84,8 @@ class _SightingEditPageState extends State<SightingEditPage>
     _titleController.addListener(_onTitleChanged);
     _countController.addListener(_onNumberChanged);
     GPSLocator.checkPermission().then((_status){
-      if(_status == GeolocationStatus.denied ){
+      print(_status.toString());
+      if(_status == GeolocationStatus.denied || _status == GeolocationStatus.unknown){
         GPSLocator.askPermission();
       }
     });
@@ -615,7 +617,9 @@ class _SightingEditPageState extends State<SightingEditPage>
             Expanded(
               flex: 1,
               //crossAxisAlignment: CrossAxisAlignment.start,
-              child: OutlineButton(
+              child: _updatingGPS ?
+              Container(child:Center(child:SizedBox(width: 30,height: 30, child: CircularProgressIndicator(strokeWidth: 2.0,)))) :
+              OutlineButton(
                 padding: EdgeInsets.all(5),
                 child: Text("update GPS location",
                     textScaleFactor: 1,
@@ -624,6 +628,9 @@ class _SightingEditPageState extends State<SightingEditPage>
                         .copyWith(color: Constants.mainColor)),
                 onPressed: () async {
 
+                  setState((){
+                    _updatingGPS = true;
+                  });
                   var long = 0.0 ,lat = 0.0,alt = 0.0;
                   
                   try {
@@ -641,21 +648,29 @@ class _SightingEditPageState extends State<SightingEditPage>
 
                     }
 
-                    position = await GPSLocator.getOneTimeLocation();
-                    if (position != null) {
-                      lat = position.latitude;
-                      long = position.longitude;
-                      alt = position.altitude;
-                    }
+                    GPSLocator.getOneTimeLocation().then((_position){
+
+                      setState((){
+                        _updatingGPS = false;
+                      });
+
+                      if (_position != null) {
+                        lat = _position.latitude;
+                        long = _position.longitude;
+                        alt = _position.altitude;
+                      }
+
+                      bloc.sightingEventController.add(
+                            SightingLocationChangeEvent(
+                                longitude: long,
+                                latitude: lat,
+                                altitude: alt));
 
 
-                    print("alt $alt long $long lat $lat");
+                      print("alt $alt long $long lat $lat");
 
-                    bloc.sightingEventController.add(
-                    SightingLocationChangeEvent(
-                        longitude: long,
-                        latitude: lat,
-                        altitude: alt));
+                    });
+
 
                   } catch(e) {
                       print("[Sighting_edit_page::_getUpdateLocationButton()] " +e.toString());
