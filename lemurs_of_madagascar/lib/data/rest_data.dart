@@ -540,6 +540,7 @@ class RestData {
         String token = currentSession.token;
 
         String formattedDate = fromDate.toIso8601String();
+        //String formattedDate = fromDate.toUtc().toIso8601String();
 
         String params = "?";
         params += "uid=${user.uid}";

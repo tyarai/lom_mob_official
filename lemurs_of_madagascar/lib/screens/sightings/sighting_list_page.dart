@@ -78,6 +78,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   }
 
   _loadOnlineList() {
+
     setState(() {
       _isLoading = true;
     });
@@ -92,9 +93,14 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         //fromDate =   DateTime.now().millisecondsSinceEpoch;
         fromDate = DateTime.now().toUtc();
       }
-      print("REFERENCE DATE " + fromDate.toString());
-      //this._getSightingPresenter.get(fromDate);
+
+      this._getSightingPresenter.get(fromDate);
       this._getCommentPresenter.getComments(fromDate);
+
+      /*setState(() {
+        _isLoading = false;
+      });*/
+
     });
   }
 
@@ -558,15 +564,15 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
       }
 
-      setState(() {
+      /*setState(() {
         _isLoading = false;
-      });
+      });*/
     }
 
-    /*setState((){
+    setState((){
        print("NOT Loading");
        _isLoading = false;
-     });*/
+     });
   }
 
   @override
@@ -653,9 +659,9 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
     }
 
-    setState(() {
+    /*setState(() {
       _isLoading = false;
-    });
+    });*/
 
   }
 
