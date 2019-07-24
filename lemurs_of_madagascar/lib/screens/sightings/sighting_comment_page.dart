@@ -226,7 +226,10 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
               children: <Widget>[
                 Expanded(flex:1,child:_buildAvatar(comment)),
                 Padding(padding: EdgeInsets.only(left: 10.0)),
-                Expanded(flex:4,child:Text(comment.commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,)),
+                Expanded(flex:4,child:Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(comment.commentBody,textAlign: TextAlign.justify, style: Constants.defaultCommentTextStyle,),
+                )),
                 Expanded(flex:1,child: _delete(comment)  )
               ]),
           )),
@@ -239,18 +242,21 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
   }
 
   Widget _delete(Comment comment){
-      return FutureBuilder(
+      return FutureBuilder<bool>(
         future:_checkCommentOwnership(comment),
         builder:(context,snapshot){
-          return IconButton(
-            icon: Icon(Icons.remove_circle_outline,color: Colors.red,),
-              onPressed: (){
-              setState(() {
-                _isLoading = true;
-              });
-              _markCommentAsDeleted(comment);
-            },
-          );
+          if(snapshot.hasData && snapshot.data ) {
+            return IconButton(
+              icon: Icon(Icons.remove_circle_outline, color: Colors.red,),
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                });
+                _markCommentAsDeleted(comment);
+              },
+            );
+          }
+          return Container();
         }
       );
     }

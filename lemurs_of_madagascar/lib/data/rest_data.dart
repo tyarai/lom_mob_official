@@ -666,7 +666,7 @@ class RestData {
           "uid": comment.uid.toString(),
           "sighting_uuid": comment.sightingUUID,
           "nid": comment.nid.toString(),
-          "status": "1",
+          "status": comment.status.toString(),
           "subject": "",
           "synced": "1"
         };
