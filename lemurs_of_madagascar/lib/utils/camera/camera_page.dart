@@ -214,11 +214,6 @@ class CameraPageState extends State<CameraPage> {
 
     return WillPopScope(
       onWillPop: () async {
-
-        //SightingBloc bloc = BlocProvider.of<SightingBloc>(context);
-        //bloc.sightingEventController.add(SightingImageChangeEvent(""));
-        //print("[CAMERA_PAGE::onWillPop()] - reset sighting image");
-        //print("[CAMERA_PAGE::onWillPop()]");
         return true;
       }
       ,
@@ -404,7 +399,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
     return WillPopScope(
 
       onWillPop: () async {
-        print("preview screen will pop");
+        //print("preview screen will pop");
         _close(context,this.gotImage);
         return true; //
 

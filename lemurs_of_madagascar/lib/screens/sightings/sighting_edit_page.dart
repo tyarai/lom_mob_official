@@ -67,7 +67,7 @@ class _SightingEditPageState extends State<SightingEditPage>
   }
 
   @override
-  void dispose() {
+  void dispose(){
     super.dispose();
     _titleController.dispose();
     _countController.dispose();

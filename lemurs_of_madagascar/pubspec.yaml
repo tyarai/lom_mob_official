@@ -41,7 +41,7 @@ dependencies:
   camera: ^0.5.2+1
 
   #image-picker to select photo form gallery and/or take photo with camera
-  image_picker: ^0.6.0+8
+  image_picker: ^0.6.0+17
 
   # Internationalization module to deal with date format and so on
   intl: ^0.15.7
