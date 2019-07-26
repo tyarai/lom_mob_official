@@ -364,7 +364,7 @@ class Sighting {
     map[Sighting.altKey] = this.altitude;
     map[Sighting.hasPhotoChangedKey] = this.hasPhotoChanged;
     //map[Sighting.isIllegalKey] = this.illegal;
-    map[Sighting.activityTagTidKey] = this.activityTagTid;
+    map[Sighting.activityTagTidKey] = this.activityTagTid  ;
 
     return map;
   }

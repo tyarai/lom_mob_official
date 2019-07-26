@@ -324,6 +324,7 @@ class _SightingEditPageState extends State<SightingEditPage>
         });
   }
 
+  /*
   _getActivityTypeItems() {
     TagDatabaseHelper tagDB = TagDatabaseHelper();
     Future<List<Tag>> tags = tagDB.getTagList("illegal_activity_type");
@@ -347,7 +348,7 @@ class _SightingEditPageState extends State<SightingEditPage>
       }
       //return List();
     });
-  }
+  } */
 
   _navigateToTagSelectList(BuildContext context, ListProvider<Tag> provider) {
     SightingBloc bloc = BlocProvider.of<SightingBloc>(context);

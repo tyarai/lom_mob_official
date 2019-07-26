@@ -291,21 +291,6 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     LOMSharedPreferences.setString(
         LOMSharedPreferences.lastSightingMenuIndexKey, index.toString());
 
-    /*switch(index) {
-
-      case 0:
-        {
-          _loadSighting(false);
-          break;
-        }
-
-      case 1:
-        {
-          _loadSighting(true);
-          break;
-        }
-
-    }*/
 
   }
 
@@ -340,23 +325,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
     );
 
-    /*return FutureBuilder<List<Sighting>>(
 
-        future: _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true),
-
-        builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
-          if (snapshot.hasData ) {
-            print("GOT LIST");
-            return ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext buildContext, int index) {
-                  Sighting sighting = snapshot.data[index];
-                  return this.buildCellItem(context, sighting, sightingBloc);
-                });
-          }
-          return Container(child: CircularProgressIndicator(),);
-        }); */
   }
 
   /*
@@ -496,17 +465,11 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     setState(() {
       _isLoading = false;
     });
-    //ErrorHandler.handleException(context, e);
   }
 
 
   void onLoadingListSuccess() {
-    //print("TATO");
-    /*setState((){
-      _isLoading = false;
-    });*/
 
-    //ErrorHandler.handleException(context, e);
   }
 
   @override

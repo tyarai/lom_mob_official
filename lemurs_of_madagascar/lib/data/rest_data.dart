@@ -326,7 +326,8 @@ class RestData {
                   var type = (sighting.activityTagTid != null &&
                       sighting.activityTagTid != 0)
                       ? sighting.activityTagTid
-                      : 0.toString();//"_none";
+                      //: 0.toString();//"_none";
+                      : null;
 
 
                   Map<String, dynamic> postBody = {
@@ -345,17 +346,17 @@ class RestData {
                     "field_altitude": altitude,// sighting.altitude.toString(),
                     "field_is_local": editing ? sighting.isLocal.toString() : 0
                         .toString(), //NO
-                    /*"field_is_synced": editing
-                        ? sighting.isSynced.toString()
-                        : 1
-                        .toString(), //YES*/
                     "field_is_synced" : 1.toString(),
                     "field_count":  sighting.speciesCount != null ? sighting.speciesCount.toString() : 0,
                     "field_photo": fid.toString(),
-                    "field_type": type,//sighting.activityTagTid.toString(),
+                    //"field_type": type,//sighting.activityTagTid.toString(),
                     //TODO Optimisation do not upload unchanged photo
                     "field_place_name_reference": siteNID,//sighting.placeNID.toString(),
                   };
+
+                  if (type != null){
+                    postBody["field_type"] = type;
+                  }
 
 
                   Map<String, String> postHeaders = {

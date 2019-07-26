@@ -47,6 +47,7 @@ class CameraPageState extends State<CameraPage> {
       widget.camera,
       // Define the resolution to use
       ResolutionPreset.medium,
+      enableAudio: false,
     );
 
     
