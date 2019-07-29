@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
@@ -45,6 +46,8 @@ class SyncSightingPresenter {
   sync(Sighting sighting, {bool editing = false}) {
 
     if (sighting != null) {
+
+
 
       api.syncSighting(sighting, editing: editing).then((nid) {
 
@@ -766,6 +769,7 @@ class Sighting {
       List<String> pathSegments = imageURI.pathSegments;
       String fileName = pathSegments[pathSegments.length - 1];
 
+      /*
       await Sighting._downloadHttpImage(sighting);
       sighting.photoFileName = fileName;
       sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
@@ -775,6 +779,16 @@ class Sighting {
         }).catchError((error){
           print("Sighting::Getimage() Error unable to update sighting photo :" +error.toString());
         });
+      */
+      print("IMAGE "+sighting.photoFileName);
+      //return Image.network(sighting.photoFileName);
+      CachedNetworkImage cachedImage = CachedNetworkImage(
+        placeholder: (context, url) => CircularProgressIndicator(),
+        imageUrl: sighting.photoFileName,
+      );
+
+      if(cachedImage != null)
+
     }
 
     if (sighting != null &&
@@ -804,14 +818,12 @@ class Sighting {
     return getApplicationDocumentsDirectory().then((folder) {
       if (folder != null) {
         String fullPath = join(folder.path, sighting.photoFileName);
-        //print("SIGHTING PHOTO ${sighting.photoFileName}");
+        print("SIGHTING PHOTO ${sighting.photoFileName}");
 
         File file = File(fullPath);
 
         if (file.existsSync()) {
-          return Image.file(
-            file,
-          ); // Return image from Documents
+          return Image.file(file,); // Return image from Documents
         }
       }
 
@@ -872,6 +884,7 @@ class Sighting {
     SightingDatabaseHelper.deleteAllSightings();
   }
 
+  /*
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,
       {double width = 1280.0,
@@ -902,9 +915,9 @@ class Sighting {
     }
 
     return Container();
-  }
+  } */
 
-  /*
+
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,
       {double width = 1280.0,
@@ -949,10 +962,10 @@ class Sighting {
     }
 
     return Container();
-  } */
+  }
 
   @override
   String toString() {
-    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName}";
+    return " [ID]:${this.id}  -  [NID]:${this.nid}  -  [title]:${this.title}  - [tagTID]:${this.activityTagTid} -  [species NID]:${this.speciesNid} - [species name]:${this.speciesName}   - [photo]:${this.photoFileName}  - [date]:${this.date.toString()}  - [count]:${this.speciesCount}  - [long]:${this.longitude}  - [lat]:${this.latitude}  - [alt]:${this.altitude}  - [place NID]:${this.placeNID} - [placename]:${this.placeName} - [ TAG] ${this.tag.toString()}";
   }
 }

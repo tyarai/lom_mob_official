@@ -272,7 +272,12 @@ class RestData {
 
   Future<int> syncSighting(Sighting sighting, {bool editing = false}) async {
 
+
+
     if (sighting != null) {
+
+
+
 
       Future<User> _user =  User.getCurrentUser();
 
@@ -392,6 +397,8 @@ class RestData {
                     });
 
                 } else {
+
+                  //print("NID BEFORE CALL ${sighting.nid} - editing $editing");
 
                   var type = (sighting.activityTagTid != null &&
                       sighting.activityTagTid != 0)

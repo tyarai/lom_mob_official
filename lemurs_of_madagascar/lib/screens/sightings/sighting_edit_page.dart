@@ -1063,6 +1063,8 @@ class _SightingEditPageState extends State<SightingEditPage>
       _isLoading = false;
     });
 
+    print("[onSyncSuccess]"+ sighting.toString());
+
     // Update this sighting nid which was from the server
     if (nid > 0 && sighting != null) {
 
