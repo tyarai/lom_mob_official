@@ -937,6 +937,7 @@ class _SightingEditPageState extends State<SightingEditPage>
                     /*if (arg == null || arg.length == 0) {
                       return ErrorText.emptyString;
                     }*/
+                    return null;
                   },
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.done,
@@ -967,6 +968,7 @@ class _SightingEditPageState extends State<SightingEditPage>
                     /*if ((arg == null || arg.length == 0 || int.parse(arg) <= 0) &&  (!this._isIllegalActivity) ){
                       return ErrorText.invalidIntegerNumber;
                     }*/
+                    return null;
                   },
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,

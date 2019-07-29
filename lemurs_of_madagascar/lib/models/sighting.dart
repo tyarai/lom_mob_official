@@ -558,7 +558,7 @@ class Sighting {
                     assetImage: true),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator(backgroundColor: Colors.redAccent,));
                   }
                   return snapshot.data;
                 }),
@@ -621,7 +621,7 @@ class Sighting {
                     child: FutureBuilder<bool>(
                       future: sighting.loadTag(),
                       builder: (context, snapshot) {
-                        if (!snapshot.hasData) return Container();
+
                         if (snapshot.data != null && snapshot.hasData) {
                           return sighting.tag != null
                               ? Text(
@@ -632,6 +632,9 @@ class Sighting {
                           )
                               : Container();
                         }
+
+                        return Container();
+
                       },
                     ),
                   ),
@@ -686,7 +689,7 @@ class Sighting {
 
   }
 
-  static Future<Image> getImage(Sighting sighting) async {
+  /*static Future<Image> getImage(Sighting sighting) async {
 
     if(sighting != null && sighting.photoFileName.startsWith(Constants.http)){
 
@@ -728,6 +731,67 @@ class Sighting {
         if (photograph != null) {
           String assetPath =
               photograph.photoAssetPath(ext: Constants.imageType);
+          Image image = Image.asset(assetPath);
+
+          return image;
+        }
+
+        return null;
+      });
+    }
+
+    return getApplicationDocumentsDirectory().then((folder) {
+      if (folder != null) {
+        String fullPath = join(folder.path, sighting.photoFileName);
+        //print("SIGHTING PHOTO ${sighting.photoFileName}");
+
+        File file = File(fullPath);
+
+        if (file.existsSync()) {
+          return Image.file(
+            file,
+          ); // Return image from Documents
+        }
+      }
+
+      return null;
+    });
+  }*/
+
+  static Future<Image> getImage(Sighting sighting) async {
+
+    if(sighting != null && sighting.photoFileName.startsWith(Constants.http)){
+
+      Uri imageURI = Uri.parse(sighting.photoFileName);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      await Sighting._downloadHttpImage(sighting);
+      sighting.photoFileName = fileName;
+      sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
+        if(savedSighting != null){
+            print("[UPDATED SIGHTING IMAGE] ${ savedSighting.photoFileName}");
+          }
+        }).catchError((error){
+          print("Sighting::Getimage() Error unable to update sighting photo :" +error.toString());
+        });
+    }
+
+    if (sighting != null &&
+        sighting.photoFileName.startsWith(Constants.appImagesAssetsFolder)) {
+      Species species = sighting.species;
+
+      if (species == null) {
+        await sighting.loadSpeciesAndSiteAndTag();
+      }
+
+      Future<Photograph> photo =
+      sighting._species.getPhotographObjectAtIndex(0);
+
+      return photo.then((photograph) {
+        if (photograph != null) {
+          String assetPath =
+          photograph.photoAssetPath(ext: Constants.imageType);
           Image image = Image.asset(assetPath);
 
           return image;
@@ -811,6 +875,39 @@ class Sighting {
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,
       {double width = 1280.0,
+        double height = Constants.sightingListImageHeight,
+        bool fittedImage = false,
+        BoxFit standardFit = BoxFit.cover,
+        BoxFit assetImageFit = BoxFit.fitHeight,
+        bool assetImage = false}) async {
+
+    if (sighting != null) {
+
+      Image _image = await Sighting.getImage(sighting);
+      var fit = BoxFit.fitWidth;
+      return Container(
+        height:  height ,
+        width: fit == BoxFit.fitHeight ? double.infinity : width,
+        child: !fittedImage
+            ? _image
+            :
+        //FittedBox(fit: assetImage ? assetImageFit : standardFit, child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [_image])),
+        FittedBox(
+            fit: fit,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [_image])),
+      ); // Return image from Documents
+
+    }
+
+    return Container();
+  }
+
+  /*
+  static Future<Container> getImageContainer(
+      Sighting sighting, BuildContext buildContext,
+      {double width = 1280.0,
       double height = Constants.sightingListImageHeight,
       bool fittedImage = false,
       BoxFit standardFit = BoxFit.cover,
@@ -852,7 +949,7 @@ class Sighting {
     }
 
     return Container();
-  }
+  } */
 
   @override
   String toString() {
