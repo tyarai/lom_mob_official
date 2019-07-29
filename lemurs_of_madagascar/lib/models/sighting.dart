@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
@@ -761,6 +762,30 @@ class Sighting {
     });
   }*/
 
+  static Future<bool> _copyFileToDocuments(File file,String newFileName) async {
+
+    if(file != null && newFileName != null) {
+
+      String newFilePath =  (await getApplicationDocumentsDirectory()).path;
+      newFilePath = join(newFilePath, newFileName);
+
+      if(file != null && file.existsSync()) {
+
+        return file.copy(newFilePath).then((_newFile){
+
+         if(_newFile != null) {
+           return true;
+         }
+
+         return false;
+
+        });
+
+      }
+    }
+    return false;
+  }
+
   static Future<Image> getImage(Sighting sighting) async {
 
     if(sighting != null && sighting.photoFileName.startsWith(Constants.http)){
@@ -769,25 +794,34 @@ class Sighting {
       List<String> pathSegments = imageURI.pathSegments;
       String fileName = pathSegments[pathSegments.length - 1];
 
-      /*
-      await Sighting._downloadHttpImage(sighting);
-      sighting.photoFileName = fileName;
-      sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
-        if(savedSighting != null){
+
+      Sighting._downloadHttpImage(sighting).then((_){
+        sighting.photoFileName = fileName;
+        sighting.saveToDatabase(true,nid:sighting.nid).then((savedSighting){
+          if(savedSighting != null){
             print("[UPDATED SIGHTING IMAGE] ${ savedSighting.photoFileName}");
           }
+
         }).catchError((error){
           print("Sighting::Getimage() Error unable to update sighting photo :" +error.toString());
         });
-      */
-      print("IMAGE "+sighting.photoFileName);
-      //return Image.network(sighting.photoFileName);
-      CachedNetworkImage cachedImage = CachedNetworkImage(
+      });
+
+      print("[IMAGE WIDGET] "+sighting.photoFileName);
+      return Image.network(sighting.photoFileName);
+
+      /*CachedNetworkImage cachedImage = CachedNetworkImage(
         placeholder: (context, url) => CircularProgressIndicator(),
         imageUrl: sighting.photoFileName,
       );
 
-      if(cachedImage != null)
+
+      if(cachedImage != null){
+        var file = await DefaultCacheManager().getSingleFile(sighting.photoFileName);
+        Sighting._copyFileToDocuments(file, fileName).then((fileCopied){
+          if(fileCopied) print("[File copied to documents] $fileName");
+        });
+      }*/
 
     }
 

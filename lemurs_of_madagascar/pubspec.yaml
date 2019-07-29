@@ -80,6 +80,8 @@ dependencies:
   # Download image and cache it
   cached_network_image: ^1.1.1
 
+  flutter_cache_manager: ^1.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
