@@ -64,13 +64,13 @@ class LemurLifeList {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children:[
-              Text(lifeList._speciesName,style:Constants.sightingTitleTextStyle,textAlign: TextAlign.start,),
+              Text(lifeList._speciesName,style:Constants.sightingTitleTextStyle.copyWith(fontSize: 22),textAlign: TextAlign.start,),
               Padding(padding: EdgeInsets.only(top:10),),
               Row(
                 children:[
-                  Expanded(flex: 1, child:Text(lifeList._totalObserved.toString() + " observed",style:Constants.defaultSubTextStyle,textAlign: TextAlign.start,)),
+                  Expanded(flex: 1, child:Text(lifeList._totalObserved.toString() + " observed",style:Constants.defaultSubTextStyle.copyWith(color: Colors.blueGrey,fontWeight: FontWeight.w700,fontSize: 18),textAlign: TextAlign.start,)),
                   Spacer(flex: 1,),
-                  Expanded(flex: 1, child:Text(lifeList._totalSightings.toString() + " sightings",style:Constants.defaultSubTextStyle,textAlign: TextAlign.start,)),
+                  Expanded(flex: 1, child:Text(lifeList._totalSightings.toString() + " sightings",style:Constants.defaultSubTextStyle.copyWith(color: Colors.blueGrey,fontWeight: FontWeight.w700,fontSize: 18),textAlign: TextAlign.start,)),
                 ],
               ),
 
