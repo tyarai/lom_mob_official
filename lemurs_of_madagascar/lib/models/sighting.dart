@@ -21,6 +21,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 
+
 abstract class SyncSightingContract {
   void onSyncSuccess(Sighting sighting, int nid, bool editing);
   void onDeleteSuccess(Sighting sighting);
@@ -555,6 +556,8 @@ class Sighting {
                 future: Sighting.getImageContainer(sighting, buildContext,
                     width: screenWidth,
                     height: Constants.sightingListImageHeight,
+                    //width:double.infinity,
+                    //height: double.infinity,
                     fittedImage: true,
                     assetImage: true),
                 builder: (context, snapshot) {
@@ -943,11 +946,27 @@ class Sighting {
     return Container();
   } */
 
+  static Future<BoxFit> _getBoxFit(Image image,{BoxFit defaultFit = BoxFit.cover}) async {
+    var fit = defaultFit;
+    if(image != null){
+       image.image
+          .resolve(new ImageConfiguration())
+          .addListener(new ImageStreamListener((ImageInfo image, bool _) {
+
+        if(image.image.height >= image.image.width){
+          fit = BoxFit.fitHeight;
+          print("WIDTH ${image.image.width} HEIGHT ${image.image.height}");
+        }
+      }));
+    }
+    return fit;
+  }
+
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,
       {double width = 1280.0,
       double height = Constants.sightingListImageHeight,
-      bool fittedImage = false,
+      bool fittedImage = true,
       BoxFit standardFit = BoxFit.cover,
       BoxFit assetImageFit = BoxFit.fitHeight,
       bool assetImage = false}) async {
@@ -956,21 +975,14 @@ class Sighting {
 
       Future<Image> image = Sighting.getImage(sighting);
 
-      return image.then((_image) {
+      return image.then((_image) async {
 
-        var fit = BoxFit.fitWidth;
+        var fit = await _getBoxFit(_image);
 
-        /*ImageStream imageStream =
-            _image.image.resolve(createLocalImageConfiguration(buildContext));
-        imageStream.addListener((imageInfo, _) {
-          if (imageInfo.image.width < imageInfo.image.height) {
-            fit = BoxFit.fitHeight;
-          }
-        });*/
 
         return Container(
-          height:  height ,
-          width: fit == BoxFit.fitHeight ? double.infinity : width,
+          //height:  height ,
+          //width: fit == BoxFit.fitHeight ? double.infinity : width,
           child: !fittedImage
               ? _image
               :
