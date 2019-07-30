@@ -69,6 +69,16 @@ class SightingDatabaseHelper  {
     return List();
   }
 
+  Future<List<Map<String, dynamic>>> getLemurLifeMapList(int uid) async {
+    if(uid != null && uid != 0) {
+      Database database = await DatabaseHelper.instance.database;
+      var result;
+      result = await database.rawQuery(" SELECT _speciesNid,_speciesName,totalObserved,totalSightings FROM(  SELECT _speciesNid,_speciesName,SUM(_speciesCount) totalObserved,count(_speciesNid) totalSightings FROM $sightingsTable WHERE _uid = '$uid' AND _deleted ='0' GROUP BY _speciesNid ORDER BY _speciesName ASC)aa ");
+      return result;
+    }
+    return List();
+  }
+
   Future<int> insertSighting(Sighting sighting) async {
     try {
       Database database = await DatabaseHelper.instance.database;
@@ -150,7 +160,6 @@ class SightingDatabaseHelper  {
     return result;
   }
 
-  
   Future<List<Sighting>> getSightingList(int uid,{int pageIndex,int limit,bool illegalActivity=false}) async {
 
     var sightingMapList = await this.getSightingMapList(uid,pageIndex:pageIndex,limit:limit ,illegalActivity: illegalActivity);
@@ -163,6 +172,20 @@ class SightingDatabaseHelper  {
     }
 
     //print(list.toString());
+    return list;
+  }
+
+  Future<List<Sighting>> getLemurLifeList(int uid) async {
+
+    var lemurLifeListMapList = await this.getLemurLifeMapList(uid);
+    int count = lemurLifeListMapList.length;
+
+    List<Sighting> list = new List<Sighting>();
+
+    for(int i=0 ; i < count ; i++){
+      list.add(Sighting.fromMap(lemurLifeListMapList[i]));
+    }
+
     return list;
   }
 

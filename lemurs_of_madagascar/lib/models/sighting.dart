@@ -805,22 +805,11 @@ class Sighting {
         });
       });
 
-      print("[IMAGE WIDGET] "+sighting.photoFileName);
+      //print("[IMAGE WIDGET] "+sighting.photoFileName);
       return Image.network(sighting.photoFileName);
       //return FadeInImage.memoryNetwork(placeholder: kTransparentImage, image: sighting.photoFileName);
 
-      /*CachedNetworkImage cachedImage = CachedNetworkImage(
-        placeholder: (context, url) => CircularProgressIndicator(),
-        imageUrl: sighting.photoFileName,
-      );
 
-
-      if(cachedImage != null){
-        var file = await DefaultCacheManager().getSingleFile(sighting.photoFileName);
-        Sighting._copyFileToDocuments(file, fileName).then((fileCopied){
-          if(fileCopied) print("[File copied to documents] $fileName");
-        });
-      }*/
 
     }
 
@@ -917,6 +906,10 @@ class Sighting {
     SightingDatabaseHelper.deleteAllSightings();
   }
 
+  static List<Sighting> lemurLifeList(int uid){
+
+  }
+
   /*
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,
@@ -949,7 +942,6 @@ class Sighting {
 
     return Container();
   } */
-
 
   static Future<Container> getImageContainer(
       Sighting sighting, BuildContext buildContext,

@@ -10,9 +10,6 @@ import 'dart:core';
 import 'package:lemurs_of_madagascar/data/rest_data.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
-import 'package:lemurs_of_madagascar/utils/success_text.dart';
-import 'package:flutter_alert/flutter_alert.dart';
-import 'package:lemurs_of_madagascar/utils/error_text.dart';
 import 'package:lemurs_of_madagascar/models/user.dart';
 
 
@@ -191,11 +188,14 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
           }));
 
       menuItems.add(ListTile(
-        title: Text("Primate watching",
+        title: Text("My lemur life list",
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/ico_eye.png",
             width: _iconSize, height: _iconSize),
-      ));
+        onTap: () {
+          Navigator.pop(context); // Close the drawer
+          _showLemurLifeList();
+      }));
 
       menuItems.add(ListTile(
         title: Text("Origin of lemurs",
@@ -282,6 +282,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
       ));
 
       return menuItems;
+    }
+
+    _showLemurLifeList(){
+      Navigator.pushNamed(context, '/lemur_life_list');
     }
 
     _logOut() {
