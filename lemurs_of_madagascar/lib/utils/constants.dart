@@ -38,7 +38,7 @@ class Constants {
   static const TextStyle speciesTitleStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.titleFontSize);
   static const TextStyle defaultTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.textFontSize);
   static const TextStyle defaultCommentTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.commentFontSize);
-  static const TextStyle defaultSubTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.subTextFontSize);
+  static const TextStyle defaultSubTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.subTextFontSize,fontWeight: FontWeight.w500);
 
   // Form Input text
   static const TextStyle formLabelTextStyle = TextStyle(fontFamily: fontFamily,fontSize: Constants.labelFontSize);

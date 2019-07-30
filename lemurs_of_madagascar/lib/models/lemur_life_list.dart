@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/models/species.dart';
+import 'package:lemurs_of_madagascar/utils/constants.dart';
+
 class LemurLifeList {
 
   static String idKey             = "_id";
@@ -42,6 +46,44 @@ class LemurLifeList {
     map[LemurLifeList.totalObservedKey]  = this._totalObserved;
 
     return map;
+
+  }
+
+  static Widget buildCellInfo( LemurLifeList lifeList, BuildContext buildContext,
+      {CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
+
+    try {
+
+      if (lifeList != null) {
+
+        int speciesNID = lifeList._speciesNid;
+
+        Species species = Species.withID(id:speciesNID);
+
+        return ListTile(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children:[
+              Text(lifeList._speciesName,style:Constants.sightingTitleTextStyle,textAlign: TextAlign.start,),
+              Padding(padding: EdgeInsets.only(top:10),),
+              Row(
+                children:[
+                  Expanded(flex: 1, child:Text(lifeList._totalObserved.toString() + " observed",style:Constants.defaultSubTextStyle,textAlign: TextAlign.start,)),
+                  Spacer(flex: 1,),
+                  Expanded(flex: 1, child:Text(lifeList._totalSightings.toString() + " sightings",style:Constants.defaultSubTextStyle,textAlign: TextAlign.start,)),
+                ],
+              ),
+
+            ],
+          ),
+        );
+      }
+
+    }catch(error){
+      print("[LemurLifeList::buildCellInfo()] Error :${error.toString()}");
+    }
+
+    return Container();
 
   }
 

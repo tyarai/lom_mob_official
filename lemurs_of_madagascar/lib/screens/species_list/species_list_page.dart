@@ -28,18 +28,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
   @override
   void initState() {
     super.initState();
-
-    // Only do this one time if the List is empty
-    /*if (_speciesList.length == 0) {
-      Future<List<Species>> futureList = _loadSpeciesFromDatabase();
-      futureList.then((list) {
-        setState(() {
-          _speciesList = list;
-        });
-      });
-    }*/
     _initSpeciesList();
-
   }
 
   _initSpeciesList() async {
@@ -48,11 +37,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     }
   }
 
- /*Future<List<Species>> _loadSpeciesFromDatabase({int pageIndex,int limit}) async {
-    SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
-    List<Species> futureList = await speciesDBHelper.getSpeciesList(pageIndex:pageIndex,limit :limit);
-    return futureList;
-  }*/
 
   Future<List<Species>> _loadSpeciesFromDatabase({int pageIndex,int limit}) async {
     SpeciesDatabaseHelper speciesDBHelper = SpeciesDatabaseHelper();
@@ -68,6 +52,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
     return Scaffold(
       backgroundColor: Constants.backGroundColor,
       appBar: AppBar(
+        centerTitle: true,
         actions: <Widget>[
           _buildSearch(),
         ],

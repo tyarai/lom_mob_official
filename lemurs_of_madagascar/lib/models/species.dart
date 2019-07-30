@@ -206,7 +206,6 @@ class Species extends SelectableListItem {
 
   }
 
-
   String get imageFile    =>  _imageFile ;
   String get mapFileName  =>  _mapFileName ;
 
@@ -324,7 +323,6 @@ class Species extends SelectableListItem {
     }
     return Container();
   }
-
 
   static Widget buildTextInfo(Species species,{bool showMalagasy = true,CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
     if(species != null) {

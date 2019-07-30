@@ -406,7 +406,6 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                 currentUid, pageIndex: pageIndex,
                 limit: limit,
                 illegalActivity: illegalActivity).then((_list) {
-              print("Lazy List " + _list.toString());
               this.onLoadingListSuccess();
               //this._myCurrentList = _list;
               return _list;
