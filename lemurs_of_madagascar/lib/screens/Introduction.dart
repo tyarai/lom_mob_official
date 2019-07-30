@@ -182,7 +182,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
       ));
 
       menuItems.add(ListTile(
-        title: Text("Sightings", style: TextStyle(fontSize: _menuItemFontSize)),
+        title: Text("Sightings & illegal activities", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/binocular.png",
             width: _iconSize, height: _iconSize),
         onTap: () {
@@ -255,12 +255,12 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             width: _iconSize, height: _iconSize),
       ));
 
-      menuItems.add(ListTile(
+      /*menuItems.add(ListTile(
         title: Text("Report illegal activities",
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/sign_forbidden.png",
             width: _iconSize, height: _iconSize),
-      ));
+      ));*/
 
       menuItems.add(ListTile(
         title: Text("App instructions",

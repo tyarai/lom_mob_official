@@ -354,7 +354,7 @@ class Species extends SelectableListItem {
           crossAxisAlignment: crossAlignment,
           mainAxisAlignment: mainAlignment,
           children: <Widget>[
-            Text(info,style : style),
+            Text(info,style : style, textAlign: TextAlign.justify,),
           ]),
     );
   }

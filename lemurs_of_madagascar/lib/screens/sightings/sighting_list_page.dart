@@ -155,7 +155,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
           centerTitle: true,
           actions: <Widget>[
             _buildAddSighting(),
-            _buildSearch(),
+            //_buildSearch(),
           ],
           title: _buildTitle(),
         ),
@@ -240,7 +240,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
             //fromDate =   DateTime.now().millisecondsSinceEpoch;
             fromDate = DateTime.now().toUtc();
           }
-          print("REFERENCE DATE " + fromDate.toString());
+          //print("REFERENCE DATE " + fromDate.toString());
           this._getSightingPresenter.get(fromDate);
         });
       },

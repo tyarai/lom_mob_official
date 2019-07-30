@@ -1,7 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:lemurs_of_madagascar/bloc/bloc_provider/bloc_provider.dart';
 import 'package:lemurs_of_madagascar/bloc/sighting_bloc/sighting_bloc.dart';
@@ -562,7 +559,7 @@ class Sighting {
                     assetImage: true),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator(backgroundColor: Colors.redAccent,));
+                    return Center(child: CircularProgressIndicator(strokeWidth: 1.0,));
                   }
                   return snapshot.data;
                 }),
@@ -787,6 +784,7 @@ class Sighting {
   }
 
   static Future<Image> getImage(Sighting sighting) async {
+  //static Future<Image> getImage(Sighting sighting) async {
 
     if(sighting != null && sighting.photoFileName.startsWith(Constants.http)){
 
@@ -809,6 +807,7 @@ class Sighting {
 
       print("[IMAGE WIDGET] "+sighting.photoFileName);
       return Image.network(sighting.photoFileName);
+      //return FadeInImage.memoryNetwork(placeholder: kTransparentImage, image: sighting.photoFileName);
 
       /*CachedNetworkImage cachedImage = CachedNetworkImage(
         placeholder: (context, url) => CircularProgressIndicator(),
@@ -852,7 +851,7 @@ class Sighting {
     return getApplicationDocumentsDirectory().then((folder) {
       if (folder != null) {
         String fullPath = join(folder.path, sighting.photoFileName);
-        print("SIGHTING PHOTO ${sighting.photoFileName}");
+        //print("SIGHTING PHOTO ${sighting.photoFileName}");
 
         File file = File(fullPath);
 
