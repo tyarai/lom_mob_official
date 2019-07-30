@@ -49,7 +49,7 @@ class LemurLifeList {
 
   }
 
-  static Widget buildCellInfo( LemurLifeList lifeList, BuildContext buildContext,
+  static Widget buildCellInfo( LemurLifeList lifeList, BuildContext buildContext,int index,
       {CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
 
     try {
@@ -61,6 +61,7 @@ class LemurLifeList {
         Species species = Species.withID(id:speciesNID);
 
         return ListTile(
+          leading: Text(""+(index + 1).toString(),style:Constants.sightingTitleTextStyle.copyWith(fontSize: 35,color: Colors.blue,fontWeight: FontWeight.w300),textAlign: TextAlign.start,),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children:[

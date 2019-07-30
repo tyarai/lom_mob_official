@@ -109,7 +109,7 @@ class _LemurLifeListPageState extends State<LemurLifeListPage>   {
                 itemCount: lifeListSnapshot.data.length,
                 itemBuilder: (context,index){
                   LemurLifeList lifeList = lifeListSnapshot.data[index];
-                  return buildCellItem(buildContext, lifeList);
+                  return buildCellItem(buildContext, lifeList,index);
                 }
             );
 
@@ -157,7 +157,7 @@ class _LemurLifeListPageState extends State<LemurLifeListPage>   {
 
   }
 
-  Widget buildCellItem(BuildContext context, LemurLifeList lifeList) {
+  Widget buildCellItem(BuildContext context, LemurLifeList lifeList,int index) {
 
     if (lifeList != null) {
       return Container(
@@ -175,7 +175,7 @@ class _LemurLifeListPageState extends State<LemurLifeListPage>   {
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                         child:
-                        LemurLifeList.buildCellInfo(lifeList,context),
+                        LemurLifeList.buildCellInfo(lifeList,context,index),
                       ),
                     )))),
       );
