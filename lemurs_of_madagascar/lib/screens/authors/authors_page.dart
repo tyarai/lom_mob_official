@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/author_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/author.dart';
+import 'package:lemurs_of_madagascar/screens/authors/author_details_page.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 
 class AuthorsPage extends StatefulWidget {
@@ -105,6 +106,7 @@ class AuthorsPageState extends State<AuthorsPage>   {
         GestureDetector(
             onTap: () {
               //SpeciesListPageState.navigateToSpeciesDetails(context, species);
+              AuthorsPageState.navigateToAuthorDetails(context,author);
             },
             child: Padding(
               padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
@@ -145,6 +147,29 @@ class AuthorsPageState extends State<AuthorsPage>   {
     }
 
     return Container();
+  }
+
+  static void navigateToAuthorDetails(BuildContext context,Author author){
+
+    Navigator.of(context).push(
+      PageRouteBuilder<Null>(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return AnimatedBuilder(
+                animation: animation,
+                builder: (BuildContext context, Widget child) {
+                  return Opacity(
+                    opacity: animation.value,
+                    child: AuthorDetailsPage(
+                      "Author",
+                      author
+                    ),
+                  );
+                });
+          },
+          transitionDuration: Duration(milliseconds: Constants.speciesHeroTransitionDuration)),
+    );
+
   }
 
 }

@@ -20,6 +20,10 @@ class Author {
   String _details;
   String _photo;
 
+  String get name => this._name;
+
+  String get details => this._details;
+
   Author(this._id,this._name,this._details,this._photo);
 
   Author.fromMap(Map<String, dynamic> map) {
@@ -107,7 +111,7 @@ class Author {
       case AuthorImageClipperType.oval :{
         widget = Container(
             child: ClipOval(
-                child: Author.loadHeroImage(author)));
+                child: Author.loadImage(author)));//Author.loadHeroImage(author)));
         break;
       }
     }
@@ -123,11 +127,12 @@ class Author {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Author.loadHeroName(author),
+            //Author.loadHeroName(author),
+            Author.loadName(author),
             Padding(padding: EdgeInsets.only(top:10),),
             Padding(
               padding: const EdgeInsets.only(right: 20),
-              child: loadAuthorDetails(author),
+              child: loadAuthorDetails(author,style: Constants.defaultTextStyle.copyWith(fontSize: Constants.subTextFontSize)),
             ),
           ],
         ),
@@ -145,7 +150,7 @@ class Author {
 
     if(author != null) {
       return Hero(
-          tag: author._name + author._id.toString(),
+          tag:  author._id.toString() + author._photo,
           child: Image.asset(
 
             image,
@@ -157,10 +162,27 @@ class Author {
     return Container(child:Center(child:CircularProgressIndicator()));
   }
 
+  static Widget loadImage(Author author,
+      {double width = Constants.listViewImageWidth,
+        double height = Constants.listViewImageWidth}) {
+
+    String image = "assets/images/" + author._photo;
+
+    if(author != null) {
+      return Image.asset(
+        image,
+        fit:BoxFit.fitHeight,
+        width: width,
+        height: height,
+      );
+    }
+    return Container(child:Center(child:CircularProgressIndicator()));
+  }
+
   static Widget loadHeroName(Author author,{TextStyle style = Constants.speciesTitleStyle}) {
     if(author != null) {
       return Hero(
-          tag: author._name + author._id.toString(),
+          tag: author._id.toString() + author._photo,
           child: Material(
               color: Colors.transparent,
               child: Text(author._name, style: style))
@@ -169,9 +191,21 @@ class Author {
     return Container();
   }
 
-  static Widget loadAuthorDetails(Author author) {
+  static Widget loadName(Author author,{TextStyle style = Constants.speciesTitleStyle}) {
     if(author != null) {
-      return Text(author._details.substring(0,200) + "...", style: TextStyle(fontSize: Constants.subTitleFontSize),textAlign: TextAlign.justify,);
+      return Material(
+          color: Colors.transparent,
+          child: Text(author._name, style: style));
+    }
+    return Container();
+  }
+
+  static Widget loadAuthorDetails(Author author,{int truncateLen = 200 , TextStyle style = Constants.defaultTextStyle}) {
+    if(author != null) {
+      String text = author._details.substring(0,truncateLen);
+      text += (truncateLen != null) ? "" : "...";
+      TextStyle _style = (style != null) ? style : Constants.defaultTextStyle.copyWith(fontSize:Constants.subTitleFontSize);
+      return Text( text, style: _style,textAlign: TextAlign.justify,);
     }
     return Container();
   }
