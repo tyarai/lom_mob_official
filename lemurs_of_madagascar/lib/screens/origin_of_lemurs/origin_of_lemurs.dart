@@ -63,32 +63,37 @@ class OriginOfLemursPageState extends State<OriginOfLemursPage> {
           title: _buildTitle(),
         ),
         //backgroundColor: Constants.mainColor,
-        body: _buildBody();
+        body: _buildBody(context),
 
       );
 
     return futureWidget;
   }
 
-  _buildBody(){
+  _buildBody(BuildContext context){
+
+    String imagePath1 = "assets/images/ElephantBirdOldPhotoLabeled.jpg";
+    String imagePath2 = "assets/images/Painting-elephant-bird-(clc).jpg";
+
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
+      padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
       child: ListView(
         children: <Widget>[
           Column(
             children: <Widget>[
-
+              Container(child: Image.asset(imagePath1),),
               Container(height: 20,),
               Text(
                 origin != null ? origin.content : "",
                 style: Constants.defaultTextStyle,
                 textAlign: TextAlign.justify,
-              )
+              ),
+              Container(child: Image.asset(imagePath2),),
             ],
           )
         ],
       ),
-    )
+    );
   }
 
 }
