@@ -106,25 +106,6 @@ class SpeciesListPageState extends State<SpeciesListPage> {
 
   }
 
-  /*Widget _buildSpeciesListView() {
-    return FutureBuilder<List<Species>>(
-      future: _loadData(),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator(backgroundColor: Colors.white,));
-
-        return ListView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: snapshot.data.length,
-            itemBuilder: (BuildContext context, int index) {
-              //return  SpeciesListPageState.buildCellItem(context,this._speciesList,index);
-              Species currentSpecies = this._speciesList[index];
-              return  SpeciesListPageState.buildCellItem(context,currentSpecies);
-            });
-      },
-    );
-  }*/
-
   static Widget buildCellItem(
       BuildContext context,
       Species species,

@@ -131,22 +131,6 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
       );
     }
 
-    /*_updateUI() {
-
-    final Future<Database> database = _databaseHandler.initializeDatabase();
-
-    database.then((database) {
-      Future<List<Menu>> futureList = _menuDatabaseHandler.getMenuList(
-          database: database, menuName: this._introductionMenuName);
-
-      futureList.then((menuList) {
-        setState(() {
-          introduction = menuList[0];
-        });
-      });
-    });
-  }*/
-
     _updateUI() async {
 
       Database database = await DatabaseHelper.instance.database;
@@ -224,6 +208,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/author.png",
             width: _iconSize, height: _iconSize),
+        onTap: () {
+          Navigator.pop(context); // Close the drawer
+          _showAuthorList();
+        }
       ));
 
       menuItems.add(ListTile(
@@ -291,6 +279,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return menuItems;
     }
+
+  _showAuthorList(){
+    Navigator.pushNamed(context, '/authors_page');
+  }
 
   _showExtinctLemurs(){
     Navigator.pushNamed(context, '/extinct_lemurs');

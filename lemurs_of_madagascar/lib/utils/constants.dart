@@ -9,6 +9,8 @@ class Constants {
   static const String appName  = "Lemurs Of Madagascar";
   static const String appCreed = "Lemur-watching with Russ. Mittermeier";
 
+
+  static const double authorListViewImageWidth = 400.0;
   static const double listViewImageWidth = 120.0;
   static const double listViewImageHeight = 120.0;
   static const double titleFontSize = 20.0;

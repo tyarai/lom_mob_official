@@ -1,0 +1,61 @@
+.center-block {
+    display:block;
+    color: #00;
+    width: 100%;
+    margin:auto;
+    /*margin-right:auto;*/
+}
+
+.red-title {
+    color: #990000;
+}
+
+.black-title {
+    color: #000000;
+}
+
+.person-name {
+    color: #990000;
+    
+}
+
+.highlight {
+    color:#885566;
+}
+
+.author {
+    font:"Zapfino";
+    font-size:1.10em;
+}
+
+.paragraph, ul li {
+    color:black;
+    font-family: "Open Sans", sans-serif;
+    font-size:17pt;
+    text-align:justify;
+    
+}
+
+.paragraph::first-letter {
+    /*font-weight: bold;*/
+    font-size:1.25em;
+}
+
+.paragraph a,
+.paragraph a:visited{
+    color:#995500;
+    text-decoration:none;
+}
+
+.innerImage {
+    margin-top:10px;
+    width: 100%;
+    height: auto;
+    margin-bottom:10px;
+}
+
+.page {
+    margin-left:20px;
+    margin-right:20px;
+}
+
