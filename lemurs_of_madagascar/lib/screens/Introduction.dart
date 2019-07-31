@@ -213,6 +213,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         Text("Extinct lemurs", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/extinct.png",
             width: _iconSize, height: _iconSize),
+        onTap: () {
+          Navigator.pop(context); // Close the drawer
+          _showExtinctLemurs();
+        }
       ));
 
       menuItems.add(ListTile(
@@ -288,9 +292,13 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
       return menuItems;
     }
 
-    _showLemurLifeList(){
-      Navigator.pushNamed(context, '/lemur_life_list');
-    }
+  _showExtinctLemurs(){
+    Navigator.pushNamed(context, '/extinct_lemurs');
+  }
+
+  _showLemurLifeList(){
+    Navigator.pushNamed(context, '/lemur_life_list');
+  }
 
   _showOriginOfLemurs(){
     Navigator.pushNamed(context, '/origin_of_lemurs');

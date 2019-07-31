@@ -9,12 +9,15 @@ import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
 
+import 'extinct_lemurs/extinct_lemurs_page.dart';
+
 
 final routes = {
 
   '/introduction'    : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),
   '/lemur_life_list' : (BuildContext context) => LemurLifeListPage(title: "My lemur life list",),
   '/origin_of_lemurs': (BuildContext context) => OriginOfLemursPage(title: "Origin of lemurs",),
+  '/extinct_lemurs'  : (BuildContext context) => ExtinctLemursPage(title: "Extinct lemurs",),
   '/species_list'    : (BuildContext context) => SpeciesListPage(title: "Species",),
   '/login'           : (BuildContext context) => LoginPage(),
   '/register'        : (BuildContext context) => RegisterPage(),
