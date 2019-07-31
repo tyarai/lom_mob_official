@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/screens/Introduction.dart';
 import 'package:lemurs_of_madagascar/screens/authors/authors_page.dart';
+import 'package:lemurs_of_madagascar/screens/families/family_page.dart';
 import 'package:lemurs_of_madagascar/screens/lemur_life_list/lemur_life_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/origin_of_lemurs/origin_of_lemurs.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
@@ -21,6 +22,7 @@ final routes = {
   '/extinct_lemurs'  : (BuildContext context) => ExtinctLemursPage(title: "Extinct lemurs",),
   '/authors_page'    : (BuildContext context) => AuthorsPage(title: "Authors",),
   '/species_list'    : (BuildContext context) => SpeciesListPage(title: "Species",),
+  '/family_page'     : (BuildContext context) => FamilyPage(title: "Family",),
   '/login'           : (BuildContext context) => LoginPage(),
   '/register'        : (BuildContext context) => RegisterPage(),
   //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),//(BuildContext context) => LoginPage(),

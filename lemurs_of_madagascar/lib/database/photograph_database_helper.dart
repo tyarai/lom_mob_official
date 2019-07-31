@@ -16,7 +16,7 @@ class PhotographDatabaseHelper  {
     Database database = await DatabaseHelper.instance.database;
     if(id != null && id != 0) {
       var result = await database.rawQuery(
-          "SELECT * FROM $photoTable WHERE $idCol = ? ", [id]);
+          "SELECT * FROM $photoTable WHERE $idCol = '$id' ", [id]);
       return result;
     }
     return List();
@@ -51,6 +51,7 @@ class PhotographDatabaseHelper  {
     var photographMapList = await this.getPhotographMapList(id: id);
     int count = photographMapList.length;
 
+
     List<Photograph> list = new List<Photograph>();
 
     for(int i=0 ; i < count ; i++){
@@ -62,7 +63,8 @@ class PhotographDatabaseHelper  {
 
   Future<Photograph> getPhotographWithID({id: int}) async {
     var list = await this.getPhotographList(id: id);
-    return list[0];
+    return (list != null && list[0] != null ) ? list[0] : null;
+
   }
 
 }

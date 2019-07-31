@@ -61,7 +61,7 @@ class Author {
 
       if (author != null) {
 
-        String image = "assets/images/"+ author._photo;
+        String image = Constants.appImagesAssetsFolder + author._photo;
 
         return ListTile(
           leading:

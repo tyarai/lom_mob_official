@@ -229,6 +229,11 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         title: Text("Families", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/ico_families.png",
             width: _iconSize, height: _iconSize),
+        onTap: (){
+          Navigator.pop(context); // Close the drawer
+          _showFamilyListPage();
+
+        },
       ));
 
       menuItems.add(ListTile(
@@ -279,6 +284,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return menuItems;
     }
+
+  _showFamilyListPage(){
+    Navigator.pushNamed(context, '/family_page');
+  }
 
   _showAuthorList(){
     Navigator.pushNamed(context, '/authors_page');
