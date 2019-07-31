@@ -4,7 +4,7 @@ import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
-import 'package:share/share.dart';
+
 
 class SpeciesSlideShow extends StatefulWidget {
   final Species species;
@@ -61,7 +61,7 @@ class SpeciesSlideShowState extends State<SpeciesSlideShow> {
     setState(() {});
   }
 
-  Widget _buildCarousel({int xOffest = 50, int yOffset = 80}) {
+  Widget _buildCarousel({int xOffset = 50, int yOffset = 80}) {
     //await _loadImageFilenames();
     Widget widget;
 
@@ -131,7 +131,5 @@ class SpeciesSlideShowState extends State<SpeciesSlideShow> {
     return futureWidget;
   }
 
-  _shareCurrentImage(){
 
-  }
 }

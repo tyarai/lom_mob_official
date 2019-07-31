@@ -202,6 +202,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/origin.png",
             width: _iconSize, height: _iconSize),
+        onTap: () {
+          Navigator.pop(context); // Close the drawer
+          _showOriginOfLemurs();
+        }
       ));
 
       menuItems.add(ListTile(
@@ -287,6 +291,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     _showLemurLifeList(){
       Navigator.pushNamed(context, '/lemur_life_list');
     }
+
+  _showOriginOfLemurs(){
+    Navigator.pushNamed(context, '/origin_of_lemurs');
+  }
 
     _logOut() {
 
