@@ -241,6 +241,11 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         Text("Watching sites", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/ico_map.png",
             width: _iconSize, height: _iconSize),
+        onTap: (){
+          Navigator.pop(context); // Close the drawer
+          _showSiteListPage();
+
+        },
       ));
 
       menuItems.add(ListTile(
@@ -284,6 +289,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return menuItems;
     }
+
+  _showSiteListPage(){
+    Navigator.pushNamed(context, '/site_page');
+  }
 
   _showFamilyListPage(){
     Navigator.pushNamed(context, '/family_page');

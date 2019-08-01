@@ -1,4 +1,6 @@
 
+import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
+import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
@@ -6,6 +8,7 @@ import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 class LOMSharedPreferences{
 
   static String recentSpeciesSearchKey   = "recentSpeciesSearchKey";
+  static String recentSiteSearchKey      = "recentSiteSearchKey";
   static String lastSightingMenuIndexKey = "lastSightingMenuIndexKey";
   static String lastSyncDateTime         = "lastSyncDateTime";
 
@@ -36,6 +39,8 @@ class LOMSharedPreferences{
     }
   }
 
+
+
   static Future<List<Species>> loadRecentSpeciesSearch() async {
 
     final prefs = await SharedPreferences.getInstance();
@@ -52,6 +57,23 @@ class LOMSharedPreferences{
           recentSearchList.add(species);
 
        }
+    }
+    return recentSearchList;
+
+  }
+
+  static Future<List<Site>> loadRecentSiteSearch() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    List<String> idList = prefs.getStringList(LOMSharedPreferences.recentSiteSearchKey);
+    List<Site> recentSearchList = List();
+
+    if(idList != null) {
+      for (int i = 0; i < idList.length; i++) {
+        SiteDatabaseHelper helper = SiteDatabaseHelper();
+        Site site = await helper.getSiteWithID(int.parse(idList[i]));
+        recentSearchList.add(site);
+      }
     }
     return recentSearchList;
 

@@ -4,6 +4,7 @@ import 'package:lemurs_of_madagascar/screens/authors/authors_page.dart';
 import 'package:lemurs_of_madagascar/screens/families/family_page.dart';
 import 'package:lemurs_of_madagascar/screens/lemur_life_list/lemur_life_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/origin_of_lemurs/origin_of_lemurs.dart';
+import 'package:lemurs_of_madagascar/screens/sites/site_page.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/splash_screen.dart';
@@ -23,6 +24,7 @@ final routes = {
   '/authors_page'    : (BuildContext context) => AuthorsPage(title: "Authors",),
   '/species_list'    : (BuildContext context) => SpeciesListPage(title: "Species",),
   '/family_page'     : (BuildContext context) => FamilyPage(title: "Family",),
+  '/site_page'       : (BuildContext context) => SitePage(title: "Watching sites",),
   '/login'           : (BuildContext context) => LoginPage(),
   '/register'        : (BuildContext context) => RegisterPage(),
   //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),//(BuildContext context) => LoginPage(),

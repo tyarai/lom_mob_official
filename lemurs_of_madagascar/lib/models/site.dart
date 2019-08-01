@@ -16,12 +16,13 @@ class Site extends SelectableListItem {
   SpeciesMap _map;
 
 
-
   String _title;
   String _body;
   int _id;
   int _mapID;
 
+
+  String get body => this._body;
 
   Site(this._title, this._body,this._mapID){
     _loadMap();
@@ -29,13 +30,8 @@ class Site extends SelectableListItem {
 
   @override
   String toString() {
-    return "${this.id} ${this.title}";
+    return "${this.id} ${this.title} ${this.mapID}";
   }
-
-  /*factory Site.withSite(Site photo){
-    return Site.withID(photo.id, photo.title,photo.photograph);
-  }*/
-
 
   Site.withID(this._id, this._title,this._body,this._mapID){
     _loadMap();
@@ -44,7 +40,6 @@ class Site extends SelectableListItem {
 
   int get id => _id;
   String get title => _title;
-  String get body => _body;
   int get mapID => _mapID;
   SpeciesMap get map => _map;
 
@@ -80,7 +75,8 @@ class Site extends SelectableListItem {
     this._id         = map[_idKey];
     this._title      = map[_titleKey];
     this._body       = map[_bodyKey];
-    this._mapID      = map[_mapID];
+    this._mapID      = map[_mapIDKey];
+    //print(this.toString());
     _loadMap();
   }
 
@@ -101,18 +97,23 @@ class Site extends SelectableListItem {
         tag: site.title + site.id.toString(),
         child: Material(
             color: Colors.transparent,
-            child:Text(site.title,style:style))
+            child:Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text(site.title,style:style),
+
+            ))
       );
 
   }
 
 
   static Widget buildTextInfo(Site site,{bool showMalagasy = true,CrossAxisAlignment crossAlignment = CrossAxisAlignment.start}) {
-    return Expanded(
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
       child: Column(
           crossAxisAlignment: crossAlignment,
           children: <Widget>[
-            Site.loadHeroTitle(site),
+            Text(site.body,style:Constants.defaultTextStyle,textAlign: TextAlign.justify,),
             Container(height: 10),
 
           ]),

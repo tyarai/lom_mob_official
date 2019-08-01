@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
-import 'package:lemurs_of_madagascar/models/species_map.dart';
+
 
 class SiteDatabaseHelper  {
 
@@ -25,6 +25,7 @@ class SiteDatabaseHelper  {
 
     Database database = await DatabaseHelper.instance.database;
     var result = await database.rawQuery("SELECT * FROM $siteTable ORDER BY $titleCol ASC ");
+    //print("SITE LIST ${result.toString()}");
     return result;
   }
 
@@ -57,14 +58,15 @@ class SiteDatabaseHelper  {
   Future<List<Site>> getSiteList() async {
 
 
-    var speciesMapMapList = await this.getSiteMapList();
-    int count = speciesMapMapList.length;
+    var siteMapMapList = await this.getSiteMapList();
+    int count = siteMapMapList.length;
 
 
     List<Site> list = new List<Site>();
 
     for(int i=0 ; i < count ; i++){
-      list.add(Site.fromMap(speciesMapMapList[i]));
+      //print("MAP $i " +siteMapMapList[i].toString());
+      list.add(Site.fromMap(siteMapMapList[i]));
     }
 
     return list;
