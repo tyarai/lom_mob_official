@@ -86,6 +86,7 @@ dependencies:
 
   flutter_html: ^0.10.4
 
+  dots_indicator: ^1.0.0
 
 dev_dependencies:
   flutter_test:

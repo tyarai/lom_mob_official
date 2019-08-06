@@ -79,10 +79,10 @@ class SightingDatabaseHelper  {
 
       if(pageIndex != null && limit != null) {
         result = await database.rawQuery(
-            " SELECT _speciesNid,_speciesName,totalObserved,totalSightings FROM(  SELECT _speciesNid,_speciesName,SUM(_speciesCount) totalObserved,count(_speciesNid) totalSightings FROM $sightingsTable WHERE _uid = '$uid' AND _deleted ='0' GROUP BY _speciesNid ORDER BY _speciesName ASC LIMIT $pageIndex,$limit)aa ");
+            " SELECT _speciesNid,_speciesName,totalObserved,totalSightings FROM(  SELECT _speciesNid,_speciesName,SUM(_speciesCount) totalObserved,count(_speciesNid) totalSightings FROM $sightingsTable WHERE _uid = '$uid' AND _deleted ='0' AND (_activityTagTid = '0' OR _activityTagTid IS NULL) GROUP BY _speciesNid ORDER BY _speciesName ASC LIMIT $pageIndex,$limit)aa ");
       }else {
         result = await database.rawQuery(
-            " SELECT _speciesNid,_speciesName,totalObserved,totalSightings FROM(  SELECT _speciesNid,_speciesName,SUM(_speciesCount) totalObserved,count(_speciesNid) totalSightings FROM $sightingsTable WHERE _uid = '$uid' AND _deleted ='0' GROUP BY _speciesNid ORDER BY _speciesName ASC )aa ");
+            " SELECT _speciesNid,_speciesName,totalObserved,totalSightings FROM(  SELECT _speciesNid,_speciesName,SUM(_speciesCount) totalObserved,count(_speciesNid) totalSightings FROM $sightingsTable WHERE _uid = '$uid' AND _deleted ='0' AND (_activityTagTid = '0' OR _activityTagTid IS NULL) GROUP BY _speciesNid ORDER BY _speciesName ASC )aa ");
       }
 
       return result;

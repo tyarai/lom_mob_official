@@ -4,6 +4,7 @@ import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
 import 'package:lemurs_of_madagascar/utils/user_session.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:core';
@@ -36,12 +37,14 @@ class LogOutPresenter {
           _logOutView.onLogOutSuccess(destPageName: "/login");
           //else print("Bad thing happened");
         })
-        .catchError((Object error) {
+        .catchError((error) {
 
-          if (error is SocketException) _logOutView.onSocketFailure();
           if (error is LOMException) {
+
             _logOutView.onLogOutFailure(error.statusCode);
           }
+          if (error is SocketException) _logOutView.onSocketFailure();
+
         });
   }
 }
@@ -49,9 +52,6 @@ class LogOutPresenter {
 
 class IntroductionPage extends StatefulWidget {
   IntroductionPage({Key key, this.title}) : super(key: key);
-
-  // It is stateful, meaning it has a State object (defined below) that contains fields that affect
-  // how it looks.
 
   final String title;
 
@@ -88,8 +88,6 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return Scaffold(
         appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
         ),
         drawer: Drawer(
@@ -97,38 +95,49 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             children: _getDrawerMenu(),
           ),
         ),
-        body: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
-            child: ListView(
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                   Row(
-                      children:<Widget>[
-                        //Expanded(flex:1,child:ConstantImage.getRussImage()),
-                        SizedBox(width:100,height:100,child: ConstantImage.getRussImage()),
-                        Container(width: 10,),
-                        Expanded(
-                          flex:2,
-                          child: Hero(
-                            tag: "creed",
-                            child:Text("Lemur-watching with Russ Mittermeier",
-                            style: Constants.titleTextStyle),
-                          ),
-                        )
-                      ],
-                    ),
-                    Container(height: 20,),
-                    Text(
-                      introduction != null ? introduction.content : "",
-                      style: Constants.defaultTextStyle,
-                      textAlign: TextAlign.justify,
-                    )
-                  ],
-                )
-              ],
-            )),
+        body: ModalProgressHUD(
+            child: _buildBody(),
+            opacity: 0.3,
+            //color: Constants.mainSplashColor,
+            //progressIndicator: CircularProgressIndicator(),
+            //offset: 5.0,
+            //dismissible: false,
+            inAsyncCall: _isLoading),
       );
+    }
+
+    _buildBody(){
+      return Padding(
+          padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
+          child: ListView(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Row(
+                    children:<Widget>[
+                      //Expanded(flex:1,child:ConstantImage.getRussImage()),
+                      SizedBox(width:100,height:100,child: ConstantImage.getRussImage()),
+                      Container(width: 10,),
+                      Expanded(
+                        flex:2,
+                        child: Hero(
+                          tag: "creed",
+                          child:Text("Lemur-watching with Russ Mittermeier",
+                              style: Constants.titleTextStyle),
+                        ),
+                      )
+                    ],
+                  ),
+                  Container(height: 20,),
+                  Text(
+                    introduction != null ? introduction.content : "",
+                    style: Constants.defaultTextStyle,
+                    textAlign: TextAlign.justify,
+                  )
+                ],
+              )
+            ],
+          ));
     }
 
     _updateUI() async {
@@ -253,13 +262,18 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         Text("Our partners", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/ico_partners.png",
             width: _iconSize, height: _iconSize),
+        onTap: (){
+          Navigator.pop(context); // Close the drawer
+          _showPartnerPage();
+
+        },
       ));
 
-      menuItems.add(ListTile(
+      /*menuItems.add(ListTile(
         title: Text("Settings", style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/settings_icon.png",
             width: _iconSize, height: _iconSize),
-      ));
+      ));*/
 
       /*menuItems.add(ListTile(
         title: Text("Report illegal activities",
@@ -268,12 +282,12 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             width: _iconSize, height: _iconSize),
       ));*/
 
-      menuItems.add(ListTile(
+      /*menuItems.add(ListTile(
         title: Text("App instructions",
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/about.png",
             width: _iconSize, height: _iconSize),
-      ));
+      ));*/
 
       menuItems.add(ListTile(
         title: Text("Log out",
@@ -289,6 +303,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return menuItems;
     }
+
+  _showPartnerPage(){
+    Navigator.pushNamed(context, '/partner_page');
+  }
 
   _showSiteListPage(){
     Navigator.pushNamed(context, '/site_page');
@@ -315,6 +333,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
   }
 
     _logOut() {
+
+      setState(() {
+        _isLoading = true;
+      });
 
       Future<UserSession> session = UserSession.getCurrentSession();
       session.then((_session) {
@@ -357,6 +379,8 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     @override
     void onLogOutFailure(int statusCode) {
+      //print("CODE");
+      //print("CODE");
       setState(() {
         _isLoading = false;
       });
@@ -366,6 +390,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     @override
     void onLogOutSuccess({String destPageName = "/introduction"}) {
 
+
+      setState(() {
+        _isLoading = false;
+      });
 
       UserSession.closeCurrentSession();
       User.clearCurrentUser();

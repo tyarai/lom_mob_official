@@ -4,7 +4,7 @@ class ErrorText {
   static String passwordError  = "No password provided!";
   static String emailError = "Invalid mail address!";
   static String credentialMessageError = "Wrong username or password!\nPlease check and try again";
-  static String unauthorizedOperation = "Unauthorized operation!";
+  static String unauthorizedOperation = "Unauthorized operation!\n You are not allowed to perform this action or you provided wrong username/password";
   static String anonymousUser = "Access denied for user anonymous!\nYou need to be logged in to interact with the server";
 
   static String credentialTitle = "Authentication";

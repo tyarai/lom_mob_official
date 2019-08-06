@@ -61,6 +61,13 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
     _passWord = "";
   }
 
+  ThemeData _buildTheme(){
+    final ThemeData base = ThemeData();
+    return base.copyWith(
+      hintColor: Colors.white,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -68,6 +75,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       padding: edgeInsets,
         child:  _isLoading ? CircularProgressIndicator() : Material(
       elevation: 5.0,
+
       borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
       color: Constants.mainColor,
       child:  MaterialButton(
@@ -104,7 +112,6 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
 
     var loginForm = new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Container(
           height: 50.0,
@@ -114,8 +121,8 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
           child:
         Text(
           "Lemurs of madagascar",
-          style: Constants.appTitle,
-          textScaleFactor: 2.0,
+          style: Constants.appTitle.copyWith(color: Constants.mainColor,fontWeight: FontWeight.w500),
+          textScaleFactor: 2,
           textAlign: TextAlign.center
           )
         ),
@@ -125,6 +132,7 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
         Container(child: Form(
           key: formKey,
           child: new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Padding(
                 padding: edgePadding,
@@ -137,7 +145,9 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
                       return null;
                     }
                   },
+
                   decoration: InputDecoration(
+
                       labelText: "Username",
                       icon: new Icon(
                         Icons.person,
@@ -188,16 +198,21 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
     );
 
     return new Scaffold(
+      backgroundColor: Colors.white,
       /*appBar: new AppBar(
         title: new Text("Login Page"),
       ),*/
       key: scaffoldKey,
+
       body: ListView(
+
         children:<Widget>[
-        Container(
-          child: new Center(
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [new Center(
             child: loginForm,
-          ),
+          ),],
           //width: MediaQuery.of(context).size.width,
           //height: MediaQuery.of(context).size.height,
 

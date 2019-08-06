@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/models/comment.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import "package:lemurs_of_madagascar/models/sighting.dart";
 import "package:lemurs_of_madagascar/utils/constants.dart";
+import 'package:lemurs_of_madagascar/utils/error_handler.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import "package:lemurs_of_madagascar/utils/user_session.dart";
 import "package:lemurs_of_madagascar/utils/network_util.dart";
@@ -124,8 +125,12 @@ class RestData {
         userAndSession.add(UserSession.fromJSONMap(resultMap));
         return userAndSession;
       }).catchError((error) {
+        if (error is LOMException) {
+          print("TATOS");
+          throw LOMException(error.statusCode);
+        }
         print("[REST_DATA:login()] error:" + error.toString());
-        throw error;
+
       });
   }
 

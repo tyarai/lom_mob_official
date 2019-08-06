@@ -52,7 +52,7 @@ class _SightingEditPageState extends State<SightingEditPage>
   final scaffoldKey = GlobalKey<ScaffoldState>();
   EdgeInsets edgeInsets = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
   EdgeInsets edgePadding = EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0);
-  GeolocationStatus _geolocationStatus = GeolocationStatus.denied;
+  //GeolocationStatus _geolocationStatus = GeolocationStatus.denied;
 
   List<String> menu = const ["Sighting","Illegal activities"];
   

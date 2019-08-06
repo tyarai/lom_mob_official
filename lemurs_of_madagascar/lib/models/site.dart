@@ -152,7 +152,7 @@ class Site extends SelectableListItem {
                       child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Site.buildTextInfo(this),
+                            Expanded(child: Site.loadHeroTitle(this)),
                             Container(width: 10),
                             _buildCheckBox(provider,index),
 
