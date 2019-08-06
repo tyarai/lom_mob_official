@@ -8,10 +8,11 @@ import 'package:lemurs_of_madagascar/screens/partners/partner_page.dart';
 import 'package:lemurs_of_madagascar/screens/sites/site_page.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_list_page.dart';
-import 'package:lemurs_of_madagascar/screens/splash_screen.dart';
+import 'package:lemurs_of_madagascar/screens/lom_splash_screen.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
+
 
 import 'extinct_lemurs/extinct_lemurs_page.dart';
 
@@ -29,10 +30,8 @@ final routes = {
   '/partner_page'    : (BuildContext context) => PartnerPage(title: "Partner page",),
   '/login'           : (BuildContext context) => LoginPage(),
   '/register'        : (BuildContext context) => RegisterPage(),
-  //'/'                : (BuildContext context) => IntroductionPage(title: "Lemurs of madagascar",),//(BuildContext context) => LoginPage(),
-  '/'                : (BuildContext context) => SplashScreen(),
+  '/'                : (BuildContext context) => LOMSplashScreen(),
   '/sighting_list'   : (BuildContext context) => SightingListPage(title:"My sightings"),
-  //'/splash_screen'   : (BuildContext context) => SplashScreen(),
 
 
 };
