@@ -171,13 +171,13 @@
 				{
 					"name": "russ",
 					"translation": [
-						70.2333984375,
+						50.839996337890625,
 						532.7752075195312
 					],
 					"rotation": 0,
 					"scale": [
-						0.10000000149011612,
-						0.10000000149011612
+						0.07999999821186066,
+						0.07999999821186066
 					],
 					"opacity": 1,
 					"isCollapsed": false,
@@ -220,8 +220,8 @@
 				{
 					"name": "lemur-watching",
 					"translation": [
-						196.2333984375,
-						528.7752075195312
+						170.2333984375,
+						529.7752075195312
 					],
 					"rotation": 0,
 					"scale": [
@@ -473,6 +473,15 @@
 										"value": 1
 									}
 								]
+							],
+							"posX": [
+								[
+									{
+										"time": 5,
+										"interpolatorType": 1,
+										"value": 57.05000305175781
+									}
+								]
 							]
 						},
 						{
@@ -490,11 +499,20 @@
 										"value": 1
 									}
 								]
+							],
+							"posX": [
+								[
+									{
+										"time": 5,
+										"interpolatorType": 1,
+										"value": 182.875
+									}
+								]
 							]
 						}
 					],
 					"animationStart": 0,
-					"animationEnd": 4.983333333333333,
+					"animationEnd": 5,
 					"type": "animation"
 				}
 			],
