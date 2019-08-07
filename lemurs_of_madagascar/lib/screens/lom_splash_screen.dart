@@ -25,7 +25,7 @@ class _SplashScreenState extends State<LOMSplashScreen> {
   void initState() {
     super.initState();
 
-    userSession = UserSession.getCurrentSession();
+    /*userSession = UserSession.getCurrentSession();
 
     userSession.then((session){
 
@@ -46,7 +46,7 @@ class _SplashScreenState extends State<LOMSplashScreen> {
 
       }
 
-    });
+    });*/
 
 
   }
