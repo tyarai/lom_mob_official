@@ -116,12 +116,12 @@ class AuthorsPageState extends State<AuthorsPage>   {
                   borderRadius: BorderRadius.circular(Constants.speciesImageBorderRadius),
                   shadowColor: Colors.blueGrey,
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
+                    padding: EdgeInsets.fromLTRB(10, 10, 5, 10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Author.buildAuthorPhoto(author,width: imageWidth,height: imageHeight,imageClipper: imageClipper),
-                        Container(width: 10),
+                        Container(width: 15),
                         Author.buildAuthorName(author),
                       ])),
                 )))),

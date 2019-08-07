@@ -71,7 +71,7 @@ class PartnerPageState extends State<PartnerPage>   {
       controller: pageController,
       itemCount: 2,
         itemBuilder: (context,index) {
-          return _page(index);
+          return SingleChildScrollView(child: _page(index));
         }
     );
   }
@@ -84,11 +84,13 @@ class PartnerPageState extends State<PartnerPage>   {
             child:Center(
               child: Column(
                 children:[
-                  Image.asset(Constants.appImagesAssetsFolder + "GWC-logo.png",width: 200,height: 200,),
+                  Padding(padding: EdgeInsets.only(top:10),),
+                  Image.asset(Constants.appImagesAssetsFolder + "GWC-logo.png",width: 250,height: 150,),
                   Image.asset(Constants.appImagesAssetsFolder + "PSGlogoNEW.jpg",width: 200,height: 200,),
                   Padding(padding:EdgeInsets.only(top:20)),
                   Image.asset(Constants.appImagesAssetsFolder + "iucn-logo.jpg",width: 150,height: 150,),
                   Image.asset(Constants.appImagesAssetsFolder + "LCN Logo.png",width: 150,height: 150,),
+                  Padding(padding: EdgeInsets.only(bottom:10),),
                 ]
               ),
             ),

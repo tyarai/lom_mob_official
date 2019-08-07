@@ -153,9 +153,9 @@ class SitePageState extends State<SitePage>   {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
                             //Family.buildFamilyPhoto(family,width: imageWidth,height: imageHeight,imageClipper: imageClipper),
-                            Expanded(flex:1,child: _buildIndexText(index)),
-                            Container(width: 10),
-                            Expanded(flex:9,child: Site.loadHeroTitle(site)),
+                            Expanded(flex:2,child: _buildIndexText(index,align: TextAlign.center)),
+                            Container(width: 5),
+                            Expanded(flex:8,child: Site.loadHeroTitle(site)),
                           ]),
                     )))),
       );
@@ -164,11 +164,11 @@ class SitePageState extends State<SitePage>   {
     return Container();
   }
 
-  static Widget _buildIndexText(int index){
+  static Widget _buildIndexText(int index,{TextAlign align = TextAlign.start}){
     if(index != null){
       return Padding(
-        padding: EdgeInsets.only(left:15,top:10,bottom: 10,right: 10),
-        child: Text((index + 1).toString(),style:Constants.defaultTextStyle.copyWith(fontSize: 25,color: Colors.blue,fontWeight: FontWeight.w300),),
+        padding: EdgeInsets.only(left:15,top:10,bottom: 10,right: 15),
+        child: Text((index + 1).toString(),style:Constants.defaultTextStyle.copyWith(fontSize: 25,color: Colors.blue,fontWeight: FontWeight.w300,),textAlign: align,),
       );
     }
     return Container();

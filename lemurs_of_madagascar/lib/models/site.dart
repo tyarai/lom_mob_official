@@ -90,8 +90,6 @@ class Site extends SelectableListItem {
 
   static Widget loadHeroTitle(Site site,{TextStyle style = Constants.speciesTitleStyle}) {
 
-
-
     return
       Hero(
         tag: site.title + site.id.toString(),
