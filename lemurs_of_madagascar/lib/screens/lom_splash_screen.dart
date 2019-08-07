@@ -81,11 +81,20 @@ class _SplashScreenState extends State<LOMSplashScreen> {
 
     return Scaffold(
 
-      body: SplashScreen("assets/animations/splash.flr",
-      IntroductionPage(),
-        backgroundColor: Constants.mainColor,
+      body:
+      SplashScreen.navigate(
+        backgroundColor: Colors.white,
+        name: "assets/animations/splash.flr",
+        next: IntroductionPage(),
+        until: () => Future.delayed(Duration(seconds: 2)),
         startAnimation: 'INTRO',
       ),
+
+      /*SplashScreen("assets/animations/splash.flr",
+      IntroductionPage(),
+        backgroundColor: Colors.white,
+        startAnimation: 'INTRO',
+      ),*/
       
       
       /*Stack(

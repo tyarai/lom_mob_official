@@ -48,8 +48,10 @@ class PartnerPageState extends State<PartnerPage>   {
   Widget build(BuildContext context) {
     return
       Scaffold(
+
         backgroundColor: Colors.white,
         appBar: AppBar(
+          elevation: 1.0,
           centerTitle: true,
           title: _buildTitle(),
         ),
