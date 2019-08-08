@@ -147,7 +147,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
           ),
         ),
         body: ModalProgressHUD(
-            child: _buildBody(),
+            child: SafeArea(child:_buildBody()),
             opacity: 0.3,
             //color: Constants.mainSplashColor,
             //progressIndicator: CircularProgressIndicator(),
@@ -209,6 +209,11 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     List<Widget> _getDrawerMenu() {
       List<Widget> menuItems = List<Widget>();
+
+
+      menuItems.add(Center(child: ConstantImage.getTextLogo()));
+
+      menuItems.add(Divider(color: Constants.mainColor,));
 
       menuItems.add(ListTile(
         title:
