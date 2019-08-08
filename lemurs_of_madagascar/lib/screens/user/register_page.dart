@@ -124,6 +124,13 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
       children: <Widget>[
 
         Container(
+          height: 40.0,
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width*0.85,
+          child:ConstantImage.getTextLogo(),
+        ),
+        Container(
           height: 20.0,
         ),
         Container(child: Form(

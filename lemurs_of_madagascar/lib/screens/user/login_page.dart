@@ -118,13 +118,14 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
         ),
         Container(
           width: MediaQuery.of(context).size.width*0.85,
-          child:
-        Text(
+          child:ConstantImage.getTextLogo(),
+
+            /*Text(
           "Lemurs of madagascar",
           style: Constants.appTitle.copyWith(color: Constants.mainColor,fontWeight: FontWeight.w500),
           textScaleFactor: 2,
           textAlign: TextAlign.center
-          )
+          )*/
         ),
         Container(
           height: 20.0,

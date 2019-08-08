@@ -107,7 +107,14 @@ class Constants {
 
 class ConstantImage {
 
+    static Widget getTextLogo({double width = 150,double height=70}){
+      return SizedBox(width: 150,child:Image.asset("assets/logos/text-logo.png",width:width,height:height) ,);
+    }
+
+
     static Widget getRussImage({bool avatar = false,double width = 100.0, double height = 100.0}){
+
+
 
     String imagePath = "assets/images/ram-everglades(resized).jpg";
 
