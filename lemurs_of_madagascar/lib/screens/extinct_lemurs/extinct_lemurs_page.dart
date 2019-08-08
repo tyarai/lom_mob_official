@@ -85,7 +85,7 @@ class ExtinctLemursPageState extends State<ExtinctLemursPage> {
         title: _buildTitle(),
       ),
       //backgroundColor: Constants.mainColor,
-      body: _buildBody(context),
+      body: SafeArea(child: _buildBody(context)),
 
     );
 

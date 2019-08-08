@@ -17,7 +17,7 @@ class IllustrationDatabaseHelper  {
     Database database = await DatabaseHelper.instance.database;
     if(id != null && id != 0) {
       var result = await database.rawQuery(
-          "SELECT * FROM $illustrationTable WHERE $nidCol = '?' ", [id]);
+          "SELECT * FROM $illustrationTable WHERE $nidCol = ? ", [id]);
       return result;
     }
     return List();

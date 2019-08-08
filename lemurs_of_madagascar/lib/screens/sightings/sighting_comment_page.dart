@@ -304,7 +304,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
         body: ModalProgressHUD(
           opacity: 0.3,
           inAsyncCall:_isLoading,
-          child: Container(
+          child: SafeArea(child:Container(
             width: MediaQuery.of(context).size.width,
             child: Column(
               children:[
@@ -347,7 +347,7 @@ class _SightingCommentPage extends State<SightingCommentPage> implements SyncCom
           ),
         ),
       ),
-    );
+    ));
   }
 
   @override

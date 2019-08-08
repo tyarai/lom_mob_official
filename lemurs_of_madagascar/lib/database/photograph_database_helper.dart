@@ -16,7 +16,7 @@ class PhotographDatabaseHelper  {
     Database database = await DatabaseHelper.instance.database;
     if(id != null && id != 0) {
       var result = await database.rawQuery(
-          "SELECT * FROM $photoTable WHERE $idCol = '?' ", [id]);
+          "SELECT * FROM $photoTable WHERE $idCol = ? ", [id]);
       return result;
     }
     return List();
@@ -63,7 +63,7 @@ class PhotographDatabaseHelper  {
 
   Future<Photograph> getPhotographWithID({id: int}) async {
     var list = await this.getPhotographList(id: id);
-    return (list != null  && list[0] != null ) ? list[0] : null;
+    return (list != null  && list.length > 0) ? list[0] : null;
 
   }
 

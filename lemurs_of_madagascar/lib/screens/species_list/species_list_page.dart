@@ -58,7 +58,7 @@ class SpeciesListPageState extends State<SpeciesListPage> {
         ],
         title: Text(widget.title),
       ),
-      body: _buildSpeciesListView(),
+      body: SafeArea(child: _buildSpeciesListView()),
     );
   }
 

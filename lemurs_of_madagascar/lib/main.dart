@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/screens/Introduction.dart';
 import 'package:lemurs_of_madagascar/screens/authors/authors_page.dart';
+import 'package:lemurs_of_madagascar/screens/extinct_lemurs/extinct_lemurs_page.dart';
 import 'package:lemurs_of_madagascar/screens/families/family_page.dart';
 import 'package:lemurs_of_madagascar/screens/instructions/instructions_page.dart';
 import 'package:lemurs_of_madagascar/screens/lemur_life_list/lemur_life_list_page.dart';
@@ -15,7 +16,7 @@ import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
 
 
-import 'extinct_lemurs/extinct_lemurs_page.dart';
+
 
 
 final routes = {
