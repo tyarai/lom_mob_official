@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
+import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/utils/user_session.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:sqflite/sqflite.dart';
@@ -62,9 +63,59 @@ class IntroductionPage extends StatefulWidget {
 class _IntroductionPageState extends State<IntroductionPage> implements IntroductionPageContract {
 
   var _menuItemFontSize = 18.0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future<UserSession> userSession = UserSession.getCurrentSession();
+
+    userSession.then((session){
+
+      if(session == null) {
+
+        _navigateToNextPage(LoginPage());
+
+          /*Timer(
+              Duration(seconds: Constants.splashDurationInSecond), () {
+            _navigateToNextPage(LoginPage());
+          }
+        );*/
+
+      }
+
+    });
+
+  }
+
   var _iconSize = 30.0;
   LogOutPresenter logOutPresenter;
   bool _isLoading = false;
+
+
+  _navigateToNextPage(StatefulWidget nextPage){
+
+    if(nextPage != null) {
+
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder<Null>(
+            pageBuilder: (BuildContext context, Animation<double> animation,
+                Animation<double> secondaryAnimation) {
+              return AnimatedBuilder(
+                  animation: animation,
+                  builder: (BuildContext context, Widget child) {
+                    return Opacity(
+                      opacity: animation.value,
+                      child: nextPage, //MainPage(title:Constants.myAppointmentTitle),
+                    );
+                  });
+            },
+            transitionDuration: Duration(
+                milliseconds: Constants.splashTransitionDuration)),
+      );
+
+    }
+  }
 
   _IntroductionPageState() {
     logOutPresenter = LogOutPresenter(this);
