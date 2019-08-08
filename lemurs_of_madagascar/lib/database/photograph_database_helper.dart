@@ -63,7 +63,7 @@ class PhotographDatabaseHelper  {
 
   Future<Photograph> getPhotographWithID({id: int}) async {
     var list = await this.getPhotographList(id: id);
-    return (list != null && list[0] != null ) ? list[0] : null;
+    return (list != null  && list[0] != null ) ? list[0] : null;
 
   }
 
