@@ -10,6 +10,7 @@ class Constants {
   static const String appCreed = "Lemur-watching with Russ. Mittermeier";
 
 
+
   static const double authorListViewImageWidth = 400.0;
   static const double listViewImageWidth = 120.0;
   static const double listViewImageHeight = 120.0;
@@ -67,6 +68,7 @@ class Constants {
   static const String publicFolder = "public://";
   static const String appImagesFolder = "/images/";
   static const String appImagesAssetsFolder = "assets/images/";
+  static const String appInstructionsAssetsFolder = "assets/instructions/";
   static const String http = "http";
 
   // List Item Color

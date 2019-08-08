@@ -333,12 +333,17 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             width: _iconSize, height: _iconSize),
       ));*/
 
-      /*menuItems.add(ListTile(
+      menuItems.add(ListTile(
         title: Text("App instructions",
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/about.png",
             width: _iconSize, height: _iconSize),
-      ));*/
+        onTap: (){
+          Navigator.pop(context); // Close the drawer
+          _showInstructionsPage();
+
+        },
+      ));
 
       menuItems.add(ListTile(
         title: Text("Log out",
@@ -354,6 +359,11 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return menuItems;
     }
+
+  _showInstructionsPage(){
+    Navigator.pushNamed(context, '/instructions');
+  }
+
 
   _showPartnerPage(){
     Navigator.pushNamed(context, '/partner_page');
