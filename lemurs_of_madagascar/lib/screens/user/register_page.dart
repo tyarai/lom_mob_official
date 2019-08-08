@@ -251,15 +251,17 @@ class _RegisterPageState extends State<RegisterPage> implements RegisterPageCont
         title: new Text("Login Page"),
       ),*/
       key: scaffoldKey,
-      body: ListView(
+      body: SafeArea(
+        child: ListView(
 
-          children:<Widget>[
-            Container(
-              child: new Center(
-                child: loginForm,
-              ),
-            )
-          ]), //-----
+            children:<Widget>[
+              Container(
+                child: new Center(
+                  child: loginForm,
+                ),
+              )
+            ]),
+      ), //-----
     );
   }
 

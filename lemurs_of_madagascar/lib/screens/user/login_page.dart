@@ -205,20 +205,22 @@ class _LoginPageState extends State<LoginPage> implements LoginPageContract {
       ),*/
       key: scaffoldKey,
 
-      body: ListView(
+      body: SafeArea(
+        child: ListView(
 
-        children:<Widget>[
+          children:<Widget>[
 
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [new Center(
-            child: loginForm,
-          ),],
-          //width: MediaQuery.of(context).size.width,
-          //height: MediaQuery.of(context).size.height,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [new Center(
+              child: loginForm,
+            ),],
+            //width: MediaQuery.of(context).size.width,
+            //height: MediaQuery.of(context).size.height,
 
-        )
-      ]), //-----
+          )
+        ]),
+      ), //-----
     );
   }
 
