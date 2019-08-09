@@ -85,7 +85,7 @@ class _SplashScreenState extends State<LOMSplashScreen> {
       SplashScreen.navigate(
         backgroundColor: Colors.white,
         name: "assets/animations/splash.flr",
-        next: IntroductionPage(),
+        next: IntroductionPage(title:"Introduction"),
         until: () => Future.delayed(Duration(seconds: 2)),
         startAnimation: 'INTRO',
       ),

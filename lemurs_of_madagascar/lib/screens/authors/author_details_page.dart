@@ -92,7 +92,7 @@ class AuthorDetailsPageState extends State<AuthorDetailsPage>   {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               child: Author.loadAuthorDetails(this.author,truncateLen: this.author.details.length),
             ),
 

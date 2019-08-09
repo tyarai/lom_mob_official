@@ -33,8 +33,8 @@ class PartnerPageState extends State<PartnerPage>   {
   @override
   initState() {
     super.initState();
-    pageController = PageController();
-    indicator = DotsIndicator(controller:  pageController ,itemCount: 2,color:Constants.mainColor);
+    pageController = PageController(initialPage: 0);
+    indicator = DotsIndicator(controller:  pageController ,itemCount: 2,color:Constants.mainColor,dotIncreaseSize: 5,dotSize: 12,dotSpacing: 18,);
   }
 
   Widget _buildTitle() {
@@ -62,9 +62,21 @@ class PartnerPageState extends State<PartnerPage>   {
 
 
   Widget _buildBody(BuildContext buildContext){
-    return Container(
-      child: _buildPartnerListView(buildContext),
+
+
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      children:[
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: _buildPartnerListView(buildContext),
+        ),
+        Positioned(bottom:0,child: indicator),
+      ],
+
     );
+
+
   }
 
   Widget _buildPartnerListView(BuildContext buildContext) {

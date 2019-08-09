@@ -78,7 +78,7 @@ class FamilyDetailsPageState extends State<FamilyDetailsPage>   {
   Widget _buildFamilyDetailsView(BuildContext buildContext) {
 
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -92,7 +92,7 @@ class FamilyDetailsPageState extends State<FamilyDetailsPage>   {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(15),
               child: Family.loadFamilyDetails(this.family,truncateLen: this.family.description.length),
             ),
           ]),

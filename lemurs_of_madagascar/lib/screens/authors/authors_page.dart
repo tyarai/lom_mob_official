@@ -44,7 +44,7 @@ class AuthorsPageState extends State<AuthorsPage>   {
           actions: <Widget>[],
           title: _buildTitle(),
         ),
-        body: _buildBody(context),
+        body: SafeArea(child: _buildBody(context)),
       );
   }
 

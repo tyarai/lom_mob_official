@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/screens/Introduction.dart';
 import 'package:lemurs_of_madagascar/screens/authors/authors_page.dart';
+import 'package:lemurs_of_madagascar/screens/extinct_lemurs/extinct_lemurs_page.dart';
 import 'package:lemurs_of_madagascar/screens/families/family_page.dart';
+import 'package:lemurs_of_madagascar/screens/instructions/instructions_page.dart';
 import 'package:lemurs_of_madagascar/screens/lemur_life_list/lemur_life_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/origin_of_lemurs/origin_of_lemurs.dart';
 import 'package:lemurs_of_madagascar/screens/partners/partner_page.dart';
@@ -14,7 +16,7 @@ import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/screens/user/register_page.dart';
 
 
-import 'extinct_lemurs/extinct_lemurs_page.dart';
+
 
 
 final routes = {
@@ -28,6 +30,7 @@ final routes = {
   '/family_page'     : (BuildContext context) => FamilyPage(title: "Family",),
   '/site_page'       : (BuildContext context) => SitePage(title: "Watching sites",),
   '/partner_page'    : (BuildContext context) => PartnerPage(title: "Partner page",),
+  '/instructions'    : (BuildContext context) => InstructionsPage(title: "App instructions",),
   '/login'           : (BuildContext context) => LoginPage(),
   '/register'        : (BuildContext context) => RegisterPage(),
   '/'                : (BuildContext context) => LOMSplashScreen(),

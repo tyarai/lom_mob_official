@@ -51,7 +51,7 @@ class SitePageState extends State<SitePage>   {
           ],
           title: _buildTitle(),
         ),
-        body: _buildBody(context),
+        body: SafeArea(child:_buildBody(context)),
       );
   }
 
@@ -167,7 +167,7 @@ class SitePageState extends State<SitePage>   {
   static Widget _buildIndexText(int index,{TextAlign align = TextAlign.start}){
     if(index != null){
       return Padding(
-        padding: EdgeInsets.only(left:15,top:10,bottom: 10,right: 15),
+        padding: EdgeInsets.only(left:15 ,top:10,bottom: 10,right: 15),
         child: Text((index + 1).toString(),style:Constants.defaultTextStyle.copyWith(fontSize: 25,color: Colors.blue,fontWeight: FontWeight.w300,),textAlign: align,),
       );
     }

@@ -10,6 +10,7 @@ class Constants {
   static const String appCreed = "Lemur-watching with Russ. Mittermeier";
 
 
+
   static const double authorListViewImageWidth = 400.0;
   static const double listViewImageWidth = 120.0;
   static const double listViewImageHeight = 120.0;
@@ -67,6 +68,7 @@ class Constants {
   static const String publicFolder = "public://";
   static const String appImagesFolder = "/images/";
   static const String appImagesAssetsFolder = "assets/images/";
+  static const String appInstructionsAssetsFolder = "assets/instructions/";
   static const String http = "http";
 
   // List Item Color
@@ -107,7 +109,14 @@ class Constants {
 
 class ConstantImage {
 
+    static Widget getTextLogo({double width = 150,double height=70}){
+      return SizedBox(width: 150,child:Image.asset("assets/logos/text-logo.png",width:width,height:height) ,);
+    }
+
+
     static Widget getRussImage({bool avatar = false,double width = 100.0, double height = 100.0}){
+
+
 
     String imagePath = "assets/images/ram-everglades(resized).jpg";
 

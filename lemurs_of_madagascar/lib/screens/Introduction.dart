@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/menu_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/menu.dart';
+import 'package:lemurs_of_madagascar/screens/user/login_page.dart';
 import 'package:lemurs_of_madagascar/utils/user_session.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:sqflite/sqflite.dart';
@@ -62,9 +63,59 @@ class IntroductionPage extends StatefulWidget {
 class _IntroductionPageState extends State<IntroductionPage> implements IntroductionPageContract {
 
   var _menuItemFontSize = 18.0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future<UserSession> userSession = UserSession.getCurrentSession();
+
+    userSession.then((session){
+
+      if(session == null) {
+
+        _navigateToNextPage(LoginPage());
+
+          /*Timer(
+              Duration(seconds: Constants.splashDurationInSecond), () {
+            _navigateToNextPage(LoginPage());
+          }
+        );*/
+
+      }
+
+    });
+
+  }
+
   var _iconSize = 30.0;
   LogOutPresenter logOutPresenter;
   bool _isLoading = false;
+
+
+  _navigateToNextPage(StatefulWidget nextPage){
+
+    if(nextPage != null) {
+
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder<Null>(
+            pageBuilder: (BuildContext context, Animation<double> animation,
+                Animation<double> secondaryAnimation) {
+              return AnimatedBuilder(
+                  animation: animation,
+                  builder: (BuildContext context, Widget child) {
+                    return Opacity(
+                      opacity: animation.value,
+                      child: nextPage, //MainPage(title:Constants.myAppointmentTitle),
+                    );
+                  });
+            },
+            transitionDuration: Duration(
+                milliseconds: Constants.splashTransitionDuration)),
+      );
+
+    }
+  }
 
   _IntroductionPageState() {
     logOutPresenter = LogOutPresenter(this);
@@ -96,7 +147,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
           ),
         ),
         body: ModalProgressHUD(
-            child: _buildBody(),
+            child: SafeArea(child:_buildBody()),
             opacity: 0.3,
             //color: Constants.mainSplashColor,
             //progressIndicator: CircularProgressIndicator(),
@@ -158,6 +209,11 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
     List<Widget> _getDrawerMenu() {
       List<Widget> menuItems = List<Widget>();
+
+
+      menuItems.add(Center(child: ConstantImage.getTextLogo()));
+
+      menuItems.add(Divider(color: Constants.mainColor,));
 
       menuItems.add(ListTile(
         title:
@@ -282,12 +338,17 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
             width: _iconSize, height: _iconSize),
       ));*/
 
-      /*menuItems.add(ListTile(
+      menuItems.add(ListTile(
         title: Text("App instructions",
             style: TextStyle(fontSize: _menuItemFontSize)),
         leading: Image.asset("assets/images/icons/about.png",
             width: _iconSize, height: _iconSize),
-      ));*/
+        onTap: (){
+          Navigator.pop(context); // Close the drawer
+          _showInstructionsPage();
+
+        },
+      ));
 
       menuItems.add(ListTile(
         title: Text("Log out",
@@ -303,6 +364,11 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
       return menuItems;
     }
+
+  _showInstructionsPage(){
+    Navigator.pushNamed(context, '/instructions');
+  }
+
 
   _showPartnerPage(){
     Navigator.pushNamed(context, '/partner_page');

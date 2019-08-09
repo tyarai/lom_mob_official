@@ -85,7 +85,7 @@ class SpeciesSlideShowState extends State<SpeciesSlideShow> {
   Widget build(BuildContext context) {
     Widget futureWidget = Scaffold(
         backgroundColor: Constants.mainColor,
-        body: Column(
+        body: SafeArea(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
@@ -126,7 +126,7 @@ class SpeciesSlideShowState extends State<SpeciesSlideShow> {
             ]),
             Expanded(child: _buildCarousel()),
           ],
-        ));
+        )));
 
     return futureWidget;
   }

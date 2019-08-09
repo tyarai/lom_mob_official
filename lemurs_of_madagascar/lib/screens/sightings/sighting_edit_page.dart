@@ -121,7 +121,7 @@ class _SightingEditPageState extends State<SightingEditPage>
                 : Text(this.title, style: Constants.appBarTitleStyle),
           ),
           body: ModalProgressHUD(
-              child: _buildBody(buildContext),
+              child: SafeArea(child:_buildBody(buildContext)),
               opacity: 0.3,
               //color: Constants.mainSplashColor,
               //progressIndicator: CircularProgressIndicator(),

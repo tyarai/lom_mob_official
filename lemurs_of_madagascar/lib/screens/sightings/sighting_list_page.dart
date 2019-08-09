@@ -253,7 +253,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
           canvasColor: Constants.mainColor,
           primaryColor: Colors.red,
         ),
-        child: SizedBox(
+        child: SafeArea(child:SizedBox(
           height: 58,
           child: BottomNavigationBar(
             fixedColor: Colors.greenAccent,
@@ -284,7 +284,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
             ],
           ),
-        ));
+        )));
   }
 
   void _handleBottomNavTap(int index) {
