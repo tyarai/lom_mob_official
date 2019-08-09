@@ -13,7 +13,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="lemurs_of_madagascar"
+        android:label="LemursOfMadagascar"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
