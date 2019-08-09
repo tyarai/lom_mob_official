@@ -86,7 +86,7 @@ class _SplashScreenState extends State<LOMSplashScreen> {
         backgroundColor: Colors.white,
         name: "assets/animations/splash.flr",
         next: IntroductionPage(title:"Introduction"),
-        until: () => Future.delayed(Duration(seconds: 2)),
+        until: () => Future.delayed(Duration(seconds: 1)),
         startAnimation: 'INTRO',
       ),
 
