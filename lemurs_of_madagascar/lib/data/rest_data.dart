@@ -26,7 +26,7 @@ class RestData {
   NetworkUtil _networkUtil = NetworkUtil();
 
   //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  static const SERVER = "http://192.168.2.242";
+  static const SERVER = "http://192.168.3.242";
   static const LOGIN_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/services/user/login.json";
   static const LOGOUT_ENDPOINT = SERVER +
@@ -89,6 +89,8 @@ class RestData {
       "/lom_endpoint/api/v1/settings/lom_settings/export_settings"; // Misy param user_uid
   static const SETTINGS_IMPORT_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/settings/lom_settings/import_settings"; // Misy param user_uid, settings_name, settings_value
+
+
   // ************* CHANGED NODES SERVICE (Species, Map, Photograph, Family, Places) *******
   static const CHANGED_NODES = SERVER +
       "/lom_endpoint/api/v1/services/lom_node_services/changed_nodes"; // Misy parama from_date
@@ -130,7 +132,6 @@ class RestData {
           throw LOMException(error.statusCode);
         }
         print("[REST_DATA:login()] error:" + error.toString());
-
       });
   }
 
@@ -207,96 +208,85 @@ class RestData {
   }
 
   Future<int> syncFile(File file, String fileName) async {
-
-      if (file != null && fileName != null) {
-        List<int> byteData = List();
-        String base6sString = "";
-        int fileSize = 0;
-
-
-        if (file.path.startsWith(Constants.appImagesAssetsFolder)) {
-          // ----- SYNCING IMAGE OR FILE IN ASSETS FOLDER
-          var _byteData = await rootBundle.load(file.path);
-          final buffer = _byteData.buffer;
-          base6sString = base64Encode(buffer.asUint8List());
-          fileSize = buffer.lengthInBytes;
-        } else {
-          // ----- SYNCING IMAGE OR FILE IN DOCUMENTS FOLDER
-          byteData = file.readAsBytesSync();
-          base6sString = base64Encode(byteData);
-          fileSize = await file.length();
-        }
+    if (file != null && fileName != null) {
+      List<int> byteData = List();
+      String base6sString = "";
+      int fileSize = 0;
 
 
-        UserSession currentSession = await UserSession.getCurrentSession();
-
-        String cookie = currentSession.sessionName + "=" +
-            currentSession.sessionID;
-        String token = currentSession.token;
-
-        Map<String, String> body = {
-          "filename": fileName,
-          "file": base6sString,
-          "filepath": Constants.publicFolder + fileName,
-          "filesize": fileSize.toString(),
-        };
-
-        Map<String, String> headers = {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Cookie": cookie,
-          "X-CSRF-Token": token
-        };
-
-        return
-          _networkUtil.post(FILE_ENDPOINT,
-            body: json.encode(body),
-            headers: headers,
-          ).then((dynamic resultMap) {
-            print("[REST_DATA::syncFile()] " + resultMap.toString());
-
-            if (resultMap[RestData.errorKey] != null) {
-              throw new Exception(resultMap["error_msg"]);
-            }
-
-            String fidKey = "fid";
-            int fid = int.parse(resultMap[fidKey]);
-            //int fid = resultMap[fidKey];
-
-            return fid;
-
-          }).catchError((error) {
-            print("[REST_DATA::syncFile()] error:" + error.toString());
-            throw error;
-          });
+      if (file.path.startsWith(Constants.appImagesAssetsFolder)) {
+        // ----- SYNCING IMAGE OR FILE IN ASSETS FOLDER
+        var _byteData = await rootBundle.load(file.path);
+        final buffer = _byteData.buffer;
+        base6sString = base64Encode(buffer.asUint8List());
+        fileSize = buffer.lengthInBytes;
+      } else {
+        // ----- SYNCING IMAGE OR FILE IN DOCUMENTS FOLDER
+        byteData = file.readAsBytesSync();
+        base6sString = base64Encode(byteData);
+        fileSize = await file.length();
       }
+
+
+      UserSession currentSession = await UserSession.getCurrentSession();
+
+      String cookie = currentSession.sessionName + "=" +
+          currentSession.sessionID;
+      String token = currentSession.token;
+
+      Map<String, String> body = {
+        "filename": fileName,
+        "file": base6sString,
+        "filepath": Constants.publicFolder + fileName,
+        "filesize": fileSize.toString(),
+      };
+
+      Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Cookie": cookie,
+        "X-CSRF-Token": token
+      };
+
+      return
+        _networkUtil.post(FILE_ENDPOINT,
+          body: json.encode(body),
+          headers: headers,
+        ).then((dynamic resultMap) {
+          print("[REST_DATA::syncFile()] " + resultMap.toString());
+
+          if (resultMap[RestData.errorKey] != null) {
+            throw new Exception(resultMap["error_msg"]);
+          }
+
+          String fidKey = "fid";
+          int fid = int.parse(resultMap[fidKey]);
+          //int fid = resultMap[fidKey];
+
+          return fid;
+        }).catchError((error) {
+          print("[REST_DATA::syncFile()] error:" + error.toString());
+          throw error;
+        });
+    }
 
 
     return 0;
   }
 
   Future<int> syncSighting(Sighting sighting, {bool editing = false}) async {
-
-
-
     if (sighting != null) {
+      Future<User> _user = User.getCurrentUser();
 
-
-
-
-      Future<User> _user =  User.getCurrentUser();
-
-      return _user.then((user){
-
-        if(user != null) {
-
+      return _user.then((user) {
+        if (user != null) {
           var _file = Sighting.getImageFile(sighting);
 
           var longitude = sighting.longitude != null ? sighting
               .longitude.toStringAsPrecision(Constants
               .gpsDecimalPrecision) : 0.0;
 
-          var latitude = sighting.latitude != null ?  sighting
+          var latitude = sighting.latitude != null ? sighting
               .latitude.toStringAsPrecision(Constants
               .gpsDecimalPrecision) : 0.0;
 
@@ -306,7 +296,6 @@ class RestData {
 
           return _file.then((file) async {
             if (file != null) {
-
               String fileName = basename(file.path);
 
               return syncFile(file, fileName).then((fid) async {
@@ -329,14 +318,15 @@ class RestData {
                 //String formattedDate = DateFormat(Constants.apiDateFormat).format(DateTime.fromMillisecondsSinceEpoch(sighting.date.toInt()));
 
                 if (!editing) {
-
-                  var speciesNID = sighting.speciesNid != null ? sighting.speciesNid.toString() : null;
-                  var siteNID    = sighting.placeNID != null ? sighting.placeNID.toString() : null;
+                  var speciesNID = sighting.speciesNid != null ? sighting
+                      .speciesNid.toString() : null;
+                  var siteNID = sighting.placeNID != null ? sighting.placeNID
+                      .toString() : null;
 
                   var type = (sighting.activityTagTid != null &&
                       sighting.activityTagTid != 0)
                       ? sighting.activityTagTid
-                      //: 0.toString();//"_none";
+                  //: 0.toString();//"_none";
                       : null;
 
 
@@ -350,21 +340,28 @@ class RestData {
                     "body": sighting.title,
                     "field_place_name": sighting.placeName,
                     "field_date": formattedDate,
-                    "field_associated_species": speciesNID,//sighting.speciesNid.toString(),
-                    "field_lat": latitude,// sighting.latitude.toString(),
-                    "field_long": longitude,// sighting.longitude.toString(),
-                    "field_altitude": altitude,// sighting.altitude.toString(),
+                    "field_associated_species": speciesNID,
+                    //sighting.speciesNid.toString(),
+                    "field_lat": latitude,
+                    // sighting.latitude.toString(),
+                    "field_long": longitude,
+                    // sighting.longitude.toString(),
+                    "field_altitude": altitude,
+                    // sighting.altitude.toString(),
                     "field_is_local": editing ? sighting.isLocal.toString() : 0
-                        .toString(), //NO
-                    "field_is_synced" : 1.toString(),
-                    "field_count":  sighting.speciesCount != null ? sighting.speciesCount.toString() : 0,
+                        .toString(),
+                    //NO
+                    "field_is_synced": 1.toString(),
+                    "field_count": sighting.speciesCount != null ? sighting
+                        .speciesCount.toString() : 0,
                     "field_photo": fid.toString(),
                     //"field_type": type,//sighting.activityTagTid.toString(),
                     //TODO Optimisation do not upload unchanged photo
-                    "field_place_name_reference": siteNID,//sighting.placeNID.toString(),
+                    "field_place_name_reference": siteNID,
+                    //sighting.placeNID.toString(),
                   };
 
-                  if (type != null){
+                  if (type != null) {
                     postBody["field_type"] = type;
                   }
 
@@ -400,9 +397,7 @@ class RestData {
                               error.toString());
                       throw error;
                     });
-
                 } else {
-
                   //print("NID BEFORE CALL ${sighting.nid} - editing $editing");
 
                   var type = (sighting.activityTagTid != null &&
@@ -410,7 +405,8 @@ class RestData {
                       ? sighting.activityTagTid
                       : "_none";
 
-                  var count      = sighting.speciesCount != null ? sighting.speciesCount : 0;
+                  var count = sighting.speciesCount != null ? sighting
+                      .speciesCount : 0;
 
                   Map<String, String> putHeaders = {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -423,7 +419,7 @@ class RestData {
                       .longitude.toStringAsPrecision(Constants
                       .gpsDecimalPrecision) : 0.0;
 
-                  var latitude = sighting.latitude != null ?  sighting
+                  var latitude = sighting.latitude != null ? sighting
                       .latitude.toStringAsPrecision(Constants
                       .gpsDecimalPrecision) : 0.0;
 
@@ -432,20 +428,29 @@ class RestData {
                       Constants.gpsDecimalPrecision) : 0.0;
 
 
-                  String  putBody = "";
+                  String putBody = "";
                   putBody += " title=" + sighting.title;
-                  putBody += "&body=" +  sighting.title;
-                  putBody += sighting.placeName != null ? "&field_place_name[und][0][value]=${sighting.placeName}" : "";
+                  putBody += "&body=" + sighting.title;
+                  putBody += sighting.placeName != null
+                      ? "&field_place_name[und][0][value]=${sighting.placeName}"
+                      : "";
                   putBody += "&field_date[und][0][value][date]=$formattedDate";
-                  putBody += sighting.speciesNid != null ? "&field_associated_species[und][nid]=${sighting.speciesNid}" : ""; //sighting.speciesNid.toString(),
+                  putBody += sighting.speciesNid != null
+                      ? "&field_associated_species[und][nid]=${sighting
+                      .speciesNid}"
+                      : ""; //sighting.speciesNid.toString(),
                   putBody += "&field_lat[und][0][value]=$latitude";
                   putBody += "&field_long[und][0][value]=$longitude";
                   putBody += "&field_altitude[und][0][value]=$altitude";
                   putBody += "&field_count[und][0][value]=$count";
                   putBody += "&field_photo[und][0][fid]=${fid.toString()}";
                   //TODO Optimisation do not upload unchanged photo
-                  putBody +=  sighting.placeNID != null ? "&field_place_name_reference[und][nid]=${sighting.placeNID}" : "";
-                  putBody += "&field_type[und][]=$type";//sighting.activityTagTid.toString(),
+                  putBody += sighting.placeNID != null
+                      ? "&field_place_name_reference[und][nid]=${sighting
+                      .placeNID}"
+                      : "";
+                  putBody +=
+                  "&field_type[und][]=$type"; //sighting.activityTagTid.toString(),
                   putBody += "";
 
 
@@ -484,16 +489,12 @@ class RestData {
             print("[Rest_data::syncSighting()] Exception " + error.toString());
             throw error;
           });
-
-        }else{
+        } else {
           print("[REST_DATA::syncSighting()] Current user null");
         }
 
         return null;
-
       });
-
-
     }
 
     return 0;
@@ -538,13 +539,10 @@ class RestData {
   }
 
   Future<List<Sighting>> getSightings(DateTime fromDate) async {
-
-    Future<User> _user =  User.getCurrentUser();
+    Future<User> _user = User.getCurrentUser();
 
     return _user.then((user) async {
-
       if (user != null) {
-
         UserSession currentSession = await UserSession
             .getCurrentSession();
 
@@ -568,48 +566,43 @@ class RestData {
 
         // get changed sighting from the specified date
         return _networkUtil.post(SERVICE_MY_SIGHTINGS + params,
-            headers: postHeaders,
+          headers: postHeaders,
         ).then((dynamic resultMap) async {
+          print("[REST_DATA::getSightings()] -->" +
+              resultMap.toString());
 
-            print("[REST_DATA::getSightings()] -->" +
-                resultMap.toString());
+          String lastSyncDate = DateTime
+              .now()
+              .toUtc()
+              .millisecondsSinceEpoch
+              .toString();
+          LOMSharedPreferences.setString(
+              LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
+          print("Reference Date " + lastSyncDate);
 
-            String lastSyncDate = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
-            LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
-            print("Reference Date "+ lastSyncDate);
-
-            return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
-              return Sighting.fromMap(jsonSighting);
-            }).toList();
-
-
+          return (resultMap[RestData.nodesKey] as List).map((jsonSighting) {
+            return Sighting.fromMap(jsonSighting);
+          }).toList();
         }).catchError((error) {
-
-            print(
-                "[REST_DATA::getSightings()] Getting sightings list error :" +
-                    error.toString());
-            throw error;
-
+          print(
+              "[REST_DATA::getSightings()] Getting sightings list error :" +
+                  error.toString());
+          throw error;
         });
       }
 
       return List();
-
     });
-
   }
 
   /*
   * Get all comments on the server that belong to this user
   * */
   Future<List<Comment>> getComments(DateTime fromDate) async {
-
-    Future<User> _user =  User.getCurrentUser();
+    Future<User> _user = User.getCurrentUser();
 
     return _user.then((user) async {
-
       if (user != null) {
-
         UserSession currentSession = await UserSession
             .getCurrentSession();
 
@@ -635,30 +628,28 @@ class RestData {
         return _networkUtil.post(CHANGED_COMMENTS,
           body: json.encode(postBody),
           headers: postHeaders,
-        ).then((dynamic resultMap)  {
-
-          String lastSyncDate = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
-          LOMSharedPreferences.setString(LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
-          print("Reference Date "+ lastSyncDate);
+        ).then((dynamic resultMap) {
+          String lastSyncDate = DateTime
+              .now()
+              .toUtc()
+              .millisecondsSinceEpoch
+              .toString();
+          LOMSharedPreferences.setString(
+              LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
+          print("Reference Date " + lastSyncDate);
 
           return (resultMap[RestData.commentsKey] as List).map((jsonComment) {
             return Comment.fromMap(jsonComment);
           }).toList();
-
-
         }).catchError((error) {
-
           print(
               "[REST_DATA::getComments()] Getting sightings list error :" +
                   error.toString());
           throw error;
-
         });
       }
       return List();
-
     });
-
   }
 
   Future<int> syncComment(Comment comment, {bool editing = false}) async {
@@ -670,7 +661,6 @@ class RestData {
       String token = currentSession.token;
 
       if (!editing) {
-
         Map<String, String> postBody = {
           "body": comment.commentBody,
           "uuid": comment.uuid,
@@ -712,9 +702,7 @@ class RestData {
                     error.toString());
             throw error;
           });
-
       } else {
-
         Map<String, String> postHeaders = {
           "Content-Type": "application/x-www-form-urlencoded",
           "Accept": "application/json",
@@ -722,7 +710,8 @@ class RestData {
           "X-CSRF-Token": token
         };
 
-        String postBody = "body=${comment.commentBody}&uuid=${comment.uuid}&status=${comment.status}&deleted=${comment.deleted}";
+        String postBody = "body=${comment.commentBody}&uuid=${comment
+            .uuid}&status=${comment.status}&deleted=${comment.deleted}";
 
         String commentUpdateUrl = EDIT_COMMENT;
         print("[Updating comment at $commentUpdateUrl]");
@@ -735,7 +724,6 @@ class RestData {
             encoding: Encoding.getByName('utf-8'),
 
           ).then((dynamic resultMap) {
-
             print("[REST_DATA::updateComment()] update" + resultMap.toString());
 
             if (resultMap[RestData.errorKey] != null) {
@@ -745,7 +733,6 @@ class RestData {
             String cidKey = "cid";
             int cid = resultMap[cidKey];
             return cid;
-
           }).catchError((error) {
             print(
                 "[REST_DATA::updateComment()] updating comment :" +
@@ -758,10 +745,8 @@ class RestData {
     return 0;
   }
 
-  Future<int> syncSettings(String settingsName, String settingValue) async {
-
+  Future<bool> syncSettings(String settingsName, String settingValue) async {
     if (settingsName != null && settingValue != null) {
-
       UserSession currentSession = await UserSession.getCurrentSession();
 
       String cookie = currentSession.sessionName + "=" +
@@ -788,30 +773,33 @@ class RestData {
 
       String uid = await LOMSharedPreferences.loadString(User.uidKey);
 
-      String url = SETTINGS_IMPORT_ENDPOINT + "?user_uid=" + uid + "&settings_name=" + settingsName + "&settings_value=" + settingValue;
+      String url = SETTINGS_IMPORT_ENDPOINT + "?user_uid=" + uid +
+          "&settings_name=" + settingsName + "&settings_value=" + settingValue;
 
       return _networkUtil.post(url,
-          //body: json.encode(postBody),
-          headers: postHeaders,
-        ).then((dynamic resultMap) async {
-          print("[REST_DATA::syncSettings()] " + resultMap.toString());
+        //body: json.encode(postBody),
+        headers: postHeaders,
+      ).then((dynamic resultMap) async {
+        print("[REST_DATA::syncSettings()] " + resultMap.toString());
 
-          if (resultMap[RestData.errorKey] != null) {
-            throw new Exception(resultMap["error_msg"]);
-          }
+        if (resultMap[RestData.errorKey] != null &&  resultMap[RestData.errorKey] == true ) {
+          throw new Exception(resultMap["error_msg"]);
+        }
 
-          String cidKey = "cid";
-          int cid = resultMap[cidKey];
+        //String cidKey = "cid";
+        //int cid = resultMap[cidKey];
+        //return cid;
+        return true;
 
-          return cid;
-        }).catchError((error) {
-          print(
-              "[REST_DATA::syncSettings()] Syncing settings error: " +
-                  error.toString());
-          throw error;
-        });
+      }).catchError((error) {
+        print(
+            "[REST_DATA::syncSettings()] Syncing settings error: " +
+                error.toString());
+        throw error;
+      });
+    }
+
+    return false;
   }
-
-  return 0;
 
 }

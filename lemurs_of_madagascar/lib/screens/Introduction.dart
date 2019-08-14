@@ -354,7 +354,7 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
       menuItems.add(ListTile(
         title: Text("Settings",
             style: TextStyle(fontSize: _menuItemFontSize)),
-        leading: Icon(Icons.close,size: _iconSize),
+        leading: Icon(Icons.settings,size: _iconSize),
         onTap: () {
           _showSettingsPage();
         },
