@@ -25,8 +25,8 @@ class RestData {
 
   NetworkUtil _networkUtil = NetworkUtil();
 
-  static const  SERVER               = "https://www.lemursofmadagascar.com/html";
-  //static const SERVER = "http://192.168.3.242";
+  //static const  SERVER               = "https://www.lemursofmadagascar.com/html";
+  static const SERVER = "http://192.168.2.242";
   static const LOGIN_ENDPOINT = SERVER +
       "/lom_endpoint/api/v1/services/user/login.json";
   static const LOGOUT_ENDPOINT = SERVER +
@@ -669,8 +669,6 @@ class RestData {
           currentSession.sessionID;
       String token = currentSession.token;
 
-
-
       if (!editing) {
 
         Map<String, String> postBody = {
@@ -759,5 +757,61 @@ class RestData {
 
     return 0;
   }
+
+  Future<int> syncSettings(String settingsName, String settingValue) async {
+
+    if (settingsName != null && settingValue != null) {
+
+      UserSession currentSession = await UserSession.getCurrentSession();
+
+      String cookie = currentSession.sessionName + "=" +
+          currentSession.sessionID;
+      String token = currentSession.token;
+
+      /*Map<String, String> postBody = {
+        "body": comment.commentBody,
+        "uuid": comment.uuid,
+        "uid": comment.uid.toString(),
+        "sighting_uuid": comment.sightingUUID,
+        "nid": comment.nid.toString(),
+        "status": comment.status.toString(),
+        "subject": "",
+        "synced": "1"
+      };*/
+
+      Map<String, String> postHeaders = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Cookie": cookie,
+        "X-CSRF-Token": token
+      };
+
+      String uid = await LOMSharedPreferences.loadString(User.uidKey);
+
+      String url = SETTINGS_IMPORT_ENDPOINT + "?user_uid=" + uid + "&settings_name=" + settingsName + "&settings_value=" + settingValue;
+
+      return _networkUtil.post(url,
+          //body: json.encode(postBody),
+          headers: postHeaders,
+        ).then((dynamic resultMap) async {
+          print("[REST_DATA::syncSettings()] " + resultMap.toString());
+
+          if (resultMap[RestData.errorKey] != null) {
+            throw new Exception(resultMap["error_msg"]);
+          }
+
+          String cidKey = "cid";
+          int cid = resultMap[cidKey];
+
+          return cid;
+        }).catchError((error) {
+          print(
+              "[REST_DATA::syncSettings()] Syncing settings error: " +
+                  error.toString());
+          throw error;
+        });
+  }
+
+  return 0;
 
 }

@@ -7,6 +7,7 @@ import 'package:lemurs_of_madagascar/screens/instructions/instructions_page.dart
 import 'package:lemurs_of_madagascar/screens/lemur_life_list/lemur_life_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/origin_of_lemurs/origin_of_lemurs.dart';
 import 'package:lemurs_of_madagascar/screens/partners/partner_page.dart';
+import 'package:lemurs_of_madagascar/screens/settings/settings_page.dart';
 import 'package:lemurs_of_madagascar/screens/sites/site_page.dart';
 import 'package:lemurs_of_madagascar/screens/species_list/species_list_page.dart';
 import 'package:lemurs_of_madagascar/screens/sightings/sighting_list_page.dart';
@@ -31,6 +32,7 @@ final routes = {
   '/site_page'       : (BuildContext context) => SitePage(title: "Watching sites",),
   '/partner_page'    : (BuildContext context) => PartnerPage(title: "Partner page",),
   '/instructions'    : (BuildContext context) => InstructionsPage(title: "App instructions",),
+  '/settings'        : (BuildContext context) => SettingsPage(title: "Settings",),
   '/login'           : (BuildContext context) => LoginPage(),
   '/register'        : (BuildContext context) => RegisterPage(),
   '/'                : (BuildContext context) => LOMSplashScreen(),

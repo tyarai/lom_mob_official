@@ -39,8 +39,6 @@ class LOMSharedPreferences{
     }
   }
 
-
-
   static Future<List<Species>> loadRecentSpeciesSearch() async {
 
     final prefs = await SharedPreferences.getInstance();
