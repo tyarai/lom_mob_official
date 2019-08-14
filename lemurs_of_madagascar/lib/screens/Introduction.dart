@@ -350,6 +350,16 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
         },
       ));
 
+
+      menuItems.add(ListTile(
+        title: Text("Settings",
+            style: TextStyle(fontSize: _menuItemFontSize)),
+        leading: Icon(Icons.close,size: _iconSize),
+        onTap: () {
+          _showSettingsPage();
+        },
+      ));
+
       menuItems.add(ListTile(
         title: Text("Log out",
             style: TextStyle(fontSize: _menuItemFontSize)),
@@ -367,6 +377,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
   _showInstructionsPage(){
     Navigator.pushNamed(context, '/instructions');
+  }
+
+  _showSettingsPage(){
+    Navigator.pushNamed(context, '/settings');
   }
 
 

@@ -9,6 +9,7 @@ class UserSession {
   static const dateKey         = "date";
 
 
+
   String sessionID ="";
   String sessionName ="";
   String token ="";
