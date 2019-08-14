@@ -45,9 +45,11 @@ class SpeciesDatabaseHelper  {
   }
 
   Future<int> updateSpecies({species : Species}) async {
+    print("updating species......"+ species.id.toString());
     Database database = await DatabaseHelper.instance.database;
     var result = await database.update(speciesTable, species.toMap(),
         where: '$idCol = ?', whereArgs: [species.id]);
+    print("result : " + result.toString());
     return result;
   }
 

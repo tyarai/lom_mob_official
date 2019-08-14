@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class Photograph {
 
@@ -56,9 +59,13 @@ class Photograph {
   }*/
 
   Photograph.fromMap(Map<String,dynamic> map) {
-    this._id         = map[_idKey];
-    this._title      = map[_titleKey];
-    this._photograph = map[_photographKey];
+    try {
+      this._id = map[_idKey];
+      this._title = map[_titleKey];
+      this._photograph = map[_photographKey];
+    }catch(e){
+      print("[Photograph.fromMap]"+e.toString());
+    }
   }
 
   Image getImageWidget({String path = "assets/images/",String ext = ".jpg"}){
@@ -68,6 +75,31 @@ class Photograph {
 
   ExactAssetImage getExactAssetImage({String path = "assets/images/",String ext = ".jpg"}){
     return ExactAssetImage(path+ this.photograph + ext);
+
+  }
+
+  Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      PhotographDatabaseHelper db = PhotographDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updatePhotograph(database:database,photo:this);
+      }
+      else {
+        id = db.insertPhotograph(database: database,photo:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[Photograph::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
 
   }
 

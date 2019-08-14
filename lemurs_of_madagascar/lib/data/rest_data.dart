@@ -596,7 +596,7 @@ class RestData {
   }
 
   /*
-  * Get all comments on the server that belong to this user
+  * Get all comments from server that belong to this user
   * */
   Future<List<Comment>> getComments(DateTime fromDate) async {
     Future<User> _user = User.getCurrentUser();
@@ -800,6 +800,62 @@ class RestData {
     }
 
     return false;
+  }
+
+  Future<Map<String,dynamic>> getUpdatedNodes(DateTime fromDate) async {
+
+    Future<User> _user = User.getCurrentUser();
+
+    return _user.then((user) async {
+      if (user != null) {
+        UserSession currentSession = await UserSession
+            .getCurrentSession();
+
+        String cookie = currentSession.sessionName + "=" +
+            currentSession.sessionID;
+        String token = currentSession.token;
+
+        String formattedDate = fromDate.toUtc().toIso8601String();
+
+        Map<String, String> postHeaders = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Cookie": cookie,
+          "X-CSRF-Token": token
+        };
+
+
+        String url = CHANGED_NODES + "?from_date=" + formattedDate;
+
+
+        return _networkUtil.post(url,
+          //body: json.encode(postBody),
+          headers: postHeaders,
+        ).then((dynamic resultMap) {
+
+          String lastSyncDate = DateTime
+              .now()
+              .toUtc()
+              .millisecondsSinceEpoch
+              .toString();
+
+          LOMSharedPreferences.setString(
+              LOMSharedPreferences.lastSyncDateTime, lastSyncDate);
+          //print("Reference Date " + lastSyncDate);
+
+          //print(resultMap.toString());
+
+          return resultMap as Map<String,dynamic>;
+
+        }).catchError((error) {
+          print("[REST_DATA::getUpdatedNodes()] Getting updated nodes list error :" +
+                  error.toString());
+          throw error;
+        });
+      }
+
+      return Map();
+    });
   }
 
 }

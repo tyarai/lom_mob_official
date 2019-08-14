@@ -39,5 +39,44 @@ class FamilyDatabaseHelper {
     return list;
   }
 
+  Future<int> insertFamily({Database database,Family family}) async {
+    try {
+      //Database database = await DatabaseHelper.instance.database;
+      var result = await database.insert(familyTable, family.toMap());
+
+      return result;
+    }catch(e){
+      print("[FAMILY_DATABASE_HELPER::insertComment()] exception "+e.toString());
+      return null;
+    }
+  }
+
+  Future<int> updateFamily({Database database,Family family}) async {
+    if(family != null) {
+      try {
+
+        if (family.nid != null && family.nid != 0) {
+
+          //Database database = await DatabaseHelper.instance.database;
+          var result = await database.update(familyTable, family.toMap(),
+              where: '$nidCol = ?', whereArgs: [family.nid]);
+          return result;
+        }
+
+      } catch (e) {
+        print("[COMMENT_DATABASE_HELPER::updateComment()] " + e.toString());
+      }
+    }
+    return 0;
+  }
+
+
+  Future<Family> getFamilyWithID({id: int}) async {
+    var list = await this.getFamilyMapWithID(id);
+    return (list != null && list[0] != null ) ? list[0] : null;
+
+  }
+
+
 
 }

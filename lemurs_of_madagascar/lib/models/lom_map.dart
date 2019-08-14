@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/database/lom_map_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class LOMMap {
 
@@ -52,8 +54,12 @@ class LOMMap {
   }
 
   LOMMap.fromMap(Map<String, dynamic> map) {
-    this._nid = map[nidKey];
-    this._fileName = map[fileNameKey];
+    try {
+      this._nid = map[nidKey];
+      this._fileName = map[fileNameKey];
+    }catch(e){
+      print("[LOMMap.fromMap] "+e.toString());
+    }
   }
 
   Image getMapWidget(
@@ -69,6 +75,31 @@ class LOMMap {
     LOMMapDatabaseHelper db = LOMMapDatabaseHelper();
     LOMMap _lomMap = await db.getLOMMapWithID(id:this._nid);
     return _lomMap.fileName;
+  }
+
+  Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      LOMMapDatabaseHelper db = LOMMapDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updateLOMMap(database:database,map:this);
+      }
+      else {
+        id = db.insertLOMMap(database: database,map:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[LOMMap::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
   }
 
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+import 'package:lemurs_of_madagascar/database/family_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/illustration_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/author.dart';
 import 'package:lemurs_of_madagascar/models/illustration.dart';
-import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 
 
@@ -33,10 +35,12 @@ class Family {
       this._description     = map[Family.descriptionKey];
       this._illustration    = map[Family.illustrationKey];
     } catch (e) {
-      print("[Family::Author.fromMap()] error :" + e.toString());
+      print("[Family.fromMap()] error :" + e.toString());
       throw (e);
     }
   }
+
+  int get nid => this._nid;
 
   Map<String, dynamic> toMap() {
 
@@ -257,6 +261,33 @@ class Family {
       return Text( text, style: _style,textAlign: TextAlign.justify,);
     }
     return Container();
+  }
+
+  Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      FamilyDatabaseHelper db = FamilyDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updateFamily(database:database,family:this);
+      }
+      else {
+        id = db.insertFamily(database: database,family:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[Family::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
+
+
   }
 
 }

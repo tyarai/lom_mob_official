@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/database/author_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 enum AuthorImageClipperType {
   rectangular,
@@ -11,24 +14,31 @@ enum AuthorImageClipperType {
 class Author {
 
   static String idKey             = "_id";
+  static String nidKey            = "_nid";
   static String nameKey           = "_name";
   static String detailsKey        = "_details";
   static String photoKey          = "_photo";
 
   int _id;
+  int _nid;
   String _name;
   String _details;
   String _photo;
 
   String get name => this._name;
 
+  int get id => this._id;
+
+  int get nid => this._nid;
+
   String get details => this._details;
 
-  Author(this._id,this._name,this._details,this._photo);
+  Author(this._id,this._nid,this._name,this._details,this._photo);
 
   Author.fromMap(Map<String, dynamic> map) {
     try {
       this._id             = map[Author.idKey];
+      this._nid            = map[Author.nidKey];
       this._name           = map[Author.nameKey];
       this._details        = map[Author.detailsKey];
       this._photo          = map[Author.photoKey];
@@ -46,8 +56,9 @@ class Author {
       map[Author.idKey] = this._id;
     }
 
+    map[Author.nidKey]                   = this._nid;
     map[Author.nameKey]                  = this._name;
-    map[Author.detailsKey           ]    = this._details;
+    map[Author.detailsKey]               = this._details;
     map[Author.photoKey]                 = this._photo;
 
     return map;
@@ -208,6 +219,32 @@ class Author {
       return Text( text, style: _style,textAlign: TextAlign.justify,);
     }
     return Container();
+  }
+
+
+  Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      AuthorDatabaseHelper db = AuthorDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updateAuthor(database:database,author:this);
+      }
+      else {
+        id = db.insertAuthor(database: database,author:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[Author::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
   }
 
 }

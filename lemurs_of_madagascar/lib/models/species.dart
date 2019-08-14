@@ -1,3 +1,5 @@
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
 import 'package:lemurs_of_madagascar/models/species_map.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
@@ -5,6 +7,7 @@ import 'package:lemurs_of_madagascar/database/speciesmap_database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 
 
@@ -128,51 +131,67 @@ class Species extends SelectableListItem {
   }
 
   Map<String, dynamic> toMap(){
+
+
     var map = Map<String, dynamic>();
 
-    if(id != null){
-      map[idKey] = this.id;
-    }
+    try {
+      if (id != null) {
+        map[idKey] = this.id;
+      }
 
-    map[titleKey]         = this.title;
-    map[profilePhotoKey]  = this.profilePhotoID;
-    map[familyIDKey]      = this.familyID;
-    map[mgKey]            = this.malagasy;
-    map[enKey]            = this.english;
-    map[otherEnKey]       = this.otherEnglish;
-    map[frKey]            = this.french;
-    map[deKey]            = this.german;
-    map[identificationKey]= this.identification;
-    map[statusKey]        = this.status;
-    map[rangeKey]         = this.range;
-    map[historyKey]       = this.history;
-    map[sitesKey]         = this.sites;
-    map[mapIDKey]         = this.mapID;
-    map[photoIDsKey]      = this.profilePhotoID;
+      map[titleKey] = this.title;
+      map[profilePhotoKey] = this.profilePhotoID;
+      map[familyIDKey] = this.familyID;
+      map[mgKey] = this.malagasy;
+      map[enKey] = this.english;
+      map[otherEnKey] = this.otherEnglish;
+      map[frKey] = this.french;
+      map[deKey] = this.german;
+      map[identificationKey] = this.identification;
+      map[statusKey] = this.status;
+      map[rangeKey] = this.range;
+      map[historyKey] = this.history;
+      map[sitesKey] = this.sites;
+      map[mapIDKey] = this.mapID;
+      map[photoIDsKey] = this.profilePhotoID;
+
+
+      print("MAP "+map.toString());
+
+
+    }catch(e){
+      print("[Species::toMap()] Exception "+ e.toString());
+    }
 
     return map;
   }
 
   Species.fromMap(Map<String,dynamic> map) {
 
-    this.id               = map[idKey];
-    this.title            = map[titleKey]         ;
-    this.profilePhotoID   = map[profilePhotoKey];
-    this.familyID         = map[familyIDKey];
-    this.malagasy         = map[mgKey]             ;
-    this.english          = map[enKey]             ;
-    this.otherEnglish     = map[otherEnKey]        ;
-    this.french           = map[frKey]             ;
-    this.german           = map[deKey]             ;
-    this.identification   = map[identificationKey] ;
-    this.status           = map[statusKey]         ;
-    this.range            = map[rangeKey]          ;
-    this.history          = map[historyKey]        ;
-    this.sites            = map[sitesKey]          ;
-    this.mapID            = map[mapIDKey];
-    this.photoIDs         = map[photoIDsKey]       ;
+    try {
+      this.id = map[idKey];
+      this.title = map[titleKey];
+      this.profilePhotoID = map[profilePhotoKey];
+      this.familyID = map[familyIDKey];
+      this.malagasy = map[mgKey];
+      this.english = map[enKey];
+      this.otherEnglish = map[otherEnKey];
+      this.french = map[frKey];
+      this.german = map[deKey];
+      this.identification = map[identificationKey];
+      this.status = map[statusKey];
+      this.range = map[rangeKey];
+      this.history = map[historyKey];
+      this.sites = map[sitesKey];
+      this.mapID = map[mapIDKey];
+      this.photoIDs = map[photoIDsKey];
 
-    _loadImageFiles();
+      _loadImageFiles();
+
+    }catch(e){
+      print("[Species.fromMap]"+e.toString());
+    }
 
 
   }
@@ -210,11 +229,11 @@ class Species extends SelectableListItem {
   String get mapFileName  =>  _mapFileName ;
 
   set imageFile(String value){
-    this._imageFile = "assets/images/" +  value + ".jpg";
+    if (value != null) this._imageFile = "assets/images/" +  value + ".jpg";
   }
 
   set mapFileName(String value){
-    this._mapFileName = value;
+    if(value != null) this._mapFileName = value;
   }
 
 
@@ -240,14 +259,12 @@ class Species extends SelectableListItem {
       // Load profile image
       PhotographDatabaseHelper photographDatabaseHelper = PhotographDatabaseHelper();
       Photograph futurePhoto =  await photographDatabaseHelper.getPhotographWithID(id:this.profilePhotoID);
-      this.imageFile = futurePhoto.photograph ;
+      this.imageFile = futurePhoto?.photograph ;
 
       // Load map image
       SpeciesMapDatabaseHelper speciesMapDatabaseHelper = SpeciesMapDatabaseHelper();
       SpeciesMap futureMap =  await speciesMapDatabaseHelper.getSpeciesMapWithID(id:this.mapID);
-      this._mapFileName = futureMap.fileName;
-
-
+      this._mapFileName = futureMap?.fileName;
 
 
     }
@@ -429,6 +446,34 @@ class Species extends SelectableListItem {
       child: Icon(Icons.check,size:35,color: Colors.green,),
     )
     : Container();
+  }
+
+
+  Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      SpeciesDatabaseHelper db = SpeciesDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updateSpecies(species:this);
+      }
+      else {
+        id = db.insertSpecies(species:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[Species::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
+
+
   }
 
 }

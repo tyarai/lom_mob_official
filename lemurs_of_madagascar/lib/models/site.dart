@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:lemurs_of_madagascar/database/database_helper.dart';
+import 'package:lemurs_of_madagascar/database/family_database_helper.dart';
+import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/speciesmap_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/models/species_map.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class Site extends SelectableListItem {
 
@@ -72,17 +76,21 @@ class Site extends SelectableListItem {
   }
 
   Site.fromMap(Map<String,dynamic> map) {
-    this._id         = map[_idKey];
-    this._title      = map[_titleKey];
-    this._body       = map[_bodyKey];
-    this._mapID      = map[_mapIDKey];
-    //print(this.toString());
-    _loadMap();
+    try {
+      this._id = map[_idKey];
+      this._title = map[_titleKey];
+      this._body = map[_bodyKey];
+      this._mapID = map[_mapIDKey];
+      //print(this.toString());
+      _loadMap();
+    }catch(e){
+      print("[Site.fromMap] "+e.toString());
+    }
   }
 
   void _loadMap() async {
 
-    if(this._mapID != 0){
+    if(this._mapID != 0 && this._mapID != null){
       SpeciesMapDatabaseHelper db = SpeciesMapDatabaseHelper();
       this._map = await db.getSpeciesMapWithID(id:this._mapID);
     }
@@ -171,6 +179,34 @@ class Site extends SelectableListItem {
     )
         : Container();
   }
+
+  Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      SiteDatabaseHelper db = SiteDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updateSite(database:database,site:this);
+      }
+      else {
+        id = db.insertSite(database: database,site:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[Site::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
+
+
+  }
+
 }
 
 
