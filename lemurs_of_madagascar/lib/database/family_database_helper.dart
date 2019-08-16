@@ -8,15 +8,16 @@ class FamilyDatabaseHelper {
   static const String familyTable  = "Families";
   final nidCol                      = Family.nidKey;
 
-  Future<Map<String, dynamic>> getFamilyMapWithID(int nid) async {
+  Future<List<Map<String, dynamic>>> getFamilyMapWithNID(int nid) async {
 
     if(nid != null && nid != 0 ){
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
           "SELECT * FROM $familyTable WHERE $nidCol = ? ", [nid]);
-      return ( result != null && result.length != 0 ) ?  result[0] : null;
+      //return ( result != null && result.length != 0 ) ?  result[0] : null;
+      return result;
     }
-    return Map();
+    return List();
   }
 
   Future<List<Map<String, dynamic>>> getFamilyMapList() async {
@@ -71,9 +72,20 @@ class FamilyDatabaseHelper {
   }
 
 
-  Future<Family> getFamilyWithID({id: int}) async {
-    var list = await this.getFamilyMapWithID(id);
-    return (list != null && list[0] != null ) ? list[0] : null;
+  Future<Family> getFamilyWithNID({nid: int}) async {
+    /*var list = await this.getFamilyMapWithNID(nid);
+    return (list != null && list[0] != null ) ? list[0] : null;*/
+    var mapList = await this.getFamilyMapWithNID(nid);
+    int count = mapList.length;
+
+    List<Family> list = new List<Family>();
+
+    for(int i=0 ; i < count ; i++){
+      list.add(Family.fromMap(mapList[i]));
+    }
+
+    return list.length > 0 ? list[0] : null;
+
 
   }
 

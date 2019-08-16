@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
-import 'package:lemurs_of_madagascar/database/family_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/site_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/speciesmap_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
@@ -11,10 +10,10 @@ import 'package:sqflite/sqlite_api.dart';
 
 class Site extends SelectableListItem {
 
-  static String _idKey         = "_site_id";
-  static String _bodyKey       = "_body";
-  static String _titleKey      = "_title";
-  static String _mapIDKey      = "_map_id";
+  static String idKey         = "_site_id";
+  static String bodyKey       = "_body";
+  static String titleKey      = "_title";
+  static String mapIDKey      = "_map_id";
 
 
   SpeciesMap _map;
@@ -22,7 +21,7 @@ class Site extends SelectableListItem {
 
   String _title;
   String _body;
-  int _id;
+  int _nid;
   int _mapID;
 
 
@@ -37,12 +36,12 @@ class Site extends SelectableListItem {
     return "${this.id} ${this.title} ${this.mapID}";
   }
 
-  Site.withID(this._id, this._title,this._body,this._mapID){
+  Site.withID(this._nid, this._title,this._body,this._mapID){
     _loadMap();
   }
 
 
-  int get id => _id;
+  int get id => _nid;
   String get title => _title;
   int get mapID => _mapID;
   SpeciesMap get map => _map;
@@ -57,19 +56,19 @@ class Site extends SelectableListItem {
     }
   }
   set body(String value) => this._body = value;
-  set id(int value) => this._id = value;
+  set id(int value) => this._nid = value;
 
   Map<String, dynamic> toMap(){
 
     var map = Map<String, dynamic>();
 
-    if(_id != null){
-      map[_idKey] = this._id;
+    if(_nid != null){
+      map[idKey] = this._nid;
     }
 
-    map[_titleKey]  = this._title;
-    map[_bodyKey]   = this._body;
-    map[_mapIDKey]  = this._mapID;
+    map[titleKey]  = this._title;
+    map[bodyKey]   = this._body;
+    map[mapIDKey]  = this._mapID;
 
 
     return map;
@@ -77,10 +76,10 @@ class Site extends SelectableListItem {
 
   Site.fromMap(Map<String,dynamic> map) {
     try {
-      this._id = map[_idKey];
-      this._title = map[_titleKey];
-      this._body = map[_bodyKey];
-      this._mapID = map[_mapIDKey];
+      this._nid = map[idKey];
+      this._title = map[titleKey];
+      this._body = map[bodyKey];
+      this._mapID = map[mapIDKey];
       //print(this.toString());
       _loadMap();
     }catch(e){

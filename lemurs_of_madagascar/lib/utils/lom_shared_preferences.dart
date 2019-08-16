@@ -69,7 +69,7 @@ class LOMSharedPreferences{
     if(idList != null) {
       for (int i = 0; i < idList.length; i++) {
         SiteDatabaseHelper helper = SiteDatabaseHelper();
-        Site site = await helper.getSiteWithID(int.parse(idList[i]));
+        Site site = await helper.getSiteWithNID(int.parse(idList[i]));
         recentSearchList.add(site);
       }
     }

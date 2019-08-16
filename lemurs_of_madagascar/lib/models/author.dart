@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/author_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
-import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/image.dart';
 import 'package:sqflite/sqlite_api.dart';
+
 
 enum AuthorImageClipperType {
   rectangular,
@@ -26,6 +27,8 @@ class Author {
   String _photo;
 
   String get name => this._name;
+
+  String get photo => this._photo;
 
   int get id => this._id;
 
@@ -59,9 +62,7 @@ class Author {
     map[Author.nidKey]                   = this._nid;
     map[Author.nameKey]                  = this._name;
     map[Author.detailsKey]               = this._details;
-    // Do not update image file as it is downloaded from internet.
-    // Just keep the asset photo name otherwise we will need to download image fom server
-    //map[Author.photoKey]                 = this._photo;
+    map[Author.photoKey]                 = this._photo;
 
     return map;
 
@@ -83,6 +84,15 @@ class Author {
                 width: Constants.authorListViewImageWidth,
                 height: Constants.authorListViewImageWidth,
               ),
+              /*FutureBuilder<Image>(
+                future:LOMImage.getHttpImage(author._photo),
+                builder:(context,snapshot){
+                  if(snapshot.hasData){
+                    return snapshot.data;
+                  }
+                  return Center(child:CircularProgressIndicator());
+                },
+              ),*/
 
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +134,8 @@ class Author {
       case AuthorImageClipperType.oval :{
         widget = Container(
             child: ClipOval(
-                child: Author.loadImage(author)));//Author.loadHeroImage(author)));
+                //child: Author.loadImage(author)));//Author.loadHeroImage(author)));
+                child: Author.loadHeroImage(author,width: width,height: height)));
         break;
       }
     }
@@ -159,38 +170,122 @@ class Author {
       {double width = Constants.listViewImageWidth,
         double height = Constants.listViewImageWidth}) {
 
-    String image = "assets/images/" + author._photo;
+    //String image = "assets/images/" + author._photo;
 
     if(author != null) {
-      return Hero(
-          tag:  author._id.toString() + author._photo,
-          child: Image.asset(
 
-            image,
-            fit:BoxFit.fitHeight,
-            width: width,
-            height: height,
-          ));
+      /*return Hero(
+        tag:  author._id.toString() + author._photo,
+        child: Image.asset(
+
+          image,
+          fit:BoxFit.fitHeight,
+          width: width,
+          height: height,
+        ));*/
+
+      return FutureBuilder<Widget>(
+        future : LOMImage.getWidget(author._photo),
+        builder : (context,snapshot)  {
+          if(snapshot.hasData && snapshot.data != null){
+            return Hero(
+                tag:  author._id.toString() + author._photo,
+                child:snapshot.data
+            );
+          }
+          return Center(child:CircularProgressIndicator());
+        }
+      );
+
+
     }
+
     return Container(child:Center(child:CircularProgressIndicator()));
+
   }
 
   static Widget loadImage(Author author,
       {double width = Constants.listViewImageWidth,
         double height = Constants.listViewImageWidth}) {
 
-    String image = "assets/images/" + author._photo;
+    String image = Constants.appImagesAssetsFolder + author._photo;
 
     if(author != null) {
-      return Image.asset(
-        image,
-        fit:BoxFit.fitHeight,
-        width: width,
-        height: height,
+
+      return FutureBuilder<bool>(
+        future:LOMImage.checkAssetFile(author._photo),
+        builder: (context,snapshot){
+          if(snapshot.hasData && snapshot.data){
+            return Image.asset(
+              image,
+              fit:BoxFit.fitHeight,
+              width: width,
+              height: height,
+            );
+          }
+          return Container(child:Center(child:CircularProgressIndicator()));
+        },
       );
+
     }
-    return Container(child:Center(child:CircularProgressIndicator()));
+    //return Container(child:Center(child:CircularProgressIndicator()));
+    return Container();
+
+    /*print("TATO");
+
+    return FutureBuilder<Image>(
+        future:LOMImage.getHttpImage(author._photo),
+        builder:(context,snapshot){
+          if(snapshot.hasData){
+            return snapshot.data;
+          }
+          return Center(child:CircularProgressIndicator());
+    });*/
+
+
   }
+
+
+  /*static Widget loadImage(Author author,
+      {double width = Constants.listViewImageWidth,
+        double height = Constants.listViewImageWidth}) {
+
+    String image = Constants.appImagesAssetsFolder + author._photo;
+
+    if(author != null) {
+
+      return FutureBuilder<bool>(
+        future:LOMImage.checkAssetFile(author._photo),
+        builder: (context,snapshot){
+          if(snapshot.hasData && snapshot.data){
+            return Image.asset(
+              image,
+              fit:BoxFit.fitHeight,
+              width: width,
+              height: height,
+            );
+          }
+          return Container(child:Center(child:CircularProgressIndicator()));
+        },
+      );
+
+    }
+    //return Container(child:Center(child:CircularProgressIndicator()));
+    return Container();
+
+    /*print("TATO");
+
+    return FutureBuilder<Image>(
+        future:LOMImage.getHttpImage(author._photo),
+        builder:(context,snapshot){
+          if(snapshot.hasData){
+            return snapshot.data;
+          }
+          return Center(child:CircularProgressIndicator());
+    });*/
+
+
+  }*/
 
   static Widget loadHeroName(Author author,{TextStyle style = Constants.speciesTitleStyle}) {
     if(author != null) {

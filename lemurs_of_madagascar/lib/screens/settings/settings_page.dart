@@ -16,6 +16,7 @@ import 'package:lemurs_of_madagascar/models/site.dart';
 import 'package:lemurs_of_madagascar/models/species.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
 import 'package:lemurs_of_madagascar/utils/error_handler.dart';
+import 'package:lemurs_of_madagascar/utils/image.dart';
 import 'package:lemurs_of_madagascar/utils/lom_shared_preferences.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:xlive_switch/xlive_switch.dart';
@@ -337,8 +338,8 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
         db.getLOMMapWithID(id:map.nid).then((lommap) {
 
           if (lommap != null ) {
-            // The lommap already exists in local database then update it
-            lommap.saveToDatabase(true).then((savedMap) {
+            // The map already exists in local database then update it
+            map.saveToDatabase(true).then((savedMap) {
 
               if (savedMap == null) {
                 print("[_updateMap()] Error: Map not updated on local database");
@@ -349,8 +350,8 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
             });
 
           } else {
-            // The lommap  does not exist in local database then insert it
-            lommap.saveToDatabase(false).then((savedMap) {
+            // The map  does not exist in local database then insert it
+            map.saveToDatabase(false).then((savedMap) {
               if (savedMap == null) {
                 print("[_updateMap()] Error: Map not inserted to local database");
               } else {
@@ -377,7 +378,7 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
 
           if (_photo != null ) {
             // The _photo already exists in local database then update it
-            _photo.saveToDatabase(true).then((savedPhoto) {
+            photo.saveToDatabase(true).then((savedPhoto) {
 
               if (savedPhoto == null) {
                 print("[_updatePhotograph()] Error: Photo not updated on local database");
@@ -389,7 +390,7 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
 
           } else {
             // The _photo  does not exist in local database then insert it
-            _photo.saveToDatabase(false).then((savedPhoto) {
+            photo.saveToDatabase(false).then((savedPhoto) {
               if (savedPhoto == null) {
                 print("[_updatePhotograph()] Error: Photo not inserted to local database");
               } else {
@@ -412,11 +413,11 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
 
       for (Family family in familyList) {
 
-        db.getFamilyWithID(id:family.nid).then((_family) {
+        db.getFamilyWithNID(nid:family.nid).then((_family) {
 
           if (_family != null ) {
             // The _family already exists in local database then update it
-            _family.saveToDatabase(true).then((savedFamily) {
+            family.saveToDatabase(true).then((savedFamily) {
 
               if (savedFamily == null) {
                 print("[_updateFamily()] Error: Family not updated on local database");
@@ -428,7 +429,7 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
 
           } else {
             // The _photo  does not exist in local database then insert it
-            _family.saveToDatabase(false).then((savedFamily) {
+            family.saveToDatabase(false).then((savedFamily) {
               if (savedFamily == null) {
                 print("[_updateFamily()] Error: Family not inserted to local database");
               } else {
@@ -451,11 +452,11 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
 
       for (Site site in siteList) {
 
-        db.getSiteWithID(site.id).then((_site) {
+        db.getSiteWithNID(site.id).then((_site) {
 
           if (_site != null ) {
             // The _site already exists in local database then update it
-            _site.saveToDatabase(true).then((savedSite) {
+            site.saveToDatabase(true).then((savedSite) {
 
               if (savedSite == null) {
                 print("[_updateSite()] Error: Site not updated on local database");
@@ -467,7 +468,7 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
 
           } else {
             // The _site  does not exist in local database then insert it
-            _site.saveToDatabase(false).then((savedSite) {
+            site.saveToDatabase(false).then((savedSite) {
               if (savedSite == null) {
                 print("[_updateSite()] Error: Site not inserted to local database");
               } else {
@@ -514,6 +515,9 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
               }
             });
           }
+
+          LOMImage.downloadHttpImage(author.photo);
+
         });
 
 

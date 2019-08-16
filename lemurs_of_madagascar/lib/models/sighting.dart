@@ -461,7 +461,7 @@ class Sighting {
     this._site = null;
     if (this.placeNID != 0) {
       SiteDatabaseHelper db = SiteDatabaseHelper();
-      this._site = await db.getSiteWithID(this.placeNID);
+      this._site = await db.getSiteWithNID(this.placeNID);
       return true;
     }
     return false;

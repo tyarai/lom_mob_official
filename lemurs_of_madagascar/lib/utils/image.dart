@@ -1,0 +1,185 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'constants.dart';
+import 'package:path/path.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
+
+class LOMImage {
+
+  static Future<bool> downloadHttpImage(String imageURL) async {
+
+    if (imageURL != null && imageURL.startsWith(Constants.http)){
+
+      var docFolder = await getApplicationDocumentsDirectory();
+      Uri imageURI = Uri.parse(imageURL);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      HttpClient client = new HttpClient();
+      var _downloadData = List<int>();
+      var fileSave = new File(docFolder.path + "/" + fileName);
+
+      client.getUrl(imageURI).then((HttpClientRequest request) {
+        return request.close();
+        //return true;
+
+      }).then((HttpClientResponse response) {
+          response.listen((d) => _downloadData.addAll(d),
+          onDone: () {
+            fileSave.writeAsBytes(_downloadData);
+            print("[Image::_downloadHttpImage()] Success downloading image : $fileName");
+            return true;
+            }
+          );
+
+      }).catchError((error){
+        print("[Image::_downloadHttpImage()] Failure - downloading image : $fileName");
+        return false;
+      });
+    }
+
+    return false;
+
+  }
+
+  /*
+  * fileName : does not include the URI part. Only the fileName is considered
+  * */
+  static Future<bool> doesFileExistInDocumentsFolder(String fileName) async {
+
+    if(fileName.length != 0 && fileName != null) {
+
+      return getApplicationDocumentsDirectory().then((_folder) {
+
+        if (_folder != null) {
+          var _sighting;
+          String fullPath = join(_folder.path, _sighting.photoFileName);
+
+          File file = File(fullPath);
+
+          if (file.existsSync()) {
+            return true;
+          }
+        }
+
+        return false;
+
+      });
+    }
+
+    return false;
+
+  }
+
+  /*static Future<Image> getImage(String imageURL) async {
+
+    if(imageURL != null && imageURL.startsWith(Constants.http)){
+
+      Uri imageURI = Uri.parse(imageURL);
+      List<String> pathSegments = imageURI.pathSegments;
+      String fileName = pathSegments[pathSegments.length - 1];
+
+      return LOMImage.downloadHttpImage(imageURL).then((downloaded)  {
+
+        if(downloaded){
+
+          //return LOMImage.doesFileExistInDocumentsFolder(fileName).then((exist){
+            //if(exist) {
+              return getApplicationDocumentsDirectory().then((docFolder) {
+                String fullPath = join(docFolder.path, fileName);
+                File file = File(fullPath);
+                return Image.file(file);
+              });
+            //}
+            //return null;
+          //});
+
+        }
+        return null;
+
+      });
+
+    }
+
+    if(imageURL != null && imageURL.startsWith(Constants.appImagesAssetsFolder)){
+      return Image.asset(
+        imageURL,
+        width: Constants.authorListViewImageWidth,
+        height: Constants.authorListViewImageWidth,
+      );
+    }
+
+    return null;
+
+  }*/
+
+
+  static Future<Widget> getWidget(String fileName,{double width = Constants.listViewImageWidth,
+    double height = Constants.listViewImageWidth}) async {
+
+    if(fileName != null) {
+
+      return LOMImage.checkAssetFile(fileName).then((exists){
+
+        if(exists){
+
+          String image = Constants.appImagesAssetsFolder + fileName;
+
+
+          return Image.asset(
+            image,
+            fit:BoxFit.fitHeight,
+            width: width,
+            height: height,
+          );
+
+        }else{
+
+          String image = Constants.serverFileFolder + fileName;
+
+          return FutureBuilder<bool>(
+            future : downloadHttpImage(image),
+            builder : (context,snapshot)  {
+              if(snapshot.hasData && snapshot.data){
+                print("TTTTTTT");
+                getApplicationDocumentsDirectory().then((docFolder){
+                  String fullPath = join(docFolder.path, fileName);
+                  print("IMAGE "+fullPath);
+                  File file = File(fullPath);
+                  return Image.file(file);
+                });
+              }
+              return Center(child:CircularProgressIndicator());
+
+            }
+
+          );
+
+        }
+
+
+      });
+    }
+    return null;
+
+  }
+
+
+  static Future<bool> checkAssetFile(String fileName) async {
+    if(fileName != null && fileName.length != 0) {
+      try {
+        String assetName = Constants.appImagesAssetsFolder + fileName;
+        var data = await rootBundle.load(assetName);
+        if (data != null) {
+          return true;
+        }
+      } catch (e) {
+        print("[LOMImage::checkAssetFile()] Exception : " + e.toString());
+      }
+    }
+    return false;
+  }
+
+}

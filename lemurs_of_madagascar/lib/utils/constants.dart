@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lemurs_of_madagascar/data/rest_data.dart';
 
 typedef void VoidCallBack();
 
@@ -9,6 +10,7 @@ class Constants {
   static const String appName  = "Lemurs Of Madagascar";
   static const String appCreed = "Lemur-watching with Russ. Mittermeier";
   static const String startDate = "2019-08-16T00:00:00.000";
+  static const String serverFileFolder = RestData.SERVER + "/sites/default/files/";
 
 
   static const double authorListViewImageWidth = 400.0;

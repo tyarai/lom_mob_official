@@ -47,7 +47,7 @@ class Family {
     var map = Map<String, dynamic>();
 
     if (_nid != null) {
-      map[Author.idKey] = this._nid;
+      map[Family.nidKey] = this._nid;
     }
 
     map[Family.familyKey]         = this._family;
