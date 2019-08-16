@@ -132,10 +132,10 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
 
 
 
-      if (menuList == null) {
+      /*if (menuList == null) {
         menuList = List<Menu>();
         _updateUI();
-      }
+      }*/
 
       return Scaffold(
         appBar: AppBar(
@@ -158,6 +158,9 @@ class _IntroductionPageState extends State<IntroductionPage> implements Introduc
     }
 
     _buildBody(){
+
+      _updateUI();
+
       return Padding(
           padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
           child: ListView(

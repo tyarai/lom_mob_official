@@ -10,15 +10,16 @@ class AuthorDatabaseHelper {
   final idCol                      = Author.idKey;
   final nidCol                     = Author.nidKey;
 
-  Future<Map<String, dynamic>> getAuthorMapWithNID(int nid) async {
+  Future<List<Map<String, dynamic>>> getAuthorMapWithNID(int nid) async {
 
     if(nid != null && nid != 0 ){
       Database database = await DatabaseHelper.instance.database;
       var result = await database.rawQuery(
           "SELECT * FROM $authorTable WHERE $nidCol = ? ", [nid]);
-      return ( result != null && result.length != 0 ) ?  result[0] : null;
+      //return ( result != null && result.length != 0 ) ?  result[0] : null;
+      return result;
     }
-    return Map();
+    return List();
   }
 
   Future<List<Map<String, dynamic>>> getAuthorMapList() async {
@@ -42,8 +43,19 @@ class AuthorDatabaseHelper {
   }
 
   Future<Author> getAuthorWithNID({nid: int}) async {
-    var list = await this.getAuthorMapWithNID(nid);
-    return (list != null && list[0] != null ) ? list[0] : null;
+    /*var list = await this.getAuthorMapWithNID(nid);
+    print("==>" + list.toString());
+    return (list != null && list[0] != null ) ? list[0] : null;*/
+    var mapList = await this.getAuthorMapWithNID(nid);
+    int count = mapList.length;
+
+    List<Author> list = new List<Author>();
+
+    for(int i=0 ; i < count ; i++){
+      list.add(Author.fromMap(mapList[i]));
+    }
+
+    return list.length > 0 ? list[0] : null;
 
   }
 
@@ -53,7 +65,7 @@ class AuthorDatabaseHelper {
   }
 
   Future<int> updateAuthor({database:Database, author : Author}) async {
-    var result = await database.update(author, author.toMap(),
+    var result = await database.update(authorTable, author.toMap(),
         where: '$nidCol = ?', whereArgs: [author.nid]);
     return result;
   }

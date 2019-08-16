@@ -171,7 +171,7 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
               Text("Tap to update database", style: Constants.defaultTextStyle),
               Padding(padding: EdgeInsets.only(top:10),),
-              Text("Download updates, species, families, photographs and maps from the server", style: Constants.defaultSubTextStyle.copyWith(color: Colors.blueGrey)),
+              Text("Download new updates, species, families, photographs and maps from the server", style: Constants.defaultSubTextStyle.copyWith(color: Colors.blueGrey)),
 
               ],),
             leading:
@@ -201,7 +201,8 @@ class SettingsPageState extends State<SettingsPage> implements SettingsPageContr
         fromDate = DateTime.fromMillisecondsSinceEpoch(
             int.parse(_lastDate), isUtc: true);
       } else {
-        fromDate = DateTime.now().toUtc();
+        //fromDate = DateTime.now().toUtc();
+        fromDate = DateTime.parse(Constants.startDate).toUtc();
       }
 
       this.presenter.getUpdatedNodes(fromDate);

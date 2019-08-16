@@ -37,7 +37,7 @@ class Author {
 
   Author.fromMap(Map<String, dynamic> map) {
     try {
-      this._id             = map[Author.idKey];
+      this._id             = map[Author.idKey]  ;
       this._nid            = map[Author.nidKey];
       this._name           = map[Author.nameKey];
       this._details        = map[Author.detailsKey];
@@ -59,7 +59,9 @@ class Author {
     map[Author.nidKey]                   = this._nid;
     map[Author.nameKey]                  = this._name;
     map[Author.detailsKey]               = this._details;
-    map[Author.photoKey]                 = this._photo;
+    // Do not update image file as it is downloaded from internet.
+    // Just keep the asset photo name otherwise we will need to download image fom server
+    //map[Author.photoKey]                 = this._photo;
 
     return map;
 
