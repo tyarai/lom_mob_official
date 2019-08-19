@@ -42,6 +42,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   int _bottomNavIndex = 0;
   bool _isLoading = false;
   SightingBloc sightingBloc = SightingBloc();
+  List<Sighting> sightingList = List<Sighting>();
 
   GetCommentPresenter  _getCommentPresenter;
   GetSightingPresenter _getSightingPresenter;
@@ -75,7 +76,29 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
 
         });
+    _initSightingList();
   }
+
+  _initSightingList() async {
+    if (sightingList.length == 0) {
+      sightingList = await _loadSightingsFromDatabase();
+    }
+  }
+
+
+  Future<List<Sighting>> _loadSightingsFromDatabase({int pageIndex,int limit}) async {
+
+    User user = await User.getCurrentUser();
+
+    bool illegalActivity = (this._bottomNavIndex == 0) ? false : true;
+
+    SightingDatabaseHelper dbHelper = SightingDatabaseHelper();
+    return dbHelper.getSightingList(user.uid,pageIndex:pageIndex,limit :limit,illegalActivity: illegalActivity).then((futureList){
+      return futureList;
+    });
+
+  }
+
 
   _loadOnlineList() {
 
@@ -154,6 +177,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         appBar: AppBar(
           centerTitle: true,
           actions: <Widget>[
+            _buildSearch(),
             _buildAddSighting(),
             //_buildSearch(),
           ],
@@ -295,14 +319,33 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   }
 
   Widget _buildSearch() {
-    return IconButton(
+
+    return FutureBuilder<List<Sighting>>(
+      future:_loadSightingsFromDatabase(),
+      builder:(context,snapshot){
+        if(snapshot.hasData && snapshot.data.length > 0){
+          return IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                  context: context,
+                  delegate: DataSearch(sightingList: snapshot.data,sightingBloc: this.sightingBloc));
+            },
+          );
+        }
+        return Center(child:CircularProgressIndicator());
+      }
+    );
+
+    /*return IconButton(
       icon: Icon(Icons.search),
       onPressed: () {
-        /*showSearch(
+        showSearch(
             context: context,
-            delegate: DataSearch(speciesList: this._speciesList));*/
+            delegate: DataSearch(sightingList: this.sightingList,sightingBloc: this.sightingBloc));
       },
     );
+    */
   }
 
   Widget _buildSightingListView(BuildContext buildContext) {
@@ -311,7 +354,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         showRetry: false,
         itemBuilder: (context, entry, index) {
           Sighting sighting = entry;
-          return this.buildCellItem(context, sighting, sightingBloc);
+          return _SightingListPageState.buildCellItem(context, sighting, sightingBloc);
         },
         pageFuture: (pageIndex) {
           return _loadData(pageIndex * Constants.recordLimit,
@@ -328,68 +371,6 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   }
 
-  /*
-  Widget _buildSightingListView(BuildContext buildContext) {
-
-    return FutureBuilder<List<Sighting>>(
-
-      future: _loadData(illegalActivity: _bottomNavIndex == 0 ? false : true),
-
-      builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
-        if (snapshot.hasData ) {
-          print("GOT LIST");
-          return ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext buildContext, int index) {
-                Sighting sighting = snapshot.data[index];
-                return this.buildCellItem(context, sighting, sightingBloc);
-              });
-        }
-        return Container(child: CircularProgressIndicator(),);
-      });
-  } */
-
-  /*Widget _buildIllegalActivityListView(BuildContext buildContext) {
-
-    return FutureBuilder<List<Sighting>>(
-
-      future: _loadData(illegalActivity: true),
-
-      builder: (BuildContext context, AsyncSnapshot<List<Sighting>> snapshot) {
-
-        switch(snapshot.connectionState) {
-
-          case  ConnectionState.active : return Center(child: CircularProgressIndicator());
-
-          case ConnectionState.waiting :
-            {
-              return Center(child: CircularProgressIndicator());
-
-            }
-          case ConnectionState.done:
-            {
-              if(snapshot.hasData && !snapshot.hasError) {
-
-                return ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (BuildContext buildContext, int index) {
-                      Sighting sighting = snapshot.data[index];
-                      return this.buildCellItem(context,sighting,sightingBloc);
-                    });
-              }
-              break;
-            }
-
-          case ConnectionState.none:{
-            return Container();
-          }
-
-        }
-      },
-    );
-  } */
 
   Future<List<Sighting>> _loadData(int pageIndex,
       {int limit = Constants.recordLimit, bool illegalActivity = false}) async {
@@ -420,14 +401,14 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     });
   }
 
-  Widget buildCellItem(BuildContext context, Sighting sighting,
-      SightingBloc bloc) {
+  static Widget buildCellItem(BuildContext context, Sighting sighting,
+      SightingBloc sightingBloc) {
     if (sighting != null) {
       return Container(
         child: ListTile(
             contentPadding: EdgeInsets.only(left: 5.0, right: 5.0),
             onTap: () {
-              this.sightingBloc.sightingEventController.add(
+              sightingBloc.sightingEventController.add(
                   SightingChangeEvent(sighting));
 
               Navigator.of(context).push(
@@ -436,7 +417,8 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                       BlocProvider(
                         child: SightingEditPage(
                             "Edit sighting", sighting, true),
-                        bloc: this.sightingBloc,
+                        //bloc: this.sightingBloc,
+                        bloc: sightingBloc,
                       ))
               );
             },
@@ -450,7 +432,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                         child:
-                        Sighting.buildCellInfo(sighting, bloc, context),
+                        Sighting.buildCellInfo(sighting, sightingBloc, context),
                       ),
                     )))),
       );
@@ -626,6 +608,95 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
     });*/
 
   }
+
+
+
+}
+
+class DataSearch extends SearchDelegate<List<Sighting>> {
+
+  List<Sighting> sightingList   = List();
+  List<Sighting> recentSpecies = List();
+  List<Sighting> suggestionsList = List();
+  SightingBloc sightingBloc;
+
+
+  initData() async{
+    //recentSpecies = await LOMSharedPreferences.loadRecentSpeciesSearch();
+  }
+
+  DataSearch({this.sightingList,this.sightingBloc}){
+    initData();
+  }
+
+
+  /*@override
+  void close(BuildContext context, List result) {
+    sightingBloc.dispose();
+  }*/
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(icon: Icon(Icons.clear),
+        onPressed: (){
+          query = "" ; // Clear the search query
+        },),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    // leading icon on the left of the app bar
+    return IconButton(
+      icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation),
+      onPressed:(){
+        close(context, null);
+      } ,);
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if(query.isNotEmpty) {
+      return _buildSearchResult();
+    }
+    return Container();
+
+  }
+
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // show when someone searches for something
+    suggestionsList = query.isEmpty ? recentSpecies :
+
+    sightingList.where((sighting) =>
+    sighting.title.toLowerCase().contains(query.toLowerCase()) ||
+        sighting.species.malagasy.toLowerCase().contains(query.toLowerCase()) ||
+        sighting.species.english.toLowerCase().contains(query.toLowerCase()) ||
+        sighting.species.german.toLowerCase().contains(query.toLowerCase()) ||
+        sighting.species.french.toLowerCase().contains(query.toLowerCase()) ||
+        sighting.site.title.toLowerCase().contains(query.toLowerCase())
+    ).toList();
+
+    return ListView.builder(
+
+      itemCount: suggestionsList.length,
+      itemBuilder: (BuildContext context, int index) => _SightingListPageState.buildCellItem(context,suggestionsList[index],sightingBloc),
+
+    );
+  }
+
+  Widget _buildSearchResult(){
+    return ListView.builder(
+        itemCount: this.suggestionsList.length,
+        itemBuilder: (BuildContext context,int index){
+          return _SightingListPageState.buildCellItem(context,this.suggestionsList[index],sightingBloc);
+        });
+  }
+
 
 
 
