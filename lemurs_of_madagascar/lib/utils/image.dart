@@ -12,6 +12,8 @@ class LOMImage {
 
     if (imageURL != null && imageURL.startsWith(Constants.http)){
 
+      print("File to download "+imageURL);
+
       var docFolder = await getApplicationDocumentsDirectory();
       Uri imageURI = Uri.parse(imageURL);
       List<String> pathSegments = imageURI.pathSegments;
@@ -29,6 +31,7 @@ class LOMImage {
           response.listen((d) => _downloadData.addAll(d),
           onDone: () {
             fileSave.writeAsBytes(_downloadData);
+            print("File saved to "+fileSave.path);
             print("[Image::_downloadHttpImage()] Success downloading image : $fileName");
             return true;
             }
@@ -125,6 +128,8 @@ class LOMImage {
 
         if(exists){
 
+          print("HERE I AM");
+
           String image = Constants.appImagesAssetsFolder + fileName;
 
 
@@ -139,11 +144,16 @@ class LOMImage {
 
           String image = Constants.serverFileFolder + fileName;
 
+          print("Downloading image "+image);
+
           return FutureBuilder<bool>(
             future : downloadHttpImage(image),
             builder : (context,snapshot)  {
-              if(snapshot.hasData && snapshot.data){
-                print("TTTTTTT");
+
+              if(snapshot.data != null &&  snapshot.data){
+
+                print(">>>>>>>>>>>>>");
+
                 getApplicationDocumentsDirectory().then((docFolder){
                   String fullPath = join(docFolder.path, fileName);
                   print("IMAGE "+fullPath);
@@ -177,6 +187,7 @@ class LOMImage {
         }
       } catch (e) {
         print("[LOMImage::checkAssetFile()] Exception : " + e.toString());
+        return false;
       }
     }
     return false;
