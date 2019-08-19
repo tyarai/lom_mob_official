@@ -28,19 +28,25 @@ class LOMImage {
         //return true;
 
       }).then((HttpClientResponse response) {
+          //bool downloaded =false;
           response.listen((d) => _downloadData.addAll(d),
           onDone: () {
             fileSave.writeAsBytes(_downloadData);
             print("File saved to "+fileSave.path);
             print("[Image::_downloadHttpImage()] Success downloading image : $fileName");
-            return true;
+            //downloaded = true;
+
             }
           );
+
+          //return downloaded;
 
       }).catchError((error){
         print("[Image::_downloadHttpImage()] Failure - downloading image : $fileName");
         return false;
       });
+
+      return true;
     }
 
     return false;
@@ -57,8 +63,8 @@ class LOMImage {
       return getApplicationDocumentsDirectory().then((_folder) {
 
         if (_folder != null) {
-          var _sighting;
-          String fullPath = join(_folder.path, _sighting.photoFileName);
+
+          String fullPath = join(_folder.path, fileName);
 
           File file = File(fullPath);
 
@@ -128,44 +134,91 @@ class LOMImage {
 
         if(exists){
 
-          print("HERE I AM");
+          print("$fileName is in asset ");
 
           String image = Constants.appImagesAssetsFolder + fileName;
 
 
-          return Image.asset(
-            image,
-            fit:BoxFit.fitHeight,
-            width: width,
-            height: height,
+          return Container(
+            child: Image.asset(
+              image,
+              fit:BoxFit.fitHeight,
+              width: width,
+              height: height,
+            ),
           );
 
         }else{
 
-          String image = Constants.serverFileFolder + fileName;
+          print("$fileName is not in asset");
 
-          print("Downloading image "+image);
+          return doesFileExistInDocumentsFolder(fileName).then((exists){
 
-          return FutureBuilder<bool>(
-            future : downloadHttpImage(image),
-            builder : (context,snapshot)  {
+            if (exists){
 
-              if(snapshot.data != null &&  snapshot.data){
+              print("$fileName is in document");
 
-                print(">>>>>>>>>>>>>");
+              return getApplicationDocumentsDirectory().then((_folder) {
+                
+                  if (_folder != null) {
 
-                getApplicationDocumentsDirectory().then((docFolder){
-                  String fullPath = join(docFolder.path, fileName);
-                  print("IMAGE "+fullPath);
-                  File file = File(fullPath);
-                  return Image.file(file);
-                });
-              }
-              return Center(child:CircularProgressIndicator());
+                    String fullPath = join(_folder.path, fileName);
+
+                    File file = File(fullPath);
+
+                    if (file.existsSync()) {
+                      return Container(
+                        child: Image.file(file,fit:BoxFit.fitHeight,
+                          width: width,
+                          height: height,),
+                      );
+                    }
+                  }
+                  return Container();
+                }
+              );
+
+
+            }else{
+
+              String image = Constants.serverFileFolder + fileName;
+
+              print("Downloading image "+image);
+
+              return FutureBuilder(
+                  future : downloadHttpImage(image),
+                  builder : (context,snapshot)  {
+
+                    if(snapshot.data != null &&  snapshot.data){
+                      getApplicationDocumentsDirectory().then((docFolder){
+
+                       print(">>>>>>>>>>>>>");
+
+                        String fullPath = join(docFolder.path, fileName);
+                        print("IMAGE "+fullPath);
+                        File file = File(fullPath);
+
+                        return  Image.file(file,fit:BoxFit.fitHeight,
+                            width: width,
+                            height: height,);
+
+                      });
+                    }
+                    return Center(child:CircularProgressIndicator());
+
+                  }
+
+              );
 
             }
 
-          );
+            return  Container();
+
+
+          });
+
+
+
 
         }
 
@@ -192,5 +245,7 @@ class LOMImage {
     }
     return false;
   }
+
+
 
 }
