@@ -418,7 +418,7 @@
 				{
 					"name": "INTRO",
 					"fps": 60,
-					"duration": 10,
+					"duration": 3,
 					"isLooping": false,
 					"keyed": [
 						{

@@ -10,6 +10,8 @@ class LOMImage {
 
   static Future<bool> downloadHttpImage(String imageURL) async {
 
+    //bool downloaded =false;
+
     if (imageURL != null && imageURL.startsWith(Constants.http)){
 
       print("File to download "+imageURL);
@@ -24,17 +26,19 @@ class LOMImage {
       var fileSave = new File(docFolder.path + "/" + fileName);
 
       client.getUrl(imageURI).then((HttpClientRequest request) {
+        print("#1");
         return request.close();
-        //return true;
+
 
       }).then((HttpClientResponse response) {
-          //bool downloaded =false;
+          //
           response.listen((d) => _downloadData.addAll(d),
           onDone: () {
             fileSave.writeAsBytes(_downloadData);
             print("File saved to "+fileSave.path);
             print("[Image::_downloadHttpImage()] Success downloading image : $fileName");
-            //downloaded = true;
+            print("#2");
+            return true;
 
             }
           );
@@ -134,7 +138,7 @@ class LOMImage {
 
         if(exists){
 
-          print("$fileName is in asset ");
+          //print("$fileName is in asset ");
 
           String image = Constants.appImagesAssetsFolder + fileName;
 
@@ -150,13 +154,13 @@ class LOMImage {
 
         }else{
 
-          print("$fileName is not in asset");
+          //print("$fileName is not in asset");
 
           return doesFileExistInDocumentsFolder(fileName).then((exists){
 
             if (exists){
 
-              print("$fileName is in document");
+              //print("$fileName is in document");
 
               return getApplicationDocumentsDirectory().then((_folder) {
                 
@@ -183,24 +187,24 @@ class LOMImage {
 
               String image = Constants.serverFileFolder + fileName;
 
-              print("Downloading image "+image);
+              //print("Downloading image "+image);
 
               return FutureBuilder(
                   future : downloadHttpImage(image),
                   builder : (context,snapshot)  {
 
-                    if(snapshot.data != null &&  snapshot.data){
+                    if(snapshot.hasData &&  snapshot.data){
                       getApplicationDocumentsDirectory().then((docFolder){
 
-                       print(">>>>>>>>>>>>>");
-
                         String fullPath = join(docFolder.path, fileName);
-                        print("IMAGE "+fullPath);
+                        //print("DOWNLOADED IMAGE "+fullPath);
                         File file = File(fullPath);
 
-                        return  Image.file(file,fit:BoxFit.fitHeight,
-                            width: width,
-                            height: height,);
+                        return  Container(
+                          child: Image.file(file,fit:BoxFit.fitHeight,
+                              width: width,
+                              height: height,),
+                        );
 
                       });
                     }

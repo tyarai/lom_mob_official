@@ -188,6 +188,7 @@ class Author {
         future : LOMImage.getWidget(author._photo),
         builder : (context,snapshot)  {
           if(snapshot.hasData && snapshot.data != null){
+
             return Hero(
                 tag:  author._id.toString() + author._photo,
                 child:snapshot.data
