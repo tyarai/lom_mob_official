@@ -78,7 +78,7 @@ class SightingDatabaseHelper  {
 
 
 
-      print(result);
+      //print(result);
       return result;
     }
     return List();
