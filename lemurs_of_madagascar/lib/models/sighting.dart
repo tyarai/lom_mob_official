@@ -481,6 +481,7 @@ class Sighting {
   static buildAction(
       Sighting sighting, SightingBloc sightingBloc, BuildContext buildContext) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         IconButton(
           icon: Icon(Icons.insert_comment),
@@ -575,7 +576,7 @@ class Sighting {
               style: Constants.sightingTitleTextStyle.copyWith(color: Colors.blueGrey),
             ),
             Container(height: 10),
-            (sighting.placeName != null) ? Row(
+            (sighting.placeName != null && sighting.placeName.length !=0 ) ? Row(
                 children: [
                   Icon(Icons.place, color: Colors.grey,),
                   Expanded(
@@ -628,12 +629,33 @@ class Sighting {
 
                         if (snapshot.data != null && snapshot.hasData) {
                           return sighting.tag != null
-                              ? Text(
-                            sighting.tag.nameEN,
-                            style: Constants.sightingSpeciesNameTextStyle
-                                .copyWith(
-                                color: Colors.red),
+                              ?
+
+                          Material(
+                            color: Colors.redAccent,
+                            elevation: 0.0,
+                            borderRadius: BorderRadius.circular(10),
+                            shadowColor: Colors.blueGrey,
+                            child: Padding(
+                                padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Icon(Icons.report_problem,size: 20,color: Colors.white,),
+                                      Padding(padding: EdgeInsets.only(left: 5),),
+                                      Expanded(
+                                        child: Text(
+                                          sighting.tag.nameEN,
+                                          style: Constants.sightingSpeciesNameTextStyle
+                                              .copyWith(
+                                              color: Colors.white),
+                                        ),
+                                      )
+
+                                    ])),
                           )
+
+
                               : Container();
                         }
 
@@ -643,7 +665,7 @@ class Sighting {
                     ),
                   ),
                   Padding(padding: EdgeInsets.only(right: 10),),
-                  Sighting.buildAction(sighting, sightingBloc, buildContext),
+                  Expanded(flex:1,child:Sighting.buildAction(sighting, sightingBloc, buildContext)),
                 ]),
           ]);
         }

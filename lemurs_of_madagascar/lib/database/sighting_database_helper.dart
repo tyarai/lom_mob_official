@@ -38,12 +38,14 @@ class SightingDatabaseHelper  {
     return null;
   }
 
-  Future<List<Map<String, dynamic>>> getSightingMapList(int uid,{int pageIndex,int limit,bool illegalActivity=false}) async {
+  Future<List<Map<String, dynamic>>> getSightingMapList(int uid,{int pageIndex,int limit,bool illegalActivity}) async {
     if(uid != null && uid != 0) {
       Database database = await DatabaseHelper.instance.database;
       var result;
 
-      if(!illegalActivity) {
+
+
+      if(!illegalActivity && illegalActivity != null) {
         if(pageIndex != null && limit != null) {
           result = await database.rawQuery(
               "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NULL  ORDER BY $modifiedCol DESC LIMIT $pageIndex,$limit  ",
@@ -53,7 +55,8 @@ class SightingDatabaseHelper  {
               "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NULL  ORDER BY $modifiedCol DESC ",
               [uid]);
         }
-      }else{
+      }else if(illegalActivity && illegalActivity != null) {
+
         if(pageIndex != null && limit != null){
           result = await database.rawQuery(
               "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NOT NULL  ORDER BY $modifiedCol DESC LIMIT $pageIndex,$limit  ",
@@ -63,7 +66,18 @@ class SightingDatabaseHelper  {
               "SELECT * FROM $sightingsTable WHERE  $uidCol = ? AND $typeTagCol IS NOT NULL  ORDER BY $modifiedCol DESC ",
               [uid]);
         }
+
+      }else if (illegalActivity == null){
+        // Get all sightings and illegal_activity
+
+        result = await database.rawQuery(
+            "SELECT * FROM $sightingsTable WHERE  $uidCol = ? ORDER BY $modifiedCol DESC ",
+            [uid]);
+
       }
+
+
+
       print(result);
       return result;
     }
@@ -171,9 +185,9 @@ class SightingDatabaseHelper  {
     return result;
   }
 
-  Future<List<Sighting>> getSightingList(int uid,{int pageIndex,int limit,bool illegalActivity=false}) async {
+  Future<List<Sighting>> getSightingList(int uid,{int pageIndex,int limit,bool illegalActivity}) async {
 
-    print("GETTING ILLEGAL ACTIVITY "+ illegalActivity.toString());
+    print("GETTING ILLEGAL ACTIVITY "+ illegalActivity?.toString());
 
     var sightingMapList = await this.getSightingMapList(uid,pageIndex:pageIndex,limit:limit ,illegalActivity: illegalActivity);
     int count = sightingMapList.length;

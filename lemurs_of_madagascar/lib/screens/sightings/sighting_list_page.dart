@@ -42,7 +42,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
   int _bottomNavIndex = 0;
   bool _isLoading = false;
   SightingBloc sightingBloc = SightingBloc();
-  List<Sighting> sightingList = List<Sighting>();
+  List<Sighting> _sightingList = List<Sighting>();
 
   GetCommentPresenter  _getCommentPresenter;
   GetSightingPresenter _getSightingPresenter;
@@ -76,17 +76,17 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
 
         });
-    _initSightingList();
+    //_initSightingList();
   }
 
-  _initSightingList() async {
+  /*_initSightingList() async {
     if (sightingList.length == 0) {
-      sightingList = await _loadSightingsFromDatabase();
+      _sightingList = await _loadSightingsFromDatabase();
     }
-  }
+  }*/
 
 
-  Future<List<Sighting>> _loadSightingsFromDatabase({int pageIndex,int limit}) async {
+  /*Future<List<Sighting>> _loadSightingsFromDatabase({int pageIndex,int limit}) async {
 
     User user = await User.getCurrentUser();
 
@@ -97,7 +97,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
       return futureList;
     });
 
-  }
+  }*/
 
 
   _loadOnlineList() {
@@ -320,7 +320,7 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
 
   Widget _buildSearch() {
 
-    return FutureBuilder<List<Sighting>>(
+    /*return FutureBuilder<List<Sighting>>(
       future:_loadSightingsFromDatabase(),
       builder:(context,snapshot){
         if(snapshot.hasData && snapshot.data.length > 0){
@@ -335,17 +335,17 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
         }
         return Center(child:CircularProgressIndicator());
       }
-    );
+    );*/
 
-    /*return IconButton(
+    return IconButton(
       icon: Icon(Icons.search),
       onPressed: () {
         showSearch(
             context: context,
-            delegate: DataSearch(sightingList: this.sightingList,sightingBloc: this.sightingBloc));
+            delegate: DataSearch(sightingList: this._sightingList,sightingBloc: this.sightingBloc));
       },
     );
-    */
+
   }
 
   Widget _buildSightingListView(BuildContext buildContext) {
@@ -356,9 +356,10 @@ class _SightingListPageState extends State<SightingListPage>  implements GetSigh
           Sighting sighting = entry;
           return _SightingListPageState.buildCellItem(context, sighting, sightingBloc);
         },
-        pageFuture: (pageIndex) {
-          return _loadData(pageIndex * Constants.recordLimit,
+        pageFuture: (pageIndex) async {
+          this._sightingList =  await _loadData(pageIndex * Constants.recordLimit,
               illegalActivity: _bottomNavIndex == 0 ? false : true);
+          return this._sightingList;
         },
         errorBuilder: (context, error) {
           return Text('Error: $error');
@@ -670,21 +671,28 @@ class DataSearch extends SearchDelegate<List<Sighting>> {
   @override
   Widget buildSuggestions(BuildContext context) {
     // show when someone searches for something
-    suggestionsList = query.isEmpty ? recentSpecies :
+    suggestionsList = query.isEmpty ? recentSpecies : _filter(sightingList,this.query);
 
-    sightingList.where((sighting) =>
+    /*sightingList.where((sighting) =>
     sighting.title.toLowerCase().contains(query.toLowerCase()) ||
         sighting.species.malagasy.toLowerCase().contains(query.toLowerCase()) ||
         sighting.species.english.toLowerCase().contains(query.toLowerCase()) ||
         sighting.species.german.toLowerCase().contains(query.toLowerCase()) ||
         sighting.species.french.toLowerCase().contains(query.toLowerCase()) ||
         sighting.site.title.toLowerCase().contains(query.toLowerCase())
-    ).toList();
+    ).toList();*/
+
+    /*sightingList.where((sighting) =>
+    sighting.title.toLowerCase().contains(query.toLowerCase())).toList();*/
+
 
     return ListView.builder(
 
       itemCount: suggestionsList.length,
-      itemBuilder: (BuildContext context, int index) => _SightingListPageState.buildCellItem(context,suggestionsList[index],sightingBloc),
+      itemBuilder: (BuildContext context, int index) {
+        //print("GOT LIST "+suggestionsList.toString());
+        return _SightingListPageState.buildCellItem(context,suggestionsList[index],sightingBloc);
+      },
 
     );
   }
@@ -697,6 +705,64 @@ class DataSearch extends SearchDelegate<List<Sighting>> {
         });
   }
 
+  List<Sighting> _filter(List<Sighting> fullList,String query){
+    List<Sighting> filteredList = List();
+    if(fullList.length > 0 && query.length > 0){
+      for(Sighting sighting in fullList){
+        if(sighting != null){
+
+          if(sighting.title.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          if(sighting.species != null && sighting.species.title.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          if(sighting.species != null && sighting.species.malagasy.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          if(sighting.species != null && sighting.species.english.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          if(sighting.species != null && sighting.species.german.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          if(sighting.species != null && sighting.species.french.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          if(sighting.site != null && sighting.site.title.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+          /*if(sighting.site != null && sighting.site.body.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }*/
+
+          if(sighting.tag != null && sighting.tag.nameEN.toLowerCase().contains(query.toLowerCase())){
+            filteredList.add(sighting);
+            continue;
+          }
+
+        }
+      }
+
+      return filteredList;
+    }
+    return List();
+  }
 
 
 
