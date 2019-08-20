@@ -637,11 +637,14 @@ class Sighting {
                             borderRadius: BorderRadius.circular(10),
                             shadowColor: Colors.blueGrey,
                             child: Padding(
-                                padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
                                 child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Icon(Icons.report_problem,size: 20,color: Colors.white,),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 5),
+                                        child: Icon(Icons.report_problem,size: 20,color: Colors.white,),
+                                      ),
                                       Padding(padding: EdgeInsets.only(left: 5),),
                                       Expanded(
                                         child: Text(
