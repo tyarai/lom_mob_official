@@ -158,7 +158,7 @@ class Species extends SelectableListItem {
       map[historyKey] = this.history;
       map[sitesKey] = this.sites;
       map[mapIDKey] = this.mapID;
-      map[photoIDsKey] = this.profilePhotoID;
+      map[photoIDsKey] = this.photoIDs; //this.profilePhotoID;
 
 
       print("MAP "+map.toString());
