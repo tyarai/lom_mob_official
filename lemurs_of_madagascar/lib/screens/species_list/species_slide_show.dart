@@ -54,7 +54,10 @@ class SpeciesSlideShowState extends State<SpeciesSlideShow> {
             PhotographDatabaseHelper();
         Photograph photo =
             await photographDatabaseHelper.getPhotographWithID(id: id);
-        _imageList.add( photo.getExactAssetImage());
+          if(photo != null) {
+            _imageList.add(photo.getExactAssetImage());
+
+          }
       }
     }
 
