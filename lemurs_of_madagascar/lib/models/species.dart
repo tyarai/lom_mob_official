@@ -283,7 +283,7 @@ class Species extends SelectableListItem {
 
   }
 
-  Widget getMap(){
+  /*Widget getMap(){
 
     Widget map;
 
@@ -294,7 +294,55 @@ class Species extends SelectableListItem {
     }
 
       return map;
+  }*/
+
+
+  Widget getMap()  {
+
+    return FutureBuilder<bool>(
+
+          future : LOMImage.checkAssetFile(this._mapFileName),
+          builder : (context,snapshot)  {
+
+            if(snapshot.hasData) {
+
+              if(snapshot.data){
+
+                String assetFile = Constants.appImagesAssetsFolder + this._mapFileName;
+                return Image.asset(
+                  assetFile,
+                );
+
+              }else{
+
+                return FutureBuilder<Directory>(
+
+                    future : getApplicationDocumentsDirectory(),
+                    builder : (context,snapshot)  {
+
+                      if(snapshot.hasData && snapshot.data != null) {
+
+                        String fullPath = join(snapshot.data.path, this._mapFileName);
+                        File file = File(fullPath);
+                        return Image.file(file, fit: BoxFit.fitHeight);
+
+                      }
+
+                      return Container();
+
+                    });
+
+              }
+            }
+
+            return Container();
+
+          }
+
+      );
   }
+
+
 
   static Widget buildLemurPhoto(Species species,{double width = Constants.listViewImageWidth,double height = Constants.listViewImageHeight, SpeciesImageClipperType imageClipper = SpeciesImageClipperType.rectangular}) {
 

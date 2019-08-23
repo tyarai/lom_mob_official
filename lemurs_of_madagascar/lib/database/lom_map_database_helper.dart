@@ -62,7 +62,7 @@ class LOMMapDatabaseHelper  {
 
   Future<LOMMap> getLOMMapWithID({id: int}) async {
     var list = await this.getLOMMapList(id: id);
-    return (list != null && list[0] != null ) ? list[0] : null;
+    return (list != null && list.length > 0 ) ? list[0] : null;
 
   }
 

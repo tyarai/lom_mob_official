@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/database/lom_map_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/image.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class LOMMap {
@@ -90,6 +91,12 @@ class LOMMap {
       }
       else {
         id = db.insertLOMMap(database: database,map:this);
+      }
+
+      //-- Download map if it does not exist in asset folder --//
+      if(this._fileName != null &&  ! await LOMImage.checkAssetFile(this._fileName)){
+        String imageURL = Constants.serverFileFolder + this._fileName;
+        LOMImage.downloadHttpImage(imageURL);
       }
 
       return id;
