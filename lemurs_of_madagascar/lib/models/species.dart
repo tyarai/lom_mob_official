@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/database/species_database_helper.dart';
 import 'package:lemurs_of_madagascar/models/photograph.dart';
@@ -6,9 +8,11 @@ import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/database/speciesmap_database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/image.dart';
 import 'package:lemurs_of_madagascar/utils/providers/object_select_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqlite_api.dart';
-
+import 'package:path/path.dart';
 
 
 enum SpeciesImageClipperType {
@@ -229,7 +233,14 @@ class Species extends SelectableListItem {
   String get mapFileName  =>  _mapFileName ;
 
   set imageFile(String value){
-    if (value != null) this._imageFile = "assets/images/" +  value + ".jpg";
+
+    if (value != null) {
+      //this._imageFile = Constants.appImagesAssetsFolder +  value ;
+      this._imageFile = value ;
+      if(! value.endsWith(Constants.imageType)) {
+        this._imageFile += "." + Constants.imageType;
+      }
+    }
   }
 
   set mapFileName(String value){
@@ -298,14 +309,29 @@ class Species extends SelectableListItem {
           widget = Container(
               child: ClipRRect(
                   borderRadius: _borderRadius,
-                  child: Species.loadHeroImage(species,width: width,height: height)));
+                  child: Hero(
+                    tag: species.imageFile + species.id.toString(),
+                    child:Species.loadHeroImage(species,width: width,height: height)
+                  ))
+              );
+
 
           break;
         }
         case SpeciesImageClipperType.oval :{
           widget = Container(
               child: ClipOval(
-                  child: Species.loadHeroImage(species)));
+                    child: Species.loadHeroImage(species)
+                    /*child: FutureBuilder(
+                      future:Species.loadHeroImage(species,width: width,height: height),
+                      builder:(context,snapshot){
+                        if(snapshot.hasData && snapshot.data != null){
+                        return snapshot.data;
+                        }
+                        return Container();
+                      }
+                    )*/
+              ));
           break;
         }
       }
@@ -313,20 +339,89 @@ class Species extends SelectableListItem {
       return widget;
   }
 
-  static Widget loadHeroImage(Species species,
+  /*static Widget loadHeroImage(Species species,
       {double width = Constants.listViewImageWidth,
         double height = Constants.listViewImageWidth}) {
 
     if(species != null) {
-      return Hero(
-          tag: species.imageFile + species.id.toString(),
-          child: Image.asset(
-            species.imageFile,
-            width: width,
-            height: height,
-          ));
+
+      //print("IMAGEFILE "+species.imageFile);
+
+      return FutureBuilder<Widget>(
+          future : LOMImage.getWidget(species.imageFile),
+          builder : (context,snapshot)  {
+            if(snapshot.hasData && snapshot.data != null){
+
+              return Hero(
+                  tag:  species.id.toString() + species.imageFile,
+                  child:snapshot.data
+              );
+            }
+            return Center(child:CircularProgressIndicator());
+          }
+      );
+
     }
     return Container(child:Center(child:CircularProgressIndicator()));
+  }*/
+
+  static Widget loadHeroImage(Species species,
+      {double width = Constants.listViewImageWidth,
+        double height = Constants.listViewImageWidth})  {
+
+    if(species != null) {
+
+
+      return FutureBuilder<bool>(
+
+          future : LOMImage.checkAssetFile(species.imageFile),
+          builder : (context,snapshot)  {
+
+            if(snapshot.hasData) {
+
+              if(snapshot.data){
+
+                String assetFile = Constants.appImagesAssetsFolder + species.imageFile;
+                return Image.asset(
+                      assetFile,
+                      width: width,
+                      height: height,
+                    );
+
+              }else{
+
+                return FutureBuilder<Directory>(
+
+                  future : getApplicationDocumentsDirectory(),
+                  builder : (context,snapshot)  {
+
+                    if(snapshot.hasData && snapshot.data != null) {
+
+                      String fullPath = join(snapshot.data.path, species.imageFile);
+                      File file = File(fullPath);
+                      return Image.file(file, fit: BoxFit.fitHeight,
+                            width: width,
+                            height: height,
+                      );
+
+                    }
+
+                    return Container(child:Image.asset("assets/images/placeholder.jpg",width: width * 0.80,height: height * 0.80,));
+
+                  });
+
+              }
+            }
+
+            return Container(child:Image.asset("assets/images/placeholder.jpg",width: width * 0.80,height: height * 0.80,));
+
+          }
+
+      );
+
+    }
+    return Container(child:Center(child:CircularProgressIndicator()));
+    //return Container(child:Image.asset("assets/images/placeholder.jpg"));
   }
 
   static Widget loadHeroTitle(Species species,{TextStyle style = Constants.speciesTitleStyle}) {
@@ -463,6 +558,8 @@ class Species extends SelectableListItem {
       else {
         id = db.insertSpecies(species:this);
       }
+
+
 
       return id;
 

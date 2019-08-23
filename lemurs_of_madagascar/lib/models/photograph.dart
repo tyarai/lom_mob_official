@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lemurs_of_madagascar/database/database_helper.dart';
 import 'package:lemurs_of_madagascar/database/photograph_database_helper.dart';
 import 'package:lemurs_of_madagascar/utils/constants.dart';
+import 'package:lemurs_of_madagascar/utils/image.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class Photograph {
@@ -92,6 +93,13 @@ class Photograph {
       else {
         id = db.insertPhotograph(database: database,photo:this);
       }
+
+      //-- Download photograph if it does not exist in asset folder --//
+      if(this._photograph != null &&  ! await LOMImage.checkAssetFile(this._photograph)){
+        String imageURL = Constants.serverFileFolder + this._photograph;
+        LOMImage.downloadHttpImage(imageURL);
+      }
+
 
       return id;
 

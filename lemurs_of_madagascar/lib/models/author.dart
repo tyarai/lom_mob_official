@@ -335,6 +335,12 @@ class Author {
         id = db.insertAuthor(database: database,author:this);
       }
 
+      //-- Download the image if it does not exist in asset folder --//
+      if(! await LOMImage.checkAssetFile(this._photo)){
+        String imageURL = Constants.serverFileFolder + this._photo;
+        LOMImage.downloadHttpImage(imageURL);
+      }
+
       return id;
 
     }catch(e) {
@@ -344,5 +350,30 @@ class Author {
 
 
   }
+
+  /*Future<int> saveToDatabase(bool editing) async {
+
+    try{
+
+      AuthorDatabaseHelper db = AuthorDatabaseHelper();
+      Future<int> id;
+      Database database = await DatabaseHelper.instance.database;
+
+      if (editing) {
+        id = db.updateAuthor(database:database,author:this);
+      }
+      else {
+        id = db.insertAuthor(database: database,author:this);
+      }
+
+      return id;
+
+    }catch(e) {
+      print("[Author::saveToDatabase()] Exception ${e.toString()}");
+      throw e;
+    }
+
+
+  } */
 
 }

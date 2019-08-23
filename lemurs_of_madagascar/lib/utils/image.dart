@@ -140,7 +140,14 @@ class LOMImage {
 
           //print("$fileName is in asset ");
 
-          String image = Constants.appImagesAssetsFolder + fileName;
+          String image = fileName;
+
+          if(! fileName.startsWith(Constants.appImagesAssetsFolder)){
+            image = Constants.appImagesAssetsFolder + fileName;
+          }
+
+
+          //String image = Constants.appImagesAssetsFolder + fileName;
 
 
           return Container(
@@ -154,13 +161,13 @@ class LOMImage {
 
         }else{
 
-          //print("$fileName is not in asset");
+          print("$fileName is not in asset");
 
           return doesFileExistInDocumentsFolder(fileName).then((exists){
 
             if (exists){
 
-              //print("$fileName is in document");
+              print("$fileName is in document");
 
               return getApplicationDocumentsDirectory().then((_folder) {
                 
@@ -187,7 +194,7 @@ class LOMImage {
 
               String image = Constants.serverFileFolder + fileName;
 
-              //print("Downloading image "+image);
+              print("Downloading image "+image);
 
               return FutureBuilder(
                   future : downloadHttpImage(image),
@@ -237,7 +244,18 @@ class LOMImage {
   static Future<bool> checkAssetFile(String fileName) async {
     if(fileName != null && fileName.length != 0) {
       try {
-        String assetName = Constants.appImagesAssetsFolder + fileName;
+
+        //print("FILENAME "+fileName);
+
+        String assetName = fileName;
+
+        if(! fileName.startsWith(Constants.appImagesAssetsFolder)){
+           assetName = Constants.appImagesAssetsFolder + fileName;
+        }
+
+        //print("ASSET "+assetName);
+
+        //String assetName = Constants.appImagesAssetsFolder + fileName;
         var data = await rootBundle.load(assetName);
         if (data != null) {
           return true;
